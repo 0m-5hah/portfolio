@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Browser MVP demo: SMS spam classifier (rules-based playground). Full model metrics on the About page.">
+    <title>Project Demos | Om Shah</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="page-demo">
+    <nav class="navbar">
+        <a href="index.html" class="nav-brand">
+            <span class="terminal-prompt">&gt;_</span>
+            <span class="brand-text">security<span class="accent">.portfolio</span></span>
+        </a>
+        <ul class="nav-links">
+            <li><a href="index.html#home">Home</a></li>
+            <li><a href="index.html#projects">Projects</a></li>
+            <li><a href="index.html#contact">Contact</a></li>
+            <li><a href="OM SHAH - RESUME (1).pdf" class="nav-resume" target="_blank" rel="noopener">Resume</a></li>
+        </ul>
+        <button class="mobile-menu-btn" aria-label="Toggle menu">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+    </nav>
+
+    <main class="demo-main">
+        <section id="project-demos" class="project-demos">
+            <div class="container demo-container">
+                <header class="demo-hero">
+                    <p class="demo-eyebrow">Interactive demo</p>
+                    <h1 class="demo-page-title">Spam message classifier</h1>
+                    <p class="demo-lead">
+                        I built a CNN plus GloVe spam filter for coursework. On the <strong>UCI</strong> test set it reached about <strong>98.74%</strong> accuracy,
+                        <strong>95.21%</strong> spam F1, and <strong>99.42%</strong> ROC-AUC. The playground below uses <strong>hand-tuned rules in your browser</strong> (instant, no server), not the trained network.
+                    </p>
+                    <p class="demo-note">
+                        For recruiters: this page is a fast browser MVP (rules-based scoring). The trained model, metrics, and limitations are on <a href="spam-model.html">About the model</a>. Real inboxes are harder than UCI; the CNN still misses some spam (see false negatives in <code>outputs/test_predictions_dl.csv</code> in the project repo).
+                    </p>
+                </header>
+
+                <article class="demo-card-wide">
+                    <div class="demo-layout">
+                        <div class="demo-panel demo-panel-input">
+                            <div class="demo-terminal">
+                                <div class="demo-terminal-chrome">
+                                    <span class="demo-terminal-dot red"></span>
+                                    <span class="demo-terminal-dot yellow"></span>
+                                    <span class="demo-terminal-dot green"></span>
+                                    <span class="demo-terminal-label">sms_input.txt</span>
+                                </div>
+                                <div class="demo-terminal-body">
+                                    <div class="demo-input-shell">
+                                        <span class="demo-input-label" id="spam-input-label">Message</span>
+                                        <label for="spam-input" class="visually-hidden">SMS message</label>
+                                        <textarea id="spam-input" class="demo-input" rows="8" spellcheck="true" placeholder="Paste or type a message to analyze..." aria-labelledby="spam-input-label"></textarea>
+                                    </div>
+                                    <div id="spam-highlight-wrap" class="demo-highlight-wrap" hidden>
+                                        <span class="demo-highlight-label">Matched text <span class="demo-highlight-sublabel">(same as input, with hits highlighted)</span></span>
+                                        <div id="spam-highlight" class="demo-highlight-body" aria-hidden="true"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="demo-actions">
+                                <button id="analyze-btn" class="btn btn-primary" type="button">
+                                    <span class="btn-icon">⚡</span>
+                                    Analyze
+                                </button>
+                                <button id="clear-btn" class="btn btn-secondary" type="button">Clear</button>
+                                <a href="spam-model.html" class="btn btn-secondary btn-ghost">About this model</a>
+                            </div>
+                        </div>
+
+                        <aside class="demo-panel demo-panel-output" aria-live="polite">
+                            <div class="demo-output-header">
+                                <h2 class="demo-output-title">Analysis</h2>
+                                <p class="demo-output-sub">Rules-based score and matched phrases. CNN metrics are on <a href="spam-model.html">About this model</a>.</p>
+                            </div>
+
+                            <div id="demo-result-empty" class="demo-result-empty">
+                                <div class="demo-empty-icon" aria-hidden="true">◇</div>
+                                <p class="demo-empty-title">No message analyzed yet</p>
+                                <p class="demo-empty-text">Type something on the left, then hit <strong>Analyze</strong>. You will get a spam score and a list of what looked suspicious.</p>
+                            </div>
+
+                            <div id="demo-result" class="demo-result" hidden>
+                                <div id="verdict-badge" class="verdict-badge" data-verdict="">
+                                    <span id="prediction-text" class="verdict-text">-</span>
+                                </div>
+
+                                <div class="confidence-block">
+                                    <div class="confidence-row">
+                                        <span class="confidence-label">Likelihood (rules)</span>
+                                        <span id="confidence-text" class="confidence-value">-</span>
+                                    </div>
+                                    <div class="confidence-track" role="presentation">
+                                        <div id="confidence-fill" class="confidence-fill"></div>
+                                    </div>
+                                </div>
+
+                                <div class="signals-block">
+                                    <h3 class="signals-heading">Signals</h3>
+                                    <ul id="signals-list" class="result-signals"></ul>
+                                </div>
+                            </div>
+                        </aside>
+                    </div>
+                </article>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const menuBtn = document.querySelector('.mobile-menu-btn');
+            const navLinks = document.querySelector('.nav-links');
+
+            if (menuBtn && navLinks) {
+                menuBtn.addEventListener('click', function () {
+                    navLinks.classList.toggle('active');
+                    menuBtn.classList.toggle('active');
+                });
+
+                document.querySelectorAll('.nav-links a').forEach(function (link) {
+                    link.addEventListener('click', function () {
+                        navLinks.classList.remove('active');
+                        menuBtn.classList.remove('active');
+                    });
+                });
+            }
+
+            const input = document.getElementById('spam-input');
+            const analyzeBtn = document.getElementById('analyze-btn');
+            const clearBtn = document.getElementById('clear-btn');
+            const resultBox = document.getElementById('demo-result');
+            const resultEmpty = document.getElementById('demo-result-empty');
+            const verdictBadge = document.getElementById('verdict-badge');
+            const predictionText = document.getElementById('prediction-text');
+            const confidenceText = document.getElementById('confidence-text');
+            const confidenceFill = document.getElementById('confidence-fill');
+            const signalsList = document.getElementById('signals-list');
+            const highlightWrap = document.getElementById('spam-highlight-wrap');
+            const highlightEl = document.getElementById('spam-highlight');
+
+            signalsList.addEventListener('click', function (e) {
+                var btn = e.target.closest('.signal-toggle');
+                if (!btn || !signalsList.contains(btn)) return;
+                e.preventDefault();
+                var row = btn.closest('.signal-row');
+                var panel = row && row.querySelector('.signal-detail');
+                if (!panel) return;
+                var expanded = btn.getAttribute('aria-expanded') === 'true';
+                var next = !expanded;
+                btn.setAttribute('aria-expanded', String(next));
+                panel.hidden = !next;
+                row.classList.toggle('is-open', next);
+            });
+
+            function buildSignalRow(label, detailText) {
+                var li = document.createElement('li');
+                li.className = 'signal-row';
+                var card = document.createElement('div');
+                card.className = 'signal-card';
+                var btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = 'signal-toggle';
+                btn.setAttribute('aria-expanded', 'false');
+                var chev = document.createElement('span');
+                chev.className = 'signal-chevron';
+                chev.setAttribute('aria-hidden', 'true');
+                chev.textContent = '▸';
+                var sumText = document.createElement('span');
+                sumText.className = 'signal-summary-text';
+                sumText.textContent = label;
+                var explain = document.createElement('span');
+                explain.className = 'signal-explain';
+                explain.textContent = 'Explanation';
+                btn.appendChild(chev);
+                btn.appendChild(sumText);
+                btn.appendChild(explain);
+                var panel = document.createElement('div');
+                panel.className = 'signal-detail';
+                panel.hidden = true;
+                var inner = document.createElement('div');
+                inner.className = 'signal-detail-inner';
+                var p = document.createElement('p');
+                p.textContent = detailText || 'No extra detail for this rule yet.';
+                inner.appendChild(p);
+                panel.appendChild(inner);
+                card.appendChild(btn);
+                card.appendChild(panel);
+                li.appendChild(card);
+                return li;
+            }
+
+            function escapeHtml(s) {
+                return String(s)
+                    .replace(/&/g, '&amp;')
+                    .replace(/</g, '&lt;')
+                    .replace(/>/g, '&gt;')
+                    .replace(/"/g, '&quot;');
+            }
+
+            function foldHomoglyphs(str) {
+                var map = {
+                    '\u0430': 'a', '\u0435': 'e', '\u0438': 'i', '\u043E': 'o', '\u0440': 'p', '\u0441': 'c', '\u0443': 'y', '\u0445': 'x',
+                    '\u0410': 'A', '\u0412': 'B', '\u0415': 'E', '\u0418': 'I', '\u041E': 'O', '\u0420': 'P', '\u0421': 'C',
+                    '\u0456': 'i', '\u0406': 'I',
+                    '\u0391': 'A', '\u0392': 'B', '\u0395': 'E', '\u0396': 'Z', '\u0397': 'H', '\u0399': 'I', '\u039A': 'K', '\u039C': 'M',
+                    '\u039D': 'N', '\u039F': 'O', '\u03A1': 'P', '\u03A4': 'T', '\u03A7': 'X', '\u03A5': 'Y',
+                    '\u03B1': 'a', '\u03B5': 'e', '\u03B9': 'i', '\u03BF': 'o', '\u03C1': 'p', '\u03C5': 'u', '\u03C7': 'x'
+                };
+                var out = '';
+                for (var i = 0; i < str.length; i++) {
+                    var ch = str[i];
+                    out += map[ch] !== undefined ? map[ch] : ch;
+                }
+                return out;
+            }
+
+            function dedupeByKey(hits) {
+                var m = {};
+                hits.forEach(function (h) {
+                    var k = h.key;
+                    var prev = m[k];
+                    if (!prev || h.w > prev.w || (h.w === prev.w && (h.end - h.start) > (prev.end - prev.start))) {
+                        m[k] = h;
+                    }
+                });
+                return Object.keys(m).map(function (k) {
+                    return m[k];
+                });
+            }
+
+            function mergeOverlappingHits(hits, text) {
+                if (hits.length === 0) return [];
+                hits = hits.slice().sort(function (a, b) {
+                    return a.start - b.start || b.end - a.end;
+                });
+                var out = [];
+                var cur = {
+                    start: hits[0].start,
+                    end: hits[0].end,
+                    w: hits[0].w,
+                    reasons: [hits[0].reason],
+                    details: [hits[0].detail],
+                    keys: [hits[0].key || hits[0].reason]
+                };
+                for (var i = 1; i < hits.length; i++) {
+                    var h = hits[i];
+                    if (h.start < cur.end) {
+                        cur.end = Math.max(cur.end, h.end);
+                        cur.w = Math.max(cur.w, h.w);
+                        if (cur.keys.indexOf(h.key || h.reason) === -1) {
+                            cur.reasons.push(h.reason);
+                            cur.details.push(h.detail);
+                            cur.keys.push(h.key || h.reason);
+                        }
+                    } else {
+                        out.push(finishMerged(cur, text));
+                        cur = {
+                            start: h.start,
+                            end: h.end,
+                            w: h.w,
+                            reasons: [h.reason],
+                            details: [h.detail],
+                            keys: [h.key || h.reason]
+                        };
+                    }
+                }
+                out.push(finishMerged(cur, text));
+                return out;
+            }
+
+            function finishMerged(cur, text) {
+                var snippet = text.slice(cur.start, cur.end).replace(/\s+/g, ' ').trim();
+                if (snippet.length > 72) snippet = snippet.slice(0, 69) + '…';
+                var reasonJoined = cur.reasons.length > 1
+                    ? cur.reasons[0] + ' (also: ' + cur.reasons.slice(1).join('; ') + ')'
+                    : cur.reasons[0];
+                return {
+                    start: cur.start,
+                    end: cur.end,
+                    w: cur.w,
+                    key: cur.keys[0],
+                    reason: reasonJoined,
+                    detail: cur.details[0],
+                    matchSnippet: snippet
+                };
+            }
+
+            function calibrateRawScore(raw) {
+                var t = 1 - Math.exp(-raw * 1.85);
+                return Math.min(0.98, Math.max(0.02, 0.02 + 0.96 * t));
+            }
+
+            function buildHighlightHtml(text, spans) {
+                if (!spans.length) return escapeHtml(text);
+                spans = spans.slice().sort(function (a, b) {
+                    return a.start - b.start;
+                });
+                var html = '';
+                var pos = 0;
+                spans.forEach(function (sp) {
+                    html += escapeHtml(text.slice(pos, sp.start));
+                    html += '<mark class="signal-hit">' + escapeHtml(text.slice(sp.start, sp.end)) + '</mark>';
+                    pos = sp.end;
+                });
+                html += escapeHtml(text.slice(pos));
+                return html;
+            }
+
+            function classifyMessage(text) {
+                var folded = foldHomoglyphs(text);
+                var lower = folded.toLowerCase();
+                var hits = [];
+
+                function pushHit(start, end, w, reason, detail, key) {
+                    if (end <= start) return;
+                    hits.push({
+                        start: start,
+                        end: end,
+                        w: w,
+                        reason: reason,
+                        detail: detail || '',
+                        key: key || reason
+                    });
+                }
+
+                var patterns = [
+                    {
+                        re: /malicious|malware|virus|trojan|ransom|spyware|phishing|phish|\bscam\b/i,
+                        w: 0.42,
+                        key: 'threat',
+                        reason: 'Threat, scam, or malware wording',
+                        detail: 'The score goes up when the text talks about malware, phishing, or scams. Real companies almost never cold text you to download random files or sound like a fake security alert.'
+                    },
+                    {
+                        re: /congratul/i,
+                        w: 0.22,
+                        key: 'congrat',
+                        reason: 'Congratulations or prize style text (typos count too)',
+                        detail: 'Lots of fake prize texts start with congratulations, and people mistype it all the time. The pattern matches anything that starts like congratul so CONGRATULAITONS still counts.'
+                    },
+                    {
+                        // Prize wording: plain word-boundary rules match "won" inside "won't" (boundary sits between n and apostrophe). won(?![\u2019']t) skips that contraction; see SPAM-CLASSIFIER-PORTFOLIO-NOTES.md.
+                        re: /\b(won(?![\u2019']t)|winner|win\s+(a|the|an)?)\b/i,
+                        w: 0.16,
+                        key: 'won',
+                        reason: 'You won or prize winner wording',
+                        detail: 'Random you won messages are a classic bait. Real lotteries and phone carriers do not usually tell you that you won only in a text with no prior signup.'
+                    },
+                    {
+                        re: /iphone|ipad|galaxy|pixel|smartphone|gift\s*card|cash\s*prize/i,
+                        w: 0.14,
+                        key: 'prize_device',
+                        reason: 'Phone, gift, or cash prize bait',
+                        detail: 'Big prizes and free phones get people to click. Together with other red flags, that usually points to spam or a scam.'
+                    },
+                    {
+                        re: /download|dowload|dow+nload|click\s+here|tap\s+here|follow\s+(this\s+)?link/i,
+                        w: 0.14,
+                        key: 'click_dl',
+                        reason: 'Download or click here style wording',
+                        detail: 'Spammers want you to tap links or download files. Typos like dowload are still matched on purpose so they cannot hide behind bad spelling.'
+                    },
+                    {
+                        re: /\bfree\b|100%\s*off|no\s+cost|zero\s+dollars/i,
+                        w: 0.12,
+                        key: 'free',
+                        reason: 'Free offer wording',
+                        detail: 'Free is a common hook. It is more worrying when it shows up next to links or prizes than when a friend says something is free in a normal chat.'
+                    },
+                    {
+                        re: /\b(urgent|immediately|act\s+now|expires|limited\s+time)\b/i,
+                        w: 0.12,
+                        key: 'urgent',
+                        reason: 'Urgent or pressure language',
+                        detail: 'Rush wording makes people skip thinking. Banks and government offices rarely say you must act in the next hour based only on an SMS.'
+                    },
+                    {
+                        re: /\b(verify|re-?verify|confirm|re-?activate|suspended|locked|compromised|unusual\s+login)\b/i,
+                        w: 0.14,
+                        key: 'verify_word',
+                        reason: 'Verify / confirm / account scare wording',
+                        detail: 'Phishers push verify or confirm now. If you are unsure, open the real app or type the bank site yourself. Do not trust links in the text.'
+                    },
+                    {
+                        re: /\b(account|password|pin|credentials)\b/i,
+                        w: 0.1,
+                        key: 'acct_word',
+                        reason: 'Account or password keywords',
+                        detail: 'These words are common in both real alerts and phishing. They add weight mainly next to links or verify-style pressure.'
+                    },
+                    {
+                        re: /\b(verify|confirm|re-?activate|suspended|locked)\b.*\b(account|password|pin)\b/i,
+                        w: 0.18,
+                        key: 'verify_acct_combo',
+                        reason: 'Verify account or password combo',
+                        detail: 'Classic phishing pairs verify your account with urgency. Banks rarely ask only over SMS with a strange link.'
+                    },
+                    {
+                        re: /\b(bank|banking|paypal|venmo|zelle|wire\s+transfer|routing\s*#|iban|swift)\b/i,
+                        w: 0.15,
+                        key: 'banking',
+                        reason: 'Banking or money-transfer wording',
+                        detail: 'Unexpected texts about wires, Zelle, or bank details are high risk. Call the number on your card, not the one in the text.'
+                    },
+                    {
+                        re: /\b(parcel|package|delivery|courier|usps|fedex|ups|dhl|tracking\s*#|out\s+for\s+delivery)\b/i,
+                        w: 0.13,
+                        key: 'parcel',
+                        reason: 'Parcel or delivery bait',
+                        detail: 'Fake missed delivery texts try to get a fee or your details. Check the carrier site with the real tracking number you already have.'
+                    },
+                    {
+                        re: /\b(otp|one[- ]time|2fa|two[- ]factor|security\s+code)\b/i,
+                        w: 0.11,
+                        key: 'otp',
+                        reason: 'OTP or 2FA wording',
+                        detail: 'Scammers phish for codes. Never share OTPs; real support will not ask for them in a random SMS.'
+                    },
+                    {
+                        re: /\b(claim|collect|redeem)\b/i,
+                        w: 0.1,
+                        key: 'claim',
+                        reason: 'Claim or redeem wording',
+                        detail: 'Claim your prize often leads to forms, fees, or malware. Real rewards usually come through channels you already know, not a random SMS.'
+                    },
+                    {
+                        re: /\b(prize|lottery|jackpot|reward)\b/i,
+                        w: 0.12,
+                        key: 'prize',
+                        reason: 'Prize or lottery wording',
+                        detail: 'Jackpot and lottery scams are everywhere. If you never entered, treat any win text as fake.'
+                    },
+                    {
+                        re: /\$\d+|\d+\s*(usd|aud|gbp|eur|dollars?|inr)/i,
+                        w: 0.1,
+                        key: 'money_amt',
+                        reason: 'Money amount in the message',
+                        detail: 'Dollar amounts show up in real texts too, like receipts. This rule only adds a small nudge on top of everything else.'
+                    },
+                    {
+                        re: /\b(bitly|tinyurl|t\.co|goo\.gl|short\.link)\b/i,
+                        w: 0.12,
+                        key: 'shortener',
+                        reason: 'URL shortener domain',
+                        detail: 'Short links hide the real destination. They are not always bad but are common in phishing.'
+                    },
+                    {
+                        re: /\[link\]|\bclick\s+the\s+link\b|\bopen\s+attachment\b/i,
+                        w: 0.1,
+                        key: 'link_phrase',
+                        reason: 'Generic link or attachment prompt',
+                        detail: 'Vague instructions to open links or attachments are common in phishing.'
+                    },
+                    {
+                        re: /\b(viagra|cialis|casino|bitcoin|crypto\s+wallet)\b/i,
+                        w: 0.12,
+                        key: 'spam_lex',
+                        reason: 'Common spam product keywords',
+                        detail: 'These show up heavily in bulk SMS spam filters.'
+                    },
+                    {
+                        re: /\b(gratis|gagnez|felicidades|felicitaciones|verifiez|v\u00e9rifier|compte\s+suspendu)\b/iu,
+                        w: 0.1,
+                        key: 'ml_hint',
+                        reason: 'Non-English spam hints (French/Spanish samples)',
+                        detail: 'Lightweight hints for common scam phrases outside English; not exhaustive.'
+                    }
+                ];
+
+                patterns.forEach(function (p) {
+                    var re = new RegExp(p.re.source, 'giu');
+                    var m;
+                    while ((m = re.exec(lower)) !== null) {
+                        pushHit(m.index, m.index + m[0].length, p.w, p.reason, p.detail, p.key);
+                        if (m.index === re.lastIndex) re.lastIndex++;
+                    }
+                });
+
+                var urlRe = /https?:\/\/[^\s]+|www\.[^\s]+/gi;
+                var um;
+                while ((um = urlRe.exec(text)) !== null) {
+                    pushHit(um.index, um.index + um[0].length, 0.16, 'Contains a URL', 'Links show up a lot in phishing and junk promos. Treat strange short links as risky until you check them somewhere safe.', 'url');
+                }
+
+                var capsRe = /[A-Z]{5,}/g;
+                var cm;
+                while ((cm = capsRe.exec(text)) !== null) {
+                    pushHit(cm.index, cm.index + cm[0].length, 0.1, 'Heavy all-caps emphasis', 'ALL CAPS often means pasted marketing or someone shouting. By itself it is weak, but it helps when other flags are there.', 'caps');
+                }
+
+                var bangRe = /!+/g;
+                var bestBang = null;
+                var bangCount = 0;
+                var bm;
+                while ((bm = bangRe.exec(text)) !== null) {
+                    bangCount += bm[0].length;
+                    if (!bestBang || bm[0].length > bestBang.len) {
+                        bestBang = { start: bm.index, end: bm.index + bm[0].length, len: bm[0].length };
+                    }
+                }
+                if (bangCount >= 2 && bestBang) {
+                    pushHit(bestBang.start, bestBang.end, 0.08, 'Repeated exclamation marks', 'Lots of exclamation marks show up in scams and shouty ads because they want you excited, not careful.', 'bang');
+                }
+
+                var deduped = dedupeByKey(hits);
+                var merged = mergeOverlappingHits(deduped, text);
+                var rawScore = 0;
+                merged.forEach(function (h) {
+                    rawScore += h.w;
+                });
+
+                var nRuleKinds = deduped.length;
+                if (nRuleKinds >= 3) {
+                    rawScore += 0.08;
+                }
+
+                var spamProbability = calibrateRawScore(rawScore);
+                var isSpam = spamProbability >= 0.5;
+
+                var signals = merged.map(function (h) {
+                    var label = h.reason;
+                    if (h.matchSnippet) {
+                        label += ' — “' + h.matchSnippet + '”';
+                    }
+                    return { reason: label, detail: h.detail || '' };
+                });
+
+                if (nRuleKinds >= 3) {
+                    signals.push({
+                        reason: 'Several different rule families fired',
+                        detail: 'When many distinct patterns match (after merging overlaps), the text is more likely to be junk or harmful than when only one small thing looks off.'
+                    });
+                }
+
+                if (signals.length === 0) {
+                    signals.push({
+                        reason: 'No strong spam indicators matched',
+                        detail: 'No strong spam patterns matched this run. You can still treat unknown texts with care.'
+                    });
+                }
+
+                var highlightSpans = merged
+                    .filter(function (h) {
+                        return h.end > h.start;
+                    })
+                    .map(function (h) {
+                        return { start: h.start, end: h.end };
+                    });
+
+                return {
+                    label: isSpam ? 'Spam' : 'Not spam',
+                    probability: spamProbability,
+                    signals: signals,
+                    highlightSpans: highlightSpans,
+                    rawScore: rawScore
+                };
+            }
+
+            function showResults(show) {
+                resultEmpty.hidden = show;
+                resultBox.hidden = !show;
+            }
+
+            function renderResult(result, sourceText) {
+                predictionText.textContent = result.label;
+                var isSpam = result.label === 'Spam';
+                verdictBadge.setAttribute('data-verdict', isSpam ? 'spam' : 'ham');
+                var pct = (result.probability * 100).toFixed(1);
+                confidenceText.textContent = pct + '%';
+                confidenceFill.style.width = pct + '%';
+                confidenceFill.classList.toggle('is-spam', isSpam);
+                confidenceFill.classList.toggle('is-ham', !isSpam);
+                signalsList.innerHTML = '';
+
+                result.signals.forEach(function (signal) {
+                    var label = typeof signal === 'string' ? signal : signal.reason;
+                    var detail = typeof signal === 'string' ? '' : (signal.detail || '');
+                    signalsList.appendChild(buildSignalRow(label, detail));
+                });
+
+                renderHighlights(sourceText || '', result);
+                showResults(true);
+            }
+
+            function renderHighlights(text, result) {
+                if (!highlightWrap || !highlightEl) return;
+                if (!result || !result.highlightSpans || result.highlightSpans.length === 0) {
+                    highlightWrap.hidden = true;
+                    highlightEl.innerHTML = '';
+                    return;
+                }
+                highlightEl.innerHTML = buildHighlightHtml(text, result.highlightSpans);
+                highlightWrap.hidden = false;
+            }
+
+            analyzeBtn.addEventListener('click', function () {
+                var message = input.value.trim();
+                if (!message) {
+                    predictionText.textContent = 'Enter a message first';
+                    verdictBadge.setAttribute('data-verdict', 'neutral');
+                    confidenceText.textContent = '-';
+                    confidenceFill.style.width = '0%';
+                    signalsList.innerHTML = '';
+                    if (highlightWrap) highlightWrap.hidden = true;
+                    signalsList.appendChild(buildSignalRow(
+                        'No input',
+                        'Paste a message on the left, then press Analyze.'
+                    ));
+                    showResults(true);
+                    return;
+                }
+
+                var result = classifyMessage(message);
+                renderResult(result, message);
+            });
+
+            clearBtn.addEventListener('click', function () {
+                input.value = '';
+                showResults(false);
+                predictionText.textContent = '-';
+                verdictBadge.setAttribute('data-verdict', '');
+                confidenceText.textContent = '-';
+                confidenceFill.style.width = '0%';
+                confidenceFill.classList.remove('is-spam', 'is-ham');
+                signalsList.innerHTML = '';
+                if (highlightWrap) highlightWrap.hidden = true;
+                if (highlightEl) highlightEl.innerHTML = '';
+            });
+        });
+    </script>
+</body>
+</html>

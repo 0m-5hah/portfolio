@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="CNN + GloVe SMS spam classifier: coursework metrics and limitations.">
+    <title>Spam classifier model | Om Shah</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="page-demo">
+    <nav class="navbar">
+        <a href="index.html" class="nav-brand">
+            <span class="terminal-prompt">&gt;_</span>
+            <span class="brand-text">security<span class="accent">.portfolio</span></span>
+        </a>
+        <ul class="nav-links">
+            <li><a href="index.html#home">Home</a></li>
+            <li><a href="project-demos.html">Project demos</a></li>
+            <li><a href="index.html#contact">Contact</a></li>
+            <li><a href="OM SHAH - RESUME (1).pdf" class="nav-resume" target="_blank" rel="noopener">Resume</a></li>
+        </ul>
+        <button class="mobile-menu-btn" aria-label="Toggle menu">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+    </nav>
+
+    <main class="demo-main">
+        <section class="project-demos">
+            <div class="container demo-container">
+                <header class="demo-hero">
+                    <p class="demo-eyebrow">Om Shah</p>
+                    <h1 class="demo-page-title">Spam message classifier (deep learning)</h1>
+                    <p class="demo-lead">
+                        I built this for a university data analytics assignment. It labels SMS text as spam or not spam and outputs a probability score.
+                    </p>
+                    <p class="demo-note">
+                        For recruiters: roles and projects are on my <a href="OM SHAH - RESUME (1).pdf" download="Om-Shah-Resume.pdf">resume (PDF)</a>; this page is coursework. The <a href="project-demos.html">interactive demo</a> uses JavaScript rules for speed and static hosting. The numbers below are from the <strong>trained Keras CNN</strong> on the UCI test split, with proof in <code>outputs/</code>.
+                    </p>
+                </header>
+
+                <article class="demo-card-wide model-readme">
+                    <h2 class="model-readme-heading">Approach</h2>
+                    <p class="model-readme-p">
+                        The model uses a convolutional neural network (CNN) on top of GloVe word embeddings (100 dimensions, trained on Twitter text). Messages are treated as sequences so the network can pick up word order and short phrases, not just a bag of words.
+                    </p>
+
+                    <h2 class="model-readme-heading">How it is trained</h2>
+                    <p class="model-readme-p">
+                        Training uses the UCI SMS Spam Collection. I used early stopping on validation loss so training stops when extra epochs stop helping, and the best weights are kept.
+                    </p>
+
+                    <h2 class="model-readme-heading">How it did on the test set</h2>
+                    <p class="model-readme-p">
+                        On a held-out test set of 1,115 messages: about <strong>98.7%</strong> accuracy, <strong>95.2%</strong> F1 on spam, and <strong>99.4%</strong> ROC-AUC. Only 14 messages were wrong total.
+                    </p>
+
+                    <h2 class="model-readme-heading">Limitations (expected for this scope)</h2>
+                    <p class="model-readme-p">
+                        UCI SMS is a fixed academic set; real smishing wording changes over time. The model still has <strong>false negatives</strong> (spam marked as ham) on the test export—see <code>outputs/test_predictions_dl.csv</code>. High accuracy does not mean “catches every scam.”
+                    </p>
+
+                    <h2 class="model-readme-heading">What I used</h2>
+                    <p class="model-readme-p">
+                        Python, TensorFlow and Keras, NumPy, pandas, scikit-learn, and Jupyter. The embedding layer uses the GloVe Twitter 100d weights.
+                    </p>
+
+                    <p class="model-readme-foot">
+                        <a href="project-demos.html" class="btn btn-secondary">Back to demo</a>
+                        <a href="https://github.com/0m-5hah" class="btn btn-secondary btn-ghost" target="_blank" rel="noopener">GitHub</a>
+                    </p>
+                </article>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var menuBtn = document.querySelector('.mobile-menu-btn');
+            var navLinks = document.querySelector('.nav-links');
+            if (menuBtn && navLinks) {
+                menuBtn.addEventListener('click', function () {
+                    navLinks.classList.toggle('active');
+                    menuBtn.classList.toggle('active');
+                });
+                document.querySelectorAll('.nav-links a').forEach(function (link) {
+                    link.addEventListener('click', function () {
+                        navLinks.classList.remove('active');
+                        menuBtn.classList.remove('active');
+                    });
+                });
+            }
+        });
+    </script>
+</body>
+</html>

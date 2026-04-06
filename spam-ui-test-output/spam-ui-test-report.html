@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Spam web UI test — ground truth vs rules demo</title>
+<style>
+body { font-family: system-ui, sans-serif; margin: 24px; background: #0f1419; color: #e6edf3; }
+h1 { font-size: 1.25rem; }
+.meta { color: #8b949e; margin-bottom: 1rem; }
+table { border-collapse: collapse; width: 100%; font-size: 0.9rem; }
+th, td { border: 1px solid #30363d; padding: 8px 10px; vertical-align: top; }
+th { background: #161b22; text-align: left; }
+tr.ok td { background: rgba(46, 160, 67, 0.12); }
+tr.bad td { background: rgba(248, 81, 73, 0.15); }
+td.msg { max-width: 420px; word-break: break-word; }
+a { color: #58a6ff; }
+code { font-size: 0.85em; }
+</style>
+</head>
+<body>
+<h1>Spam rules demo — automated UI run</h1>
+<p class="meta">Page: <code>project-demos.html</code> (browser rules, not the CNN).<br>
+Correct vs labeled corpus: <strong>23 / 25</strong> (92.0%).<br>
+Session video folder: <code>spam-ui-test-output/videos/</code> (WebM after run).<br>
+Text log: <code>spam-ui-test-interactions.log</code></p>
+<table>
+<thead><tr><th>#</th><th>Ground truth</th><th>Message</th><th>UI verdict</th><th>Likelihood</th><th>Matches truth?</th><th>Shot</th></tr></thead>
+<tbody>
+<tr class="ok"><td>1</td><td><code>HAM</code></td><td class="msg">The mural on Cedar Street looks even better after they fixed the lighting.</td><td>Not spam</td><td>2.0%</td><td>Yes</td><td><a href="screenshots/001.png">screenshot</a></td></tr>
+<tr class="ok"><td>2</td><td><code>HAM</code></td><td class="msg">Bring a jacket; the forecast says it will drop after sunset.</td><td>Not spam</td><td>2.0%</td><td>Yes</td><td><a href="screenshots/002.png">screenshot</a></td></tr>
+<tr class="ok"><td>3</td><td><code>HAM</code></td><td class="msg">We are switching to the earlier train; same platform as last time.</td><td>Not spam</td><td>2.0%</td><td>Yes</td><td><a href="screenshots/003.png">screenshot</a></td></tr>
+<tr class="ok"><td>4</td><td><code>HAM</code></td><td class="msg">I already saved you a seat near the aisle.</td><td>Not spam</td><td>2.0%</td><td>Yes</td><td><a href="screenshots/004.png">screenshot</a></td></tr>
+<tr class="ok"><td>5</td><td><code>HAM</code></td><td class="msg">The bassist borrowed my cable; I will get it back at rehearsal.</td><td>Not spam</td><td>2.0%</td><td>Yes</td><td><a href="screenshots/005.png">screenshot</a></td></tr>
+<tr class="ok"><td>6</td><td><code>HAM</code></td><td class="msg">Your canvas is dry now; you can pick it up from the studio anytime.</td><td>Not spam</td><td>2.0%</td><td>Yes</td><td><a href="screenshots/006.png">screenshot</a></td></tr>
+<tr class="ok"><td>7</td><td><code>HAM</code></td><td class="msg">Substitute teacher tomorrow; bring the chapter we discussed last week.</td><td>Not spam</td><td>2.0%</td><td>Yes</td><td><a href="screenshots/007.png">screenshot</a></td></tr>
+<tr class="ok"><td>8</td><td><code>HAM</code></td><td class="msg">Can you send the spreadsheet from the thread we had on Monday?</td><td>Not spam</td><td>2.0%</td><td>Yes</td><td><a href="screenshots/008.png">screenshot</a></td></tr>
+<tr class="ok"><td>9</td><td><code>HAM</code></td><td class="msg">Leftovers are in the blue container; help yourself before they are gone.</td><td>Not spam</td><td>2.0%</td><td>Yes</td><td><a href="screenshots/009.png">screenshot</a></td></tr>
+<tr class="ok"><td>10</td><td><code>HAM</code></td><td class="msg">Bridge night moved to Wednesday; same address as last month.</td><td>Not spam</td><td>2.0%</td><td>Yes</td><td><a href="screenshots/010.png">screenshot</a></td></tr>
+<tr class="ok"><td>11</td><td><code>HAM</code></td><td class="msg">The seedlings need water twice today if you are around.</td><td>Not spam</td><td>2.0%</td><td>Yes</td><td><a href="screenshots/011.png">screenshot</a></td></tr>
+<tr class="ok"><td>12</td><td><code>HAM</code></td><td class="msg">Rehearsal runs late; I will text when we are wrapping up.</td><td>Not spam</td><td>2.0%</td><td>Yes</td><td><a href="screenshots/012.png">screenshot</a></td></tr>
+<tr class="ok"><td>13</td><td><code>HAM</code></td><td class="msg">Grab the tickets from the hall table; I printed two copies.</td><td>Not spam</td><td>2.0%</td><td>Yes</td><td><a href="screenshots/013.png">screenshot</a></td></tr>
+<tr class="ok"><td>14</td><td><code>HAM</code></td><td class="msg">We should take the side road; the main route was backed up yesterday.</td><td>Not spam</td><td>2.0%</td><td>Yes</td><td><a href="screenshots/014.png">screenshot</a></td></tr>
+<tr class="ok"><td>15</td><td><code>SPAM</code></td><td class="msg">CONGRATS!! You are selected as our hourly WINNER — $3200 USD waiting: https://bit.ly/prize-claim-fake-77</td><td>Spam</td><td>70.7%</td><td>Yes</td><td><a href="screenshots/015.png">screenshot</a></td></tr>
+<tr class="ok"><td>16</td><td><code>SPAM</code></td><td class="msg">Urgent: Venmo says your profile is LOCKED. Re-verify your account and PIN at http://tinyurl.com/fake-venmo-now</td><td>Spam</td><td>71.2%</td><td>Yes</td><td><a href="screenshots/016.png">screenshot</a></td></tr>
+<tr class="ok"><td>17</td><td><code>SPAM</code></td><td class="msg">You have WON a FREE Galaxy tablet! Tap here to download the redemption form before midnight!!!</td><td>Spam</td><td>72.7%</td><td>Yes</td><td><a href="screenshots/017.png">screenshot</a></td></tr>
+<tr class="ok"><td>18</td><td><code>SPAM</code></td><td class="msg">Felicitaciones! Has ganado $900 USD. Verifiez votre compte ici: https://tinyurl.com/fake-bank-eu</td><td>Spam</td><td>55.5%</td><td>Yes</td><td><a href="screenshots/018.png">screenshot</a></td></tr>
+<tr class="ok"><td>19</td><td><code>SPAM</code></td><td class="msg">Your FedEx parcel could not be delivered — pay $3.50 customs fee: www.fake-parcel-secure.net/pay</td><td>Spam</td><td>57.8%</td><td>Yes</td><td><a href="screenshots/019.png">screenshot</a></td></tr>
+<tr class="ok"><td>20</td><td><code>SPAM</code></td><td class="msg">Wire transfer ON HOLD: routing number mismatch. Confirm Zelle details with our team ASAP!!!</td><td>Spam</td><td>56.2%</td><td>Yes</td><td><a href="screenshots/020.png">screenshot</a></td></tr>
+<tr class="ok"><td>21</td><td><code>SPAM</code></td><td class="msg">ACT NOW!!! Limited time casino bonus — click here to redeem before it expires!!</td><td>Spam</td><td>68.6%</td><td>Yes</td><td><a href="screenshots/021.png">screenshot</a></td></tr>
+<tr class="ok"><td>22</td><td><code>SPAM</code></td><td class="msg">Security alert: unusual login from Ukraine. Re-activate and confirm your OTP here: t.co/fake-secure-12</td><td>Spam</td><td>56.2%</td><td>Yes</td><td><a href="screenshots/022.png">screenshot</a></td></tr>
+<tr class="bad"><td>23</td><td><code>SPAM</code></td><td class="msg">Download this attachment to view your invoice — our scanner says it is safe (it is not).</td><td>Not spam</td><td>23.9%</td><td>No</td><td><a href="screenshots/023.png">screenshot</a></td></tr>
+<tr class="bad"><td>24</td><td><code>SPAM</code></td><td class="msg">Viagra Cialis sale — 80% off today! Bitcoin wallet bonus inside!!!</td><td>Not spam</td><td>31.7%</td><td>No</td><td><a href="screenshots/024.png">screenshot</a></td></tr>
+<tr class="ok"><td>25</td><td><code>SPAM</code></td><td class="msg">Phishing alert test: your credentials may be compromised; malware removal required. Open attachment now.</td><td>Spam</td><td>77.7%</td><td>Yes</td><td><a href="screenshots/025.png">screenshot</a></td></tr>
+</tbody>
+</table>
+</body>
+</html>

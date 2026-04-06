@@ -1,0 +1,20 @@
+.venv/
+__pycache__/
+.ipynb_checkpoints/
+*.pyc
+.idea/
+*.docx
+Assignment 1 guide.ipynb
+
+# GloVe file - too large for GitHub (1GB)
+glove.twitter.27B.100d*.txt
+
+# Assignment PDF - not needed in repo
+*.pdf
+
+# Dataset - not needed once model is trained
+spam.csv
+
+# Windows
+Thumbs.db
+desktop.ini

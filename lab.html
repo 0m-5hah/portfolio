@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- flag{wrong_try_harder} -->
+    <!-- Part 1: flag{om_ctf_ | Part 2: see lab.js (search for CTF_SOURCE) -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Security Lab | Om Shah</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="lab.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="lab-page">
+    <nav class="navbar">
+        <a href="index.html" class="nav-brand">
+            <span class="terminal-prompt">&gt;_</span>
+            <span class="brand-text">security<span class="accent">.portfolio</span></span>
+        </a>
+        <ul class="nav-links">
+            <li><a href="index.html">Portfolio</a></li>
+            <li><a href="index.html#contact">Contact</a></li>
+        </ul>
+    </nav>
+
+    <main class="lab-main">
+        <header class="lab-header">
+            <h1>Security Lab</h1>
+            <p>Quick reference, forensics lab & CTF challenges.</p>
+        </header>
+
+        <div class="lab-grid">
+            <!-- Port Lookup -->
+            <section class="lab-card">
+                <div class="lab-card-header">
+                    <span class="lab-icon">📡</span>
+                    <h2>Port Lookup</h2>
+                    <p>Common TCP/UDP ports. Search by number or service name.</p>
+                </div>
+                <div class="lab-card-body">
+                    <input type="text" id="port-search" class="lab-input" placeholder="e.g. 443 or ssh" autocomplete="off">
+                    <div class="port-results" id="port-results">
+                        <span class="output-placeholder">Search for a port</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- MITRE ATT&CK -->
+            <section class="lab-card">
+                <div class="lab-card-header">
+                    <span class="lab-icon">🎯</span>
+                    <h2>MITRE ATT&CK Lookup</h2>
+                    <p>Enterprise techniques. Search by ID (T1566), name, or tactic.</p>
+                </div>
+                <div class="lab-card-body">
+                    <input type="text" id="mitre-search" class="lab-input" placeholder="e.g. T1566, phishing, or Initial Access" autocomplete="off">
+                    <div class="mitre-results" id="mitre-results">
+                        <span class="output-placeholder">Search for a technique</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Forensics Mini-Lab -->
+            <section class="lab-card lab-card-wide">
+                <div class="lab-card-header forensics-header">
+                    <div>
+                        <span class="lab-icon">🔍</span>
+                        <h2>Forensics Mini-Lab</h2>
+                        <p id="forensics-description">Finance employee clicked a fake invoice email and malware was installed. Review the evidence and choose the correct attack.</p>
+                    </div>
+                    <div class="forensics-scenario-selector">
+                        <button class="forensics-scenario-num active" data-scenario="1">1</button>
+                        <button class="forensics-scenario-num" data-scenario="2">2</button>
+                        <button class="forensics-scenario-num" data-scenario="3">3</button>
+                    </div>
+                </div>
+                <div class="lab-card-body">
+                    <div class="forensics-scenario" id="forensics-scenario">
+                        <p><strong>Scenario:</strong> A Finance staff member receives an email about an overdue invoice. Shortly after opening the attachment, their workstation exhibits suspicious activity. IT has collected artifacts. Inspect the evidence below.</p>
+                    </div>
+                    <div class="forensics-tabs" id="forensics-tabs">
+                        <button class="forensics-tab active" data-evidence="email">Email</button>
+                        <button class="forensics-tab" data-evidence="mailclient">Mail Client</button>
+                        <button class="forensics-tab" data-evidence="process">Process Tree</button>
+                        <button class="forensics-tab" data-evidence="powershell">PowerShell</button>
+                        <button class="forensics-tab" data-evidence="dns">DNS / Proxy</button>
+                        <button class="forensics-tab" data-evidence="defender">Defender</button>
+                    </div>
+                    <div class="forensics-evidence" id="forensics-evidence">
+                        <pre class="forensics-pre">From: accounts@micros0ft-billing.com
+Reply-To: support@micros0ft-billing.com
+Subject: URGENT: Overdue Invoice - Action Required
+Attachment: Invoice_April_2026.docm
+
+SPF: FAIL | DKIM: FAIL
+Sender domain not in allowlist</pre>
+                        <p class="forensics-hint">.docm = macro-enabled. micros0ft uses "0" not "o".</p>
+                    </div>
+                    <div class="forensics-submit">
+                        <label>What attack happened?</label>
+                        <select id="forensics-conclusion" class="lab-input">
+                            <option value="">Select an option</option>
+                            <option value="phishing">Phishing email with malicious attachment</option>
+                            <option value="bruteforce">Brute-force login attack</option>
+                            <option value="usb">USB malware infection</option>
+                            <option value="insider">Insider data theft</option>
+                        </select>
+                        <button id="forensics-submit-btn" class="lab-btn">Submit</button>
+                    </div>
+                    <div class="forensics-feedback" id="forensics-feedback"></div>
+                </div>
+            </section>
+
+            <!-- Mini CTF Challenges -->
+            <section class="lab-card lab-card-ctf">
+                <div class="lab-card-header">
+                    <span class="lab-icon">🚩</span>
+                    <h2>CTF Challenges</h2>
+                    <p>Find the flags. Format: flag{...}. <span id="ctf-progress">0/4</span> solved</p>
+                </div>
+                <div class="lab-card-body">
+                    <div class="ctf-tabs">
+                        <button class="ctf-tab active" data-challenge="decode">Decode</button>
+                        <button class="ctf-tab" data-challenge="source">View Source</button>
+                        <button class="ctf-tab" data-challenge="robots">Robots.txt</button>
+                        <button class="ctf-tab" data-challenge="cookie">Cookie</button>
+                    </div>
+                    <div class="ctf-clue" id="ctf-clue">
+                        <p><strong>Challenge 1: Decode</strong> this hex string.</p>
+                        <code class="ctf-ciphertext">666c61677b6f6d5f6374665f736f6c7665647d</code>
+                        <p class="ctf-hint">Hint: Two hex chars = one byte.</p>
+                    </div>
+                    <div class="ctf-submit">
+                        <input type="text" id="ctf-flag" class="lab-input" placeholder="flag{...}" autocomplete="off">
+                        <button id="ctf-submit-btn" class="lab-btn">Submit</button>
+                    </div>
+                    <div class="ctf-feedback" id="ctf-feedback"></div>
+                </div>
+            </section>
+        </div>
+
+        <div class="lab-footer">
+            <a href="index.html" class="btn btn-secondary">← Back to Portfolio</a>
+        </div>
+    </main>
+
+    <script src="lab.js"></script>
+</body>
+</html>
