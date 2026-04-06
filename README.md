@@ -49,20 +49,37 @@ Update the numbers in the About section stats to reflect your actual achievement
 
 ## Deployment
 
-### GitHub Pages (this site)
+### GitHub Pages (this site — `portfolio` repo)
 
-1. On GitHub, create a **public** repository named **`0m-5hah.github.io`** (exact name gives you `https://0m-5hah.github.io/` with no subpath). Do not add a README or `.gitignore` when GitHub offers templates.
-2. In this folder, add the remote and push (use your preferred auth: HTTPS + credential manager, or SSH):
+This project is meant to live in a repository named **`portfolio`**, so the public URL is:
+
+**https://0m-5hah.github.io/portfolio/**
+
+(That is GitHub’s pattern: `https://<username>.github.io/<repo-name>/` for project sites.)
+
+1. On GitHub, create a **public** repository named **`portfolio`**. Do not add a README, `.gitignore`, or license when GitHub offers templates (this folder already has a first commit).
+
+2. In this folder on your machine, connect the remote and push (HTTPS or SSH):
 
    ```bash
-   git remote add origin https://github.com/0m-5hah/0m-5hah.github.io.git
+   cd path/to/portfolio
+   git remote add origin https://github.com/0m-5hah/portfolio.git
    git push -u origin main
    ```
 
-3. On the repo: **Settings → Pages → Build and deployment → Source**: **Deploy from a branch**, branch **`main`**, folder **`/` (root)**. Save.
-4. After a minute or two, the site is live at **https://0m-5hah.github.io/**
+   If you already added a different `origin` (for example `0m-5hah.github.io`), replace it:
 
-**Alternative:** If you already use the `0m-5hah.github.io` name for something else, create a repo such as `portfolio` instead. The site will be at `https://0m-5hah.github.io/portfolio/`; relative links in this project already work for that layout.
+   ```bash
+   git remote remove origin
+   git remote add origin https://github.com/0m-5hah/portfolio.git
+   git push -u origin main
+   ```
+
+3. On the **`portfolio`** repo: **Settings → Pages → Build and deployment → Source** → **Deploy from a branch** → branch **`main`**, folder **`/` (root)** → Save.
+
+4. After a minute or two, open **https://0m-5hah.github.io/portfolio/** (use the trailing slash or open `/portfolio/index.html` if needed the first time).
+
+**Optional:** A repo named **`0m-5hah.github.io`** (exactly) would serve the site at **`https://0m-5hah.github.io/`** with no `/portfolio` path. This project uses relative asset links, so either layout works.
 
 A **`.nojekyll`** file is included so GitHub serves static files without Jekyll processing.
 
