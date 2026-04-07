@@ -1,6 +1,6 @@
 # Runtime dependencies for the spam inference API (no TensorFlow needed)
 fastapi>=0.109
 uvicorn[standard]>=0.27
-onnxruntime-cpu>=1.17
+onnxruntime>=1.16
 numpy
 pydantic>=2
