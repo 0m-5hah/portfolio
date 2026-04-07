@@ -1,10 +1,23 @@
-# Deployment Checklist — Spam Inference API (Render Free Tier)
+# Deployment Checklist — Spam Inference API
 
 Use this doc before every deploy to catch known issues before they happen.
 
 ---
 
-## Render service settings
+## HuggingFace Spaces settings (current — recommended)
+
+| Setting | Value |
+|---|---|
+| **SDK** | Docker |
+| **App port** | 7860 |
+| **RAM** | 16 GB free (public space) |
+| **Space URL** | `https://[hf-username]-spam-classifier-api.hf.space` |
+
+No environment variables needed. Model files (`spam_weights.npz`, `tokenizer.json`) are committed directly to the Space repo.
+
+---
+
+## Render service settings (deprecated — OOM issues, see issues 4–7 below)
 
 | Setting | Value |
 |---|---|
