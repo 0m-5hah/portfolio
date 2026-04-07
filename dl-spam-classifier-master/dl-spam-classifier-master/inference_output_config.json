@@ -1,0 +1,74 @@
+{
+  "max_len": 80,
+  "decision": {
+    "default_threshold": 0.5
+  },
+  "interpretation": {
+    "clear_ham_below": 0.35,
+    "clear_spam_above": 0.65,
+    "display_pct_cap": 99.9,
+    "saturated_prob_threshold": 0.999
+  },
+  "templates": {
+    "summary_open": "Estimated ~{pct}% spam likelihood from the model output (single scalar; not a guarantee).",
+    "summary_open_saturated": "Very high estimated spam likelihood (~{pct}%; bar capped in the UI for saturated scores).",
+    "summary_band_clear_ham": "Interpretation: clearly legitimate (score in the low-risk band).",
+    "summary_band_clear_spam": "Interpretation: clearly spam-like (score in the high-risk band).",
+    "summary_band_uncertain_lean_ham": "Interpretation: uncertain band; leaning toward legitimate (ham) relative to the decision threshold.",
+    "summary_band_uncertain_lean_spam": "Interpretation: uncertain band; leaning toward spam relative to the decision threshold.",
+    "summary_threshold_note": "The binary label used for automation-style cutoffs is ~{thr_pct}%: at or above → {label_spam}, below → {label_not_spam} (current cut: {binary_label}).",
+    "confidence_hint": "Decision threshold ~{thr_pct}% (configurable on the server). Three-band read: at or below ~{ham_below_pct}% clear ham, at or above ~{spam_above_pct}% clear spam; between is uncertain (lean vs threshold). Bands configurable under interpretation in inference_output_config.json.",
+    "technical_note": "Convolutional text classifier with sigmoid output. Trace: tokenization, padding, one forward pass.",
+    "technical_note_attribution_suffix": "Highlights use one-word masking; larger |ΔP(spam)| indicates stronger local influence (not proof of causality)."
+  },
+  "attribution": {
+    "enabled": true,
+    "top_k": 5,
+    "min_abs_delta": 0.0005,
+    "signal_title": "Why those words are marked",
+    "signal_detail": "Each token is masked once; ranking reflects how much P(spam) moved. Approximate sensitivity only; tokens can interact."
+  },
+  "trace": {
+    "architecture": "Embedding (trainable) → Conv1D → GlobalMaxPool → Dense → sigmoid",
+    "backend": "TensorFlow/Keras on the inference host. No cloud LLM call.",
+    "display": {
+      "step1": "[1/4] texts_to_sequences → {token_count} token id(s) before padding",
+      "step2": "[2/4] pad_sequences → {shape_str}{trunc_note}",
+      "trunc_note": " (sequence truncated to maxlen)",
+      "step3": "[3/4] {architecture}",
+      "step4": "[4/4] dense sigmoid → P(spam) = {p}{thr_clause}",
+      "thr_clause": "  (label Spam if P >= {thr:.4f})"
+    }
+  },
+  "client": {
+    "api_version_error": "API response incompatible with this demo version.",
+    "loading_suffix": "tokenize, pad, one CNN forward pass",
+    "trace_labels": {
+      "weights_file": "Weights file:",
+      "token_ids_head": "Token id head (vocab indices): "
+    },
+    "setup_help": {
+      "file_protocol_note": "Pages opened as file:// often cannot call localhost; use http:// or an explicit API base.",
+      "quick_fix_header": "Source:",
+      "quick_fix_lines": [
+        "dl-spam-classifier-master/dl-spam-classifier-master/ ships FastAPI inference and weights.",
+        "See INFERENCE.md in that folder for environment and startup."
+      ],
+      "error_suffix": "Error: {error}"
+    },
+    "credibility": {
+      "toggle_label": "Example failure case from small-text CNNs",
+      "failure_title": "Representative error",
+      "failure_detail": "Bland office lines (e.g. “Meeting at 3pm: bring the report”) are sometimes scored as spam; production systems layer more signals.",
+      "saturated_ui_note": "Bar caps near ~99.9% so saturated scores do not read as a literal 100%."
+    }
+  },
+  "labels": {
+    "spam": "Spam",
+    "not_spam": "Not spam",
+    "label_clear_ham": "Not spam",
+    "label_clear_spam": "Spam",
+    "label_uncertain_lean_ham": "Uncertain (leaning ham)",
+    "label_uncertain_lean_spam": "Uncertain (leaning spam)"
+  }
+}
