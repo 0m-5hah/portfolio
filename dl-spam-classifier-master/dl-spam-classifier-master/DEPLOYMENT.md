@@ -27,12 +27,12 @@ Environment variables (set in Render dashboard under Environment):
 
 Before triggering a deploy, verify locally:
 
-- [ ] `outputs/dl_model.onnx` exists and is **not** an LFS pointer stub (run `python download_models.py` locally to check, or open the file — it should start with `ONNX` not `version https://git-lfs`)
+- [ ] `outputs/spam_weights.npz` exists and is **not** an LFS pointer stub (file should be ~7.3 MB)
 - [ ] `outputs/tokenizer.json` exists and is valid JSON (not an LFS pointer stub)
-- [ ] `requirements-api.txt` lists `onnxruntime-cpu` — **no tensorflow or tf-keras**
-- [ ] `download_models.py` references `dl_model.onnx`, not `dl_model.keras`
-- [ ] `spam_inference.py` imports `onnxruntime`, not `tensorflow`
-- [ ] `inference_output_config.json` backend string says "ONNX Runtime", not "TensorFlow/Keras"
+- [ ] `requirements-api.txt` lists only `fastapi`, `uvicorn`, `numpy`, `pydantic` — **no tensorflow, tf-keras, or onnxruntime**
+- [ ] `download_models.py` references `spam_weights.npz`, not `dl_model.keras` or `dl_model.onnx`
+- [ ] `spam_inference.py` imports only `numpy` — no `tensorflow` or `onnxruntime`
+- [ ] `inference_output_config.json` backend string says "ONNX Runtime (CPU)" or similar — **not "TensorFlow/Keras"**
 - [ ] Quick local smoke-test passes:
   ```
   python -c "
@@ -71,11 +71,32 @@ Before triggering a deploy, verify locally:
 ### 4. Out of memory — TF 2.17 exceeded 512 MB on Render free tier
 **Symptom:** Deploy failed with `==> Out of memory (used over 512Mi)` during startup.
 **Cause:** TensorFlow 2.17 uses ~400–500 MB just to import, pushing the service over Render's 512 MB limit before it could even open a port.
-**Fix:** Switched the entire runtime from TensorFlow to ONNX Runtime.
-- Converted `dl_model.keras` → `dl_model.onnx` using `convert_to_onnx.py` (run once locally)
-- Rewrote `spam_inference.py` to use `onnxruntime` + a pure-Python tokenizer (no Keras dependency)
-- Rewrote `spam_attribution.py` to use the ONNX session directly
-- `requirements-api.txt` now only needs `onnxruntime-cpu`, `fastapi`, `uvicorn`, `numpy`, `pydantic` (~150 MB total)
+**First attempt fix:** Switched to ONNX Runtime (`onnxruntime-cpu` → then `onnxruntime`). Still OOM — see issue 7 below.
+
+---
+
+### 5. `onnxruntime-cpu` not found on Render's Linux build
+**Symptom:** `ERROR: No matching distribution found for onnxruntime-cpu>=1.17`
+**Cause:** The `onnxruntime-cpu` package name doesn't exist as a pip-installable wheel on Render's Linux. The correct name is just `onnxruntime`.
+**Fix:** Changed `requirements-api.txt` from `onnxruntime-cpu>=1.17` to `onnxruntime>=1.16`.
+
+---
+
+### 6. tf2onnx `from_keras` API fails with Keras 3 models
+**Symptom:** `KeyError: 'keras_tensor_20'` during ONNX conversion.
+**Cause:** `tf2onnx.convert.from_keras()` has a bug with Keras 3 model objects.
+**Fix:** Export the model as a SavedModel first (`model.export(path)`), then convert using the `tf2onnx` CLI (`python -m tf2onnx.convert --saved-model ...`). See `convert_to_onnx.py`.
+
+---
+
+### 7. Out of memory — ONNX Runtime also exceeded 512 MB
+**Symptom:** Deploy started, model began loading, then `==> Out of memory (used over 512Mi)`.
+**Cause:** `onnxruntime` itself uses ~150 MB of resident memory. Combined with Python (~30MB), numpy (~40MB), and fastapi/uvicorn (~50MB), total idle memory ~270MB. Adding session initialisation (graph optimisation passes) pushed it over 512MB.
+**Fix:** Eliminated all ML runtime libraries entirely. Switched to **pure numpy forward pass**:
+- `extract_weights.py` (run once locally): extracts all layer weights from `dl_model.keras` into `outputs/spam_weights.npz` (7.3 MB)
+- `spam_inference.py` rewritten as a numpy CNN: Embedding lookup → Conv1D via `stride_tricks` + matmul → GlobalMaxPool → Dense → sigmoid
+- `requirements-api.txt` now only needs `fastapi`, `uvicorn`, `numpy`, `pydantic` (~80 MB total)
+- Verified outputs identical to original TF model (0.9951 spam / 0.0000 ham)
 
 ---
 
