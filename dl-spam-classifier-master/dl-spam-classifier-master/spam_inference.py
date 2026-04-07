@@ -1,6 +1,7 @@
 """
-Load dl_model.onnx + tokenizer.json and score a single SMS-style string.
-Uses onnxruntime-cpu only — no TensorFlow dependency at runtime.
+Load spam_weights.npz + tokenizer.json and score SMS-style strings.
+Pure numpy forward pass — no TensorFlow, no ONNX Runtime.
+Architecture: Embedding → Conv1D(relu) → GlobalMaxPool → Dense(relu) → Dense(sigmoid)
 """
 from __future__ import annotations
 
@@ -9,18 +10,13 @@ import time
 from pathlib import Path
 
 import numpy as np
-import onnxruntime as ort
 
 from output_config import load_inference_output_config
 
 BASE_DIR = Path(__file__).resolve().parent
 OUTPUTS_DIR = BASE_DIR / "outputs"
-MODEL_PATH = OUTPUTS_DIR / "dl_model.onnx"
+WEIGHTS_PATH = OUTPUTS_DIR / "spam_weights.npz"
 TOKENIZER_PATH = OUTPUTS_DIR / "tokenizer.json"
-
-
-def _max_len() -> int:
-    return int(load_inference_output_config()["max_len"])
 
 
 def _pad_sequences(sequences: list[list[int]], maxlen: int) -> np.ndarray:
@@ -41,8 +37,7 @@ class _LightTokenizer:
         self.oov_token = oov_token
         self.split = " "
         self._oov_id = word_index.get(oov_token) if oov_token else None
-        _table = str.maketrans(filters, " " * len(filters))
-        self._table = _table
+        self._table = str.maketrans(filters, " " * len(filters))
 
     def texts_to_sequences(self, texts: list[str]) -> list[list[int]]:
         seqs = []
@@ -72,13 +67,10 @@ class _LightTokenizer:
 
 def _load_tokenizer() -> _LightTokenizer:
     if not TOKENIZER_PATH.is_file():
-        raise FileNotFoundError(
-            f"Missing {TOKENIZER_PATH}. Run train_and_export_spam.py first."
-        )
+        raise FileNotFoundError(f"Missing {TOKENIZER_PATH}.")
     with open(TOKENIZER_PATH, encoding="utf-8") as f:
         data = json.load(f)
     cfg = data.get("config", data)
-    word_index: dict[str, int] = {}
     raw_wi = cfg.get("word_index", "{}")
     if isinstance(raw_wi, str):
         raw_wi = json.loads(raw_wi)
@@ -89,23 +81,66 @@ def _load_tokenizer() -> _LightTokenizer:
     return _LightTokenizer(word_index=word_index, filters=filters, lower=lower, oov_token=oov_token)
 
 
+class _NumpyModel:
+    """Forward pass for Embedding → Conv1D(relu) → GlobalMaxPool → Dense(relu) → Dense(sigmoid)."""
+
+    def __init__(self, weights_path: Path):
+        w = np.load(str(weights_path))
+        self.emb   = w["emb"].astype(np.float32)    # (vocab, embed_dim)
+        self.conv_k = w["conv_k"].astype(np.float32) # (kernel_size, embed_dim, filters)
+        self.conv_b = w["conv_b"].astype(np.float32) # (filters,)
+        self.d1_k  = w["d1_k"].astype(np.float32)   # (filters, units)
+        self.d1_b  = w["d1_b"].astype(np.float32)   # (units,)
+        self.d2_k  = w["d2_k"].astype(np.float32)   # (units, 1)
+        self.d2_b  = w["d2_b"].astype(np.float32)   # (1,)
+        self.kernel_size = self.conv_k.shape[0]
+        self.n_filters = self.conv_k.shape[2]
+        # Pre-flatten conv kernel for fast matmul
+        self._conv_k_flat = self.conv_k.reshape(-1, self.n_filters)  # (k*embed, filters)
+
+    def predict(self, token_ids: np.ndarray) -> np.ndarray:
+        """token_ids: (batch, seq_len) int/float → returns (batch,) float32 probabilities."""
+        ids = token_ids.astype(np.int32)
+        ids = np.clip(ids, 0, self.emb.shape[0] - 1)
+
+        # Embedding lookup
+        x = self.emb[ids]  # (batch, seq_len, embed_dim)
+
+        batch, seq_len, embed_dim = x.shape
+        k = self.kernel_size
+        out_len = seq_len - k + 1
+
+        # Conv1D via sliding window + matmul
+        shape = (batch, out_len, k, embed_dim)
+        strides = (x.strides[0], x.strides[1], x.strides[1], x.strides[2])
+        windows = np.lib.stride_tricks.as_strided(x, shape=shape, strides=strides)
+        windows_flat = windows.reshape(batch, out_len, -1)           # (batch, out_len, k*embed)
+        conv_out = windows_flat @ self._conv_k_flat + self.conv_b    # (batch, out_len, filters)
+        conv_out = np.maximum(0.0, conv_out)                         # relu
+
+        # GlobalMaxPooling
+        pooled = conv_out.max(axis=1)                                # (batch, filters)
+
+        # Dense + relu
+        h = np.maximum(0.0, pooled @ self.d1_k + self.d1_b)         # (batch, units)
+
+        # Dense + sigmoid
+        logits = h @ self.d2_k + self.d2_b                          # (batch, 1)
+        return (1.0 / (1.0 + np.exp(-logits))).reshape(-1).astype(np.float32)
+
+
 def load_model_and_tokenizer():
-    if not MODEL_PATH.is_file():
+    if not WEIGHTS_PATH.is_file():
         raise FileNotFoundError(
-            f"Missing {MODEL_PATH}. Run convert_to_onnx.py to generate it."
+            f"Missing {WEIGHTS_PATH}. Run extract_weights.py to generate it."
         )
-    sess_opts = ort.SessionOptions()
-    sess_opts.intra_op_num_threads = 1
-    sess_opts.inter_op_num_threads = 1
-    session = ort.InferenceSession(str(MODEL_PATH), sess_options=sess_opts, providers=["CPUExecutionProvider"])
+    model = _NumpyModel(WEIGHTS_PATH)
     tokenizer = _load_tokenizer()
-    return session, tokenizer
+    return model, tokenizer
 
 
-def _run_session(session: ort.InferenceSession, padded: np.ndarray) -> np.ndarray:
-    input_name = session.get_inputs()[0].name
-    # ONNX model was exported from SavedModel with float32 input
-    return session.run(None, {input_name: padded.astype(np.float32)})[0].reshape(-1)
+def _run_session(model: _NumpyModel, padded: np.ndarray) -> np.ndarray:
+    return model.predict(padded)
 
 
 def predict_spam_probability(text: str, model, tokenizer) -> tuple[float, dict]:
@@ -127,7 +162,7 @@ def predict_spam_probability_detailed(
     padded = _pad_sequences(seq, max_len)
 
     t0 = time.perf_counter()
-    out = _run_session(model, padded)
+    out = model.predict(padded)
     inference_ms = round((time.perf_counter() - t0) * 1000.0, 2)
 
     prob = float(out[0])
@@ -135,7 +170,7 @@ def predict_spam_probability_detailed(
         "max_len": max_len,
         "token_count": n_tokens,
         "truncated": truncated,
-        "model_file": MODEL_PATH.name,
+        "model_file": WEIGHTS_PATH.name,
         "padded_shape": [int(x) for x in padded.shape],
         "architecture": trace_meta["architecture"],
         "token_ids_head": [int(x) for x in raw_ids[:48]],
