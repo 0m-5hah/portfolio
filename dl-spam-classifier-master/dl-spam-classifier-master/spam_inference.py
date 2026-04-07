@@ -1,27 +1,21 @@
 """
-Load dl_model.keras + tokenizer.json and score a single SMS-style string.
-Trace strings and max_len come from inference_output_config.json (see output_config.py).
+Load dl_model.onnx + tokenizer.json and score a single SMS-style string.
+Uses onnxruntime-cpu only — no TensorFlow dependency at runtime.
 """
 from __future__ import annotations
 
-from pathlib import Path
+import json
 import time
+from pathlib import Path
 
 import numpy as np
-import tensorflow as tf
-
-try:
-    from tf_keras.preprocessing.sequence import pad_sequences
-    from tf_keras.preprocessing.text import tokenizer_from_json
-except ImportError:
-    from tensorflow.keras.preprocessing.sequence import pad_sequences  # type: ignore
-    from tensorflow.keras.preprocessing.text import tokenizer_from_json  # type: ignore
+import onnxruntime as ort
 
 from output_config import load_inference_output_config
 
 BASE_DIR = Path(__file__).resolve().parent
 OUTPUTS_DIR = BASE_DIR / "outputs"
-MODEL_PATH = OUTPUTS_DIR / "dl_model.keras"
+MODEL_PATH = OUTPUTS_DIR / "dl_model.onnx"
 TOKENIZER_PATH = OUTPUTS_DIR / "tokenizer.json"
 
 
@@ -29,32 +23,91 @@ def _max_len() -> int:
     return int(load_inference_output_config()["max_len"])
 
 
-def _load_tokenizer():
+def _pad_sequences(sequences: list[list[int]], maxlen: int) -> np.ndarray:
+    out = np.zeros((len(sequences), maxlen), dtype=np.int32)
+    for i, seq in enumerate(sequences):
+        trunc = seq[:maxlen]
+        out[i, : len(trunc)] = trunc
+    return out
+
+
+class _LightTokenizer:
+    """Minimal re-implementation of Keras Tokenizer loaded from tokenizer.json."""
+
+    def __init__(self, word_index: dict[str, int], filters: str, lower: bool, oov_token: str | None):
+        self.word_index = word_index
+        self.filters = filters
+        self.lower = lower
+        self.oov_token = oov_token
+        self.split = " "
+        self._oov_id = word_index.get(oov_token) if oov_token else None
+        _table = str.maketrans(filters, " " * len(filters))
+        self._table = _table
+
+    def texts_to_sequences(self, texts: list[str]) -> list[list[int]]:
+        seqs = []
+        for text in texts:
+            if self.lower:
+                text = text.lower()
+            text = text.translate(self._table)
+            ids = []
+            for w in text.split():
+                if not w:
+                    continue
+                wid = self.word_index.get(w)
+                if wid is None:
+                    if self._oov_id is not None:
+                        ids.append(self._oov_id)
+                else:
+                    ids.append(wid)
+            seqs.append(ids)
+        return seqs
+
+    def text_to_word_sequence_list(self, text: str) -> list[str]:
+        if self.lower:
+            text = text.lower()
+        text = text.translate(self._table)
+        return [w for w in text.split() if w]
+
+
+def _load_tokenizer() -> _LightTokenizer:
     if not TOKENIZER_PATH.is_file():
         raise FileNotFoundError(
-            f"Missing {TOKENIZER_PATH}. After training, export the Keras Tokenizer once:\n"
-            '  with open(OUT_DIR / "tokenizer.json", "w", encoding="utf-8") as f:\n'
-            "      f.write(tokenizer.to_json())\n"
-            "See INFERENCE.md"
+            f"Missing {TOKENIZER_PATH}. Run train_and_export_spam.py first."
         )
     with open(TOKENIZER_PATH, encoding="utf-8") as f:
-        return tokenizer_from_json(f.read())
+        data = json.load(f)
+    cfg = data.get("config", data)
+    word_index: dict[str, int] = {}
+    raw_wi = cfg.get("word_index", "{}")
+    if isinstance(raw_wi, str):
+        raw_wi = json.loads(raw_wi)
+    word_index = {k: int(v) for k, v in raw_wi.items()}
+    filters = cfg.get("filters", '!"#$%&()*+,-./:;<=>?@[\\]^_`{|}~\t\n')
+    lower = bool(cfg.get("lower", True))
+    oov_token = cfg.get("oov_token") or None
+    return _LightTokenizer(word_index=word_index, filters=filters, lower=lower, oov_token=oov_token)
 
 
 def load_model_and_tokenizer():
     if not MODEL_PATH.is_file():
         raise FileNotFoundError(
-            f"Missing {MODEL_PATH}. Train with the notebook (DEMO_MODE) or copy the saved model into outputs/."
+            f"Missing {MODEL_PATH}. Run convert_to_onnx.py to generate it."
         )
-    model = tf.keras.models.load_model(MODEL_PATH)
+    sess_opts = ort.SessionOptions()
+    sess_opts.intra_op_num_threads = 1
+    sess_opts.inter_op_num_threads = 1
+    session = ort.InferenceSession(str(MODEL_PATH), sess_options=sess_opts, providers=["CPUExecutionProvider"])
     tokenizer = _load_tokenizer()
-    return model, tokenizer
+    return session, tokenizer
+
+
+def _run_session(session: ort.InferenceSession, padded: np.ndarray) -> np.ndarray:
+    input_name = session.get_inputs()[0].name
+    return session.run(None, {input_name: padded.astype(np.int32)})[0].reshape(-1)
 
 
 def predict_spam_probability(text: str, model, tokenizer) -> tuple[float, dict]:
-    """
-    Return P(spam) in [0, 1] and a trace dict for the portfolio UI (honest pipeline steps).
-    """
     prob, trace, _padded = predict_spam_probability_detailed(text, model, tokenizer)
     return prob, trace
 
@@ -62,9 +115,6 @@ def predict_spam_probability(text: str, model, tokenizer) -> tuple[float, dict]:
 def predict_spam_probability_detailed(
     text: str, model, tokenizer
 ) -> tuple[float, dict, np.ndarray]:
-    """
-    Same as predict_spam_probability plus padded int32 tensor (1, max_len) for attribution / batching.
-    """
     cfg = load_inference_output_config()
     max_len = int(cfg["max_len"])
     trace_meta = cfg["trace"]
@@ -73,11 +123,13 @@ def predict_spam_probability_detailed(
     raw_ids = list(seq[0]) if seq and seq[0] is not None else []
     n_tokens = len(raw_ids)
     truncated = n_tokens > max_len
-    padded = pad_sequences(seq, maxlen=max_len, padding="post", truncating="post")
+    padded = _pad_sequences(seq, max_len)
+
     t0 = time.perf_counter()
-    out = model.predict(padded, verbose=0)
+    out = _run_session(model, padded)
     inference_ms = round((time.perf_counter() - t0) * 1000.0, 2)
-    prob = float(np.asarray(out).reshape(-1)[0])
+
+    prob = float(out[0])
     trace = {
         "max_len": max_len,
         "token_count": n_tokens,

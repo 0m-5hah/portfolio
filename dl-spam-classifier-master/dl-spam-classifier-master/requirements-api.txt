@@ -1,7 +1,6 @@
-# Optional: local API for project-demos.html (CNN inference)
+# Runtime dependencies for the spam inference API (no TensorFlow needed)
 fastapi>=0.109
 uvicorn[standard]>=0.27
-tensorflow-cpu==2.17.0
-tf-keras
+onnxruntime-cpu>=1.17
 numpy
 pydantic>=2

@@ -1,18 +1,16 @@
 """
 Token-level highlights via occlusion: mask one sequence position at a time, measure |Δ P(spam)|.
-Cheap, model-faithful enough for a demo; not integrated gradients / LIME.
+No TensorFlow dependency — uses onnxruntime via spam_inference helpers.
 """
 from __future__ import annotations
 
 import numpy as np
-import tensorflow as tf
-from tensorflow.keras.preprocessing.text import text_to_word_sequence
 
 from output_config import load_inference_output_config
+from spam_inference import _run_session, _pad_sequences
 
 
 def _word_spans_in_original(text: str, words: list[str]) -> list[tuple[int, int]]:
-    """Map tokenizer word sequence to character spans in the original string (SMS-style ASCII)."""
     lower = text.lower()
     pos = 0
     out: list[tuple[int, int]] = []
@@ -33,7 +31,6 @@ def _non_overlapping_top_spans(
     items: list[tuple[tuple[int, int], float]],
     top_k: int,
 ) -> list[dict]:
-    """Greedy: highest |Δ| first, skip spans that overlap already chosen."""
     items = sorted(items, key=lambda x: -x[1])
     chosen: list[tuple[tuple[int, int], float]] = []
     for span, score in items:
@@ -53,7 +50,7 @@ def _non_overlapping_top_spans(
 
 def occlusion_highlight_spans(
     text: str,
-    model: tf.keras.Model,
+    model,
     tokenizer,
     padded: np.ndarray,
     max_len: int,
@@ -63,12 +60,7 @@ def occlusion_highlight_spans(
     if not acfg.get("enabled", True):
         return []
 
-    words = text_to_word_sequence(
-        text,
-        filters=tokenizer.filters,
-        lower=tokenizer.lower,
-        split=tokenizer.split,
-    )
+    words = tokenizer.text_to_word_sequence_list(text)
     if len(words) > max_len:
         words = words[:max_len]
     if not words:
@@ -86,7 +78,7 @@ def occlusion_highlight_spans(
         j = int(active[k])
         batch[k + 1, j] = 0
 
-    preds = model.predict(batch, verbose=0).reshape(-1)
+    preds = _run_session(model, batch)
     p0 = float(preds[0])
     p_masked = preds[1:]
     deltas = np.abs(p0 - p_masked)
@@ -109,12 +101,9 @@ def occlusion_highlight_spans(
         return []
 
     max_d = max(d for _, d in all_items)
-    # Flat output: every token matters equally little; nothing to show
     if max_d < 1e-5:
         return []
 
-    # Prefer tokens above min_abs_delta; if everything is below (common for ham / saturated spam),
-    # fall back to relative ranking so the UI still shows *something* meaningful.
     pool = [(s, d) for s, d in all_items if d >= min_abs]
     if not pool:
         pool = all_items

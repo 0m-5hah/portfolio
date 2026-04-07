@@ -11,9 +11,9 @@ OUTPUTS_DIR = os.path.join(os.path.dirname(__file__), "outputs")
 LFS_POINTER_MAGIC = b"version https://git-lfs.github.com/spec/"
 
 FILES = {
-    "dl_model.keras": (
+    "dl_model.onnx": (
         "https://media.githubusercontent.com/media/0m-5hah/portfolio/main/"
-        "dl-spam-classifier-master/dl-spam-classifier-master/outputs/dl_model.keras"
+        "dl-spam-classifier-master/dl-spam-classifier-master/outputs/dl_model.onnx"
     ),
     "tokenizer.json": (
         "https://media.githubusercontent.com/media/0m-5hah/portfolio/main/"
