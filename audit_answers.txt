@@ -1,0 +1,10 @@
+PORTFOLIO AUDIT — OUTSTANDING ITEMS
+================================================================================
+
+[GIT-2] spam-pipeline.svg — committed ✅ (see below)
+
+[SEO-2] og:image — added using hero-style branded card ✅ (see below)
+
+================================================================================
+All audit items resolved.
+================================================================================

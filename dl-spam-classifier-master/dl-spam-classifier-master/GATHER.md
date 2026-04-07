@@ -10,7 +10,7 @@ Fill this in when you are ready; then you (or an agent) can implement retraining
 ## If you want better model quality (retrain)
 
 - [ ] **Extra labeled SMS data** (optional): a CSV with columns like `text`, `label` (0 = ham, 1 = spam), or links to **public** datasets you are allowed to use, plus license notes.
-- [ ] **Goal metric**: e.g. “raise spam recall even if ham precision drops slightly” — drives threshold and class weights.
+- [ ] **Goal metric**: e.g. “raise spam recall even if ham precision drops slightly”; that drives threshold and class weights.
 - [ ] **Constraint**: max training time or GPU (CPU-only is fine but slower).
 
 ## If you want the portfolio to call the real Keras model

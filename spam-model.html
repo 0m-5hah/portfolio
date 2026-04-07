@@ -5,13 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="CNN spam classifier: architecture, baselines, test-set failures, metrics exports, TensorFlow and FastAPI stack.">
     <title>Spam classifier model | Om Shah</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
     <link rel="stylesheet" href="styles.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body class="page-demo">
-    <nav class="navbar">
+    <nav class="navbar" aria-label="Main navigation">
         <a href="index.html" class="nav-brand">
             <span class="terminal-prompt">&gt;_</span>
             <span class="brand-text">security<span class="accent">.portfolio</span></span>
@@ -20,7 +21,7 @@
             <li><a href="index.html#home">Home</a></li>
             <li><a href="project-demos.html">Project demos</a></li>
             <li><a href="index.html#contact">Contact</a></li>
-            <li><a href="OM SHAH - RESUME (1).pdf" class="nav-resume" target="_blank" rel="noopener">Resume</a></li>
+            <li><a href="om-shah-resume.pdf" class="nav-resume" target="_blank" rel="noopener">Resume</a></li>
         </ul>
         <button class="mobile-menu-btn" aria-label="Toggle menu">
             <span></span>
@@ -40,7 +41,7 @@
                         Built with GloVe embeddings and a Conv1D stack in TensorFlow/Keras; held-out accuracy about <strong>98.7%</strong> on the exported run. The portfolio demo calls a FastAPI service that loads <code>outputs/dl_model.keras</code> and <code>tokenizer.json</code>.
                     </p>
                     <p class="demo-note">
-                        <a href="OM SHAH - RESUME (1).pdf" download="Om-Shah-Resume.pdf">Resume (PDF)</a>
+                        <a href="om-shah-resume.pdf" download="om-shah-resume.pdf">Resume (PDF)</a>
                         · <a href="project-demos.html">Live demo</a>
                     </p>
                 </header>
@@ -216,6 +217,17 @@
                 });
             }
         });
+
+        // Resume download tracking for GoatCounter
+        document.querySelectorAll('a[href*="om-shah-resume.pdf"]').forEach(function (link) {
+            link.addEventListener('click', function () {
+                if (window.goatcounter && window.goatcounter.count) {
+                    window.goatcounter.count({ path: 'resume-download', title: 'Resume Download', event: true });
+                }
+            });
+        });
     </script>
+    <!-- GoatCounter analytics: replace YOUR-CODE with your goatcounter.com site code -->
+    <script data-goatcounter="https://omshah.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 </body>
 </html>

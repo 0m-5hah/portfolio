@@ -5,7 +5,7 @@ __pycache__/
 Thumbs.db
 *.log
 
-# Internal dev / AI handoff notes — not for recruiters
+# Internal dev / AI handoff notes - not for recruiters
 SPAM-CLASSIFIER-PORTFOLIO-NOTES.md
 run_spam_web_ui_test.py
 spam-web-test-corpus.txt
@@ -13,3 +13,6 @@ spam-ui-test-output/
 
 # Private folder
 secret/
+
+# Large ML model binary — host externally (Hugging Face / GDrive)
+*.keras

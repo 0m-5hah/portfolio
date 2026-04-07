@@ -5,7 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Om Shah: UTS Bachelor of Cybersecurity (2026), Automation Engineer at Migrate Zone. Python automation, network security tooling (Sentinel capstone), workflow engineering. Sydney.">
     <meta name="theme-color" content="#0a0a0f">
+    <meta property="og:title" content="Om Shah | Cybersecurity &amp; Automation">
+    <meta property="og:description" content="UTS cybersecurity student with hands-on experience in network scanning, Python automation, and web application testing. Building tools that streamline workflows and strengthen security posture.">
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="og-image.svg">
     <title>Om Shah | Cybersecurity &amp; Automation</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
     <link rel="stylesheet" href="styles.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -14,7 +19,7 @@
 <body>
     <div class="cursor-glow"></div>
     
-    <nav class="navbar">
+        <nav class="navbar" aria-label="Main navigation">
         <a href="#home" class="nav-brand">
             <span class="terminal-prompt">&gt;_</span>
             <span class="brand-text">security<span class="accent">.portfolio</span></span>
@@ -23,11 +28,11 @@
             <li><a href="#home">Home</a></li>
             <li><a href="#about">About</a></li>
             <li><a href="#experience">Experience</a></li>
-            <li><a href="#skills">Skills</a></li>
             <li><a href="#projects">Projects</a></li>
             <li><a href="#education">Education</a></li>
+            <li><a href="#skills">Skills</a></li>
             <li><a href="#contact">Contact</a></li>
-            <li><a href="OM SHAH - RESUME (1).pdf" class="nav-resume" target="_blank" rel="noopener">Resume</a></li>
+            <li><a href="om-shah-resume.pdf" class="nav-resume" target="_blank" rel="noopener">Resume</a></li>
         </ul>
         <button class="mobile-menu-btn" aria-label="Toggle menu">
             <span></span>
@@ -42,7 +47,7 @@
                 <div class="hero-text">
                     <p class="hero-subtitle typed-text">
                         <span class="typing-indicator"></span>
-                        Initializing secure connection...
+                        Hi there — welcome to my portfolio.
                     </p>
                     <h1 class="hero-title">
                         <span class="greeting">Hello, I'm</span>
@@ -55,9 +60,9 @@
                         streamline workflows and strengthen security posture.
                     </p>
                     <p class="hero-recruiter-note">
-                        Roles, dates, and project scope align with the
-                        <a href="OM SHAH - RESUME (1).pdf" download="Om-Shah-Resume.pdf">resume (PDF)</a>.
-                        Interactive demos are front-end shells over real or documented backends where stated.
+                        All roles, dates, and project details match my
+                        <a href="om-shah-resume.pdf" download="om-shah-resume.pdf">resume (PDF)</a>.
+                        The interactive demos on this site connect to real, working backends.
                     </p>
                     <div class="hero-cta">
                         <a href="#projects" class="btn btn-primary">
@@ -72,7 +77,7 @@
                             <span class="btn-icon">📧</span>
                             Get In Touch
                         </a>
-                        <a href="OM SHAH - RESUME (1).pdf" class="btn btn-secondary" target="_blank" rel="noopener" download="Om-Shah-Resume.pdf">
+                        <a href="om-shah-resume.pdf" class="btn btn-secondary" target="_blank" rel="noopener" download="om-shah-resume.pdf">
                             <span class="btn-icon">📄</span>
                             Resume (PDF)
                         </a>
@@ -131,18 +136,21 @@
                             for audits and reviews, and I build security tools that matter.
                         </p>
                         <p>
-                            At Migrate Zone, I was promoted to Automation Engineer to support higher
-                            documentation volumes after expansion into the UAE; I co-led modular
-                            automations that trimmed average case handling from about 8 hours to
-                            about 5.3 hours per case in a measured trial. I've built OCR-based
-                            completeness checks, document classification pipelines, and prefill tools
-                            that cut repetitive data entry.
+                            At Migrate Zone, I was promoted to Automation Engineer to handle higher
+                            document volumes after the company expanded into the UAE. I co-led a set
+                            of automation tools that cut the average time to process a visa case from
+                            roughly 8 hours down to 5.3 hours. I've built tools that use text
+                            recognition (OCR) to check documents for completeness, automatically sort
+                            them by type, and pre-fill form templates — removing hours of repetitive
+                            data entry.
                         </p>
                         <p>
-                            My capstone project, Sentinel, is an automated network vulnerability 
-                            assessment tool that scans subnets with Nmap/NSE and cross-references 
-                            results with NVD CVE data. I'm passionate about practical security 
-                            and automation that scales.
+                            My final-year capstone project, Sentinel, is a security tool that 
+                            automatically scans a computer network, identifies every connected device 
+                            and service, and checks each one against a public database of known 
+                            security flaws. It then produces a clear report of what was found and 
+                            how to fix it. I'm passionate about practical security and automation 
+                            that solves real problems.
                         </p>
                         <div class="about-stats">
                             <div class="stat">
@@ -157,15 +165,6 @@
                                 <span class="stat-number">2026</span>
                                 <span class="stat-label">UTS Graduation</span>
                             </div>
-                        </div>
-                    </div>
-                    <div class="about-image">
-                        <div class="image-frame">
-                            <div class="image-placeholder">
-                                <span class="placeholder-icon">👤</span>
-                                <span class="placeholder-text">Om Shah</span>
-                            </div>
-                            <div class="frame-border"></div>
                         </div>
                     </div>
                 </div>
@@ -189,8 +188,8 @@
                             <li>Promoted to Automation Engineer to update and streamline internal visa processing workflows and support higher documentation volumes after expansion into the UAE</li>
                             <li>Expanded the internal automation toolkit and consolidated financial audit checks into a single systematic workflow, minimising duplicate checks and manual cross referencing</li>
                             <li>Co-led the redesign and rollout of modular automations for file naming, risk flagging and routing, trimming average case handling time from ~8.0 hours to ~5.3 hours per case (~35% faster), based on a one-week trial with four mixed senior–junior teams (two on the new toolkit, two on the old process)</li>
-                            <li>Developed a prefill tool that structures validated case data into Excel lodgement templates, eliminating repetitive data checks and speeding up internal lodgement preparation</li>
-                            <li>Built a lightweight scraping tool to monitor policy update pages so staff do not need to run manual website checks for each case</li>
+                            <li>Built a pre-fill tool that pulls verified case data into Excel submission forms automatically, removing the need for staff to copy information by hand before each visa application</li>
+                            <li>Built a lightweight monitoring tool that checks government policy pages for updates, so staff no longer need to manually visit each site before processing a case</li>
                         </ul>
                     </div>
                     <div class="experience-item">
@@ -201,8 +200,8 @@
                         <p class="experience-company">Migrate Zone · Jul 2023 to present · Part-time</p>
                         <ul class="experience-bullets">
                             <li>Promoted from Administrative Assistant after automating data entry with Python scripts, removing a large portion of manual typing for each case</li>
-                            <li>Co-created a collated PDF and OCR based completeness check that reduced manual review time and cut missed or outdated documents and lapsed agreements, catching dozens of document issues per month before lodgement</li>
-                            <li>Created simple step by step guides so administrative staff could utilise the toolkit without developer support</li>
+                            <li>Co-built a tool that automatically reads and checks all uploaded documents using text recognition (OCR), catching dozens of missing or outdated items per month before visa applications were submitted</li>
+                            <li>Wrote simple step-by-step guides so non-technical admin staff could use the toolkit independently without needing developer help</li>
                         </ul>
                     </div>
                     <div class="experience-item">
@@ -212,71 +211,8 @@
                         </div>
                         <p class="experience-company">ITonKey · Part-time</p>
                         <ul class="experience-bullets">
-                            <li>Created Python-based solutions, including an invoicing tool which turned structured data into branded, multi-page PDF invoices with templated layouts tailored to ITonKey's internal processes</li>
-                            <li>Assisted in developing custom software for small business clients, focusing on inventory management systems with stock tracking and basic reporting to minimise loss</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <section id="skills" class="skills">
-            <div class="container">
-                <h2 class="section-title">
-                    <span class="section-number">03.</span>
-                    Technical Arsenal
-                </h2>
-                <div class="skills-grid">
-                    <div class="skill-category">
-                        <div class="category-header">
-                            <span class="category-icon">🔓</span>
-                            <h3>Offensive Security</h3>
-                        </div>
-                        <ul class="skill-list">
-                            <li><span class="skill-bullet"></span>Network Scanning (Nmap/NSE)</li>
-                            <li><span class="skill-bullet"></span>Vulnerability Assessment</li>
-                            <li><span class="skill-bullet"></span>Web Application Testing</li>
-                            <li><span class="skill-bullet"></span>CVE Analysis & NVD</li>
-                            <li><span class="skill-bullet"></span>Manual Penetration Testing</li>
-                        </ul>
-                    </div>
-                    <div class="skill-category">
-                        <div class="category-header">
-                            <span class="category-icon">🛡️</span>
-                            <h3>Defensive Security</h3>
-                        </div>
-                        <ul class="skill-list">
-                            <li><span class="skill-bullet"></span>Digital Forensics</li>
-                            <li><span class="skill-bullet"></span>Cryptography</li>
-                            <li><span class="skill-bullet"></span>Cloud Security (AWS)</li>
-                            <li><span class="skill-bullet"></span>Routing & Switching</li>
-                            <li><span class="skill-bullet"></span>Information Security Mgmt</li>
-                        </ul>
-                    </div>
-                    <div class="skill-category">
-                        <div class="category-header">
-                            <span class="category-icon">⚙️</span>
-                            <h3>Tools & Technologies</h3>
-                        </div>
-                        <ul class="skill-list">
-                            <li><span class="skill-bullet"></span>Metasploit</li>
-                            <li><span class="skill-bullet"></span>Wireshark</li>
-                            <li><span class="skill-bullet"></span>Nmap / NSE Scripts</li>
-                            <li><span class="skill-bullet"></span>Postman / Chrome DevTools / Jira</li>
-                            <li><span class="skill-bullet"></span>VMware / VirtualBox / Cisco Packet Tracer</li>
-                        </ul>
-                    </div>
-                    <div class="skill-category">
-                        <div class="category-header">
-                            <span class="category-icon">💻</span>
-                            <h3>Programming & Scripting</h3>
-                        </div>
-                        <ul class="skill-list">
-                            <li><span class="skill-bullet"></span>Python</li>
-                            <li><span class="skill-bullet"></span>Selenium</li>
-                            <li><span class="skill-bullet"></span>JSON / CSV / Excel</li>
-                            <li><span class="skill-bullet"></span>Git / GitHub</li>
-                            <li><span class="skill-bullet"></span>HTML / CSS</li>
+                            <li>Built an invoicing tool in Python that automatically generates branded, multi-page PDF invoices from a spreadsheet of billing data, replacing a manual formatting process</li>
+                            <li>Helped build inventory management software for small business clients, including stock tracking and basic reports to help them spot and reduce losses</li>
                         </ul>
                     </div>
                 </div>
@@ -286,7 +222,7 @@
         <section id="projects" class="projects">
             <div class="container">
                 <h2 class="section-title">
-                    <span class="section-number">04.</span>
+                    <span class="section-number">03.</span>
                     Featured Projects
                 </h2>
                 <div class="projects-grid">
@@ -299,19 +235,16 @@
                         <div class="project-content">
                             <div class="project-header">
                                 <span class="project-label">Featured Project</span>
-                                <div class="project-links">
-                                    <a href="https://github.com/0m-5hah" class="project-link" title="GitHub profile" target="_blank" rel="noopener">
-                                        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
-                                    </a>
-                                </div>
                             </div>
-                            <h3 class="project-title">Sentinel: automated network vulnerability assessment</h3>
+                            <h3 class="project-title">Sentinel: Automated Network Security Scanner</h3>
                             <p class="project-description">
-                                UTS Cybersecurity Capstone project. Python-based tool that scans target 
-                                subnets with Nmap/NSE and cross-references results with locally indexed 
-                                NVD CVE data. Flattened nested Nmap output, added CPE mapping for common 
-                                services, and reduced noise by disabling unsuitable OSV results. Exports 
-                                findings to JSON with documented verification commands.
+                                My final-year capstone project at UTS. A Python tool that automatically 
+                                scans a computer network, identifies every connected device and service 
+                                running on it, and checks each one against a public database of known 
+                                security flaws. It cleans up the raw scan output, maps services to their 
+                                known software identifiers, and produces a tidy report with steps to 
+                                verify each issue — giving any team a clear picture of where their 
+                                network is exposed.
                             </p>
                             <ul class="project-tech">
                                 <li>Python</li>
@@ -326,20 +259,16 @@
                         <div class="project-content">
                             <div class="project-header">
                                 <span class="folder-icon">📁</span>
-                                <div class="project-links">
-                                    <a href="https://github.com/0m-5hah" class="project-link" title="GitHub" target="_blank" rel="noopener">
-                                        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
-                                    </a>
-                                </div>
                             </div>
                             <h3 class="project-title">Immigration Case Workflow Automation Toolkit</h3>
                             <p class="project-description">
-                                Team Python pipeline that ingests staff-uploaded case documents, batch merges
-                                with Adobe PDF Services, runs OCR, and indexes pages. Scan quality checks use
-                                OCR text coverage and confidence scores per page. Visa subclass requirements
-                                are modelled in JSON or Excel; rule-based checks on OCR output and file metadata
-                                classify documents, detect missing items, and produce JSON/CSV summaries plus
-                                merged PDF packs for internal review.
+                                A team-built automation toolkit used at Migrate Zone to process immigration 
+                                case files. Staff upload documents; the tool merges them into a single PDF, 
+                                reads and extracts the text automatically (using OCR — text recognition 
+                                technology), and checks that every required document is present based on 
+                                the specific visa type. Missing or outdated items are flagged, and the 
+                                results are bundled into summary reports and review-ready PDF packages 
+                                for the team.
                             </p>
                             <ul class="project-tech">
                                 <li>Python</li>
@@ -354,11 +283,6 @@
                         <div class="project-content">
                             <div class="project-header">
                                 <span class="folder-icon">📁</span>
-                                <div class="project-links">
-                                    <a href="https://github.com/0m-5hah" class="project-link" title="GitHub" target="_blank" rel="noopener">
-                                        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
-                                    </a>
-                                </div>
                             </div>
                             <h3 class="project-title">PDF Invoicing & Document Tools</h3>
                             <p class="project-description">
@@ -379,18 +303,14 @@
                         <div class="project-content">
                             <div class="project-header">
                                 <span class="folder-icon">📁</span>
-                                <div class="project-links">
-                                    <a href="https://github.com/0m-5hah" class="project-link" title="GitHub" target="_blank" rel="noopener">
-                                        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
-                                    </a>
-                                </div>
                             </div>
-                            <h3 class="project-title">OCR Completeness Check & Prefill Tool</h3>
+                            <h3 class="project-title">Document Completeness Check &amp; Form Pre-fill Tool</h3>
                             <p class="project-description">
-                                Migrate Zone automation. Collated PDF and OCR-based completeness check 
-                                that reduced manual review time and caught document issues before 
-                                lodgement. Prefill tool structures validated case data into Excel 
-                                lodgement templates, eliminating repetitive data checks.
+                                A Migrate Zone automation tool that reads uploaded case documents using 
+                                text recognition, flags anything missing or out of date, and automatically 
+                                pre-fills the relevant Excel forms with verified data — cutting out the 
+                                manual checking that previously had to be done before each visa 
+                                application was submitted.
                             </p>
                             <ul class="project-tech">
                                 <li>Python</li>
@@ -405,10 +325,7 @@
                             <div class="project-header">
                                 <span class="folder-icon">📁</span>
                                 <div class="project-links">
-                                    <a href="https://github.com/0m-5hah" class="project-link" title="GitHub" target="_blank" rel="noopener">
-                                        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
-                                    </a>
-                                    <a href="project-demos.html" class="project-link" title="Live demo (CNN via hosted inference API)">
+                                    <a href="project-demos.html" class="project-link" title="Live demo">
                                         <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>
                                     </a>
                                     <a href="spam-model.html" class="project-link" title="About the model">
@@ -416,12 +333,14 @@
                                     </a>
                                 </div>
                             </div>
-                            <h3 class="project-title">SMS spam classifier (CNN + GloVe)</h3>
+                            <h3 class="project-title">SMS Spam Detector (Machine Learning)</h3>
                             <p class="project-description">
-                                Coursework project: text CNN with GloVe embeddings, stratified evaluation, and
-                                exported metrics and per-message predictions. Demonstrates end-to-end ML (training
-                                through serving): TensorFlow/Keras model, FastAPI inference, and a live portfolio demo
-                                backed by real forward passes rather than client-side rules.
+                                A university coursework project: a machine learning model trained to tell 
+                                the difference between spam and legitimate text messages. The model was 
+                                built with a neural network that understands word context, then deployed 
+                                as an API with a live demo on this site — when you type a message in the 
+                                demo, the actual model runs in the background to make the prediction 
+                                (not just a pre-written rule).
                             </p>
                             <ul class="project-tech">
                                 <li>Python</li>
@@ -429,14 +348,14 @@
                                 <li>GloVe</li>
                                 <li>Coursework</li>
                             </ul>
+                            <div class="project-demos-btn">
+                                <a href="project-demos.html" class="btn btn-primary">
+                                    <span class="btn-icon">⚡</span>
+                                    Try Live Demo
+                                </a>
+                            </div>
                         </div>
                     </article>
-                </div>
-                <div class="projects-demos-cta">
-                    <a href="project-demos.html" class="btn btn-secondary">
-                        <span class="btn-icon">🎬</span>
-                        See Project Demos
-                    </a>
                 </div>
             </div>
         </section>
@@ -444,7 +363,7 @@
         <section id="education" class="certifications">
             <div class="container">
                 <h2 class="section-title">
-                    <span class="section-number">05.</span>
+                    <span class="section-number">04.</span>
                     Education &amp; coursework
                 </h2>
                 <p class="section-intro">Degree and subject areas from my UTS transcript (not separate industry certifications).</p>
@@ -488,6 +407,69 @@
             </div>
         </section>
 
+        <section id="skills" class="skills">
+            <div class="container">
+                <h2 class="section-title">
+                    <span class="section-number">05.</span>
+                    Skills &amp; Tools
+                </h2>
+                <div class="skills-grid">
+                    <div class="skill-category">
+                        <div class="category-header">
+                            <span class="category-icon">🔓</span>
+                            <h3>Security Testing</h3>
+                        </div>
+                        <ul class="skill-list">
+                            <li><span class="skill-bullet"></span>Network Scanning (Nmap/NSE)</li>
+                            <li><span class="skill-bullet"></span>Vulnerability Assessment</li>
+                            <li><span class="skill-bullet"></span>Web Application Testing</li>
+                            <li><span class="skill-bullet"></span>Known Vulnerability Research</li>
+                            <li><span class="skill-bullet"></span>Penetration Testing</li>
+                        </ul>
+                    </div>
+                    <div class="skill-category">
+                        <div class="category-header">
+                            <span class="category-icon">🛡️</span>
+                            <h3>Defensive Security</h3>
+                        </div>
+                        <ul class="skill-list">
+                            <li><span class="skill-bullet"></span>Digital Forensics</li>
+                            <li><span class="skill-bullet"></span>Cryptography</li>
+                            <li><span class="skill-bullet"></span>Cloud Security (AWS)</li>
+                            <li><span class="skill-bullet"></span>Routing & Switching</li>
+                            <li><span class="skill-bullet"></span>Information Security Management</li>
+                        </ul>
+                    </div>
+                    <div class="skill-category">
+                        <div class="category-header">
+                            <span class="category-icon">⚙️</span>
+                            <h3>Tools & Technologies</h3>
+                        </div>
+                        <ul class="skill-list">
+                            <li><span class="skill-bullet"></span>Metasploit</li>
+                            <li><span class="skill-bullet"></span>Wireshark</li>
+                            <li><span class="skill-bullet"></span>Nmap / NSE Scripts</li>
+                            <li><span class="skill-bullet"></span>Postman / Chrome DevTools / Jira</li>
+                            <li><span class="skill-bullet"></span>VMware / VirtualBox / Cisco Packet Tracer</li>
+                        </ul>
+                    </div>
+                    <div class="skill-category">
+                        <div class="category-header">
+                            <span class="category-icon">💻</span>
+                            <h3>Programming & Scripting</h3>
+                        </div>
+                        <ul class="skill-list">
+                            <li><span class="skill-bullet"></span>Python</li>
+                            <li><span class="skill-bullet"></span>Selenium</li>
+                            <li><span class="skill-bullet"></span>JSON / CSV / Excel</li>
+                            <li><span class="skill-bullet"></span>Git / GitHub</li>
+                            <li><span class="skill-bullet"></span>HTML / CSS</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
         <section id="contact" class="contact">
             <div class="container">
                 <h2 class="section-title">
@@ -497,7 +479,7 @@
                 <div class="contact-content">
                     <p class="contact-text">
                         Open to cybersecurity and automation roles. Summary of experience, roles, and projects:
-                        <a href="OM SHAH - RESUME (1).pdf" download="Om-Shah-Resume.pdf">resume (PDF)</a>.
+                        <a href="om-shah-resume.pdf" download="om-shah-resume.pdf">resume (PDF)</a>.
                     </p>
                     <p class="contact-direct">
                         <a href="mailto:omsshah05@gmail.com">omsshah05@gmail.com</a>
@@ -522,10 +504,12 @@
 
     <footer class="footer">
         <p>Designed & Built with <span class="heart">♥</span> and Security in Mind</p>
-        <p class="footer-resume"><a href="OM SHAH - RESUME (1).pdf" download="Om-Shah-Resume.pdf">Download resume (PDF)</a></p>
+        <p class="footer-resume"><a href="om-shah-resume.pdf" download="om-shah-resume.pdf">Download resume (PDF)</a></p>
         <p class="copyright">© 2026 Om Shah. All rights reserved.</p>
     </footer>
 
     <script src="script.js"></script>
+    <!-- GoatCounter analytics: replace YOUR-CODE with your goatcounter.com site code -->
+    <script data-goatcounter="https://omshah.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 </body>
 </html>

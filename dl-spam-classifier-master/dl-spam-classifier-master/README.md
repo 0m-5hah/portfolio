@@ -118,7 +118,7 @@ Optional: `README_SETUP.txt` (PyCharm) and `README_CODE_WALKTHROUGH.txt` (code w
 
 - **Dataset:** Metrics are on **UCI SMS** only; real inboxes and modern phishing differ (domain shift).
 - **Errors:** The exported test run still has **14** wrong rows (**10** spam missed, **4** ham flagged) in `outputs/test_predictions_dl.csv`.
-- **Portfolio demo:** The live page uses **browser rules** unless you wire a backend to `dl_model.keras`.
+- **Portfolio demo:** `project-demos.html` calls the **trained CNN** through a small **local FastAPI** app (`api_server.py`); see **`INFERENCE.md`** for `tokenizer.json`, `uvicorn`, and serving the HTML over `http://`.
 
 ---
 
@@ -134,7 +134,7 @@ Optional: `README_SETUP.txt` (PyCharm) and `README_CODE_WALKTHROUGH.txt` (code w
 
 ## What to gather for a “v2” (optional)
 
-If you want to retrain or connect the real model to the site, collect the items in **`GATHER.md`** (checklist in this folder), then re-run the notebook or add a small API as described there.
+If you want to retrain or deploy inference, collect the items in **`GATHER.md`**, re-run the notebook, then use **`INFERENCE.md`** for the local API wired to the portfolio page.
 
 ---
 

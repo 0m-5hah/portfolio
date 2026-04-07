@@ -5,6 +5,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initScrollAnimations();
     initNavbarScroll();
     initTerminalTyping();
+    initStaggerDelays();
 });
 
 function initCursorGlow() {
@@ -88,43 +89,24 @@ function initScrollAnimations() {
         el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
         observer.observe(el);
     });
-
-    document.head.insertAdjacentHTML('beforeend', `
-        <style>
-            .animate-in {
-                opacity: 1 !important;
-                transform: translateY(0) !important;
-            }
-        </style>
-    `);
 }
 
 function initNavbarScroll() {
     const navbar = document.querySelector('.navbar');
-    let lastScroll = 0;
-
-    window.addEventListener('scroll', () => {
-        const currentScroll = window.pageYOffset;
-
-        if (currentScroll > 100) {
-            navbar.style.boxShadow = '0 4px 20px rgba(0, 0, 0, 0.3)';
-        } else {
-            navbar.style.boxShadow = 'none';
-        }
-
-        lastScroll = currentScroll;
-    });
-
     const sections = document.querySelectorAll('section[id]');
     const navLinks = document.querySelectorAll('.nav-links a');
 
     window.addEventListener('scroll', () => {
-        let current = '';
-        const navbarHeight = navbar.offsetHeight;
+        const currentScroll = window.pageYOffset;
 
+        navbar.style.boxShadow = currentScroll > 100
+            ? '0 4px 20px rgba(0, 0, 0, 0.3)'
+            : 'none';
+
+        let current = '';
         sections.forEach(section => {
-            const sectionTop = section.offsetTop - navbarHeight - 100;
-            if (window.pageYOffset >= sectionTop) {
+            const sectionTop = section.offsetTop - navbar.offsetHeight - 100;
+            if (currentScroll >= sectionTop) {
                 current = section.getAttribute('id');
             }
         });
@@ -136,17 +118,6 @@ function initNavbarScroll() {
             }
         });
     });
-
-    document.head.insertAdjacentHTML('beforeend', `
-        <style>
-            .nav-links a.active {
-                color: var(--accent-primary);
-            }
-            .nav-links a.active::after {
-                width: 100%;
-            }
-        </style>
-    `);
 }
 
 function initTerminalTyping() {
@@ -200,14 +171,24 @@ function initTerminalTyping() {
     setTimeout(typeCommand, 2000);
 }
 
-document.querySelectorAll('.project-card').forEach((card, index) => {
-    card.style.transitionDelay = `${index * 0.1}s`;
-});
+function initStaggerDelays() {
+    document.querySelectorAll('.project-card').forEach((card, index) => {
+        card.style.transitionDelay = `${index * 0.1}s`;
+    });
 
-document.querySelectorAll('.cert-card').forEach((card, index) => {
-    card.style.transitionDelay = `${index * 0.1}s`;
-});
+    document.querySelectorAll('.cert-card').forEach((card, index) => {
+        card.style.transitionDelay = `${index * 0.1}s`;
+    });
 
-document.querySelectorAll('.skill-category').forEach((card, index) => {
-    card.style.transitionDelay = `${index * 0.1}s`;
-});
+    document.querySelectorAll('.skill-category').forEach((card, index) => {
+        card.style.transitionDelay = `${index * 0.1}s`;
+    });
+
+    document.querySelectorAll('a[href*="om-shah-resume.pdf"]').forEach(link => {
+        link.addEventListener('click', () => {
+            if (window.goatcounter && window.goatcounter.count) {
+                window.goatcounter.count({ path: 'resume-download', title: 'Resume Download', event: true });
+            }
+        });
+    });
+}

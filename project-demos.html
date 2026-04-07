@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Spam classifier demo: TensorFlow/Keras CNN, FastAPI inference, held-out metrics and failure analysis.">
     <title>Project Demos | Om Shah</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
     <link rel="stylesheet" href="styles.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -135,50 +136,10 @@
             border-top: 1px solid rgba(255,255,255,0.07);
         }
 
-        /* ── Highlight section chrome (self-contained) ── */
-        .demo-highlight-label-row {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 0.5rem;
-            margin-bottom: 0.45rem;
-            padding-bottom: 0.4rem;
-            border-bottom: 1px solid rgba(0,255,136,0.15);
-        }
-        .demo-highlight-label {
-            font-size: 0.7rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.08em;
-            color: rgba(0,255,136,0.85);
-            font-family: 'Inter', sans-serif;
-        }
-        .how-it-works-link {
-            background: rgba(0,212,255,0.1);
-            border: 1px solid rgba(0,212,255,0.35);
-            border-radius: 20px;
-            padding: 0.2em 0.75em;
-            cursor: pointer;
-            font-family: 'Inter', sans-serif;
-            font-size: 0.65rem;
-            font-weight: 600;
-            color: #00d4ff;
-            text-decoration: none;
-            letter-spacing: 0.02em;
-            white-space: nowrap;
-            line-height: 1.6;
-            transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
-            flex-shrink: 0;
-        }
-        .how-it-works-link:hover {
-            background: rgba(0,212,255,0.2);
-            border-color: rgba(0,212,255,0.6);
-            color: #fff;
-        }
     </style>
 </head>
 <body class="page-demo">
-    <nav class="navbar">
+    <nav class="navbar" aria-label="Main navigation">
         <a href="index.html" class="nav-brand">
             <span class="terminal-prompt">&gt;_</span>
             <span class="brand-text">security<span class="accent">.portfolio</span></span>
@@ -187,7 +148,7 @@
             <li><a href="index.html#home">Home</a></li>
             <li><a href="index.html#projects">Projects</a></li>
             <li><a href="index.html#contact">Contact</a></li>
-            <li><a href="OM SHAH - RESUME (1).pdf" class="nav-resume" target="_blank" rel="noopener">Resume</a></li>
+            <li><a href="om-shah-resume.pdf" class="nav-resume" target="_blank" rel="noopener">Resume</a></li>
         </ul>
         <button class="mobile-menu-btn" aria-label="Toggle menu">
             <span></span>
@@ -343,7 +304,7 @@
                                 </div>
 
                                 <div class="signals-block">
-                                    <h3 class="signals-heading">Technical details</h3>
+                                    <h3 class="signals-heading">Signals</h3>
                                     <ul id="signals-list" class="result-signals"></ul>
                                 </div>
 
@@ -588,7 +549,7 @@
                 sumText.textContent = label;
                 var explain = document.createElement('span');
                     explain.className = 'signal-explain';
-                    explain.textContent = 'Details';
+                    explain.textContent = 'Explanation';
                 btn.appendChild(chev);
                 btn.appendChild(sumText);
                 btn.appendChild(explain);
@@ -616,6 +577,100 @@
                     .replace(/</g, '&lt;')
                     .replace(/>/g, '&gt;')
                     .replace(/"/g, '&quot;');
+            }
+
+            var SIGNAL_RULES = [
+                {
+                    family: 'Threat, scam, or malware wording',
+                    alias: null,
+                    patterns: [/\b(phish(?:ing)?|scam|fraud(?:ulent)?|malware|ransom(?:ware)?|trojan|spyware|deceptive|impersonat(?:e|ing|ion))\b/i]
+                },
+                {
+                    family: 'Verify \/ confirm \/ account scare wording',
+                    alias: null,
+                    patterns: [
+                        /unusual\s+(?:login|sign[- ]in|activity|access)/i,
+                        /suspicious\s+(?:login|activity|access)/i,
+                        /account\s+(?:suspended|locked|compromised|flagged|at\s+risk)/i,
+                        /verify\s+your\s+(?:identity|account|email|number)/i
+                    ]
+                },
+                {
+                    family: 'Verify account or password combo',
+                    alias: 'Account or password keywords',
+                    patterns: [
+                        /re[- ]?activ(?:ate|ation)/i,
+                        /confirm\s+your\s+(?:pin|password|account|details)/i,
+                        /reset\s+(?:your\s+)?password/i,
+                        /update\s+your\s+(?:payment|billing|card|account)\s+(?:details|info)/i
+                    ]
+                },
+                {
+                    family: 'Contains a URL',
+                    alias: 'URL shortener domain',
+                    patterns: [
+                        /https?:\/\/[^\s]+/i,
+                        /\b(?:bit\.ly|tinyurl\.com|t\.co|goo\.gl|ow\.ly|buff\.ly|rb\.gy)\b/i
+                    ]
+                },
+                {
+                    family: 'Urgency or deadline pressure',
+                    alias: null,
+                    patterns: [/\b(?:urgent|act\s+now|respond\s+immediately|within\s+\d{1,2}\s+hours?|expires?\s+(?:today|soon)|last\s+(?:chance|warning)|don.t\s+(?:ignore|delay))\b/i]
+                },
+                {
+                    family: 'Prize, win, or lottery',
+                    alias: null,
+                    patterns: [/\b(?:(?:you(?:'ve|\s+have)\s+)?(?:won|win(?:ner)?)|claim\s+(?:your\s+)?(?:prize|reward|gift)|lottery|jackpot|selected\s+(?:as\s+)?(?:a\s+)?winner)\b/i]
+                },
+                {
+                    family: 'Free offer or cash lure',
+                    alias: null,
+                    patterns: [
+                        /\bfree\s+(?:money|cash|gift|prize|iphone|ipad|voucher|coupon)\b/i,
+                        /\bcash\s+(?:prize|reward|bonus)\b/i,
+                        /\b(?:earn|make)\s+\$\d+/i
+                    ]
+                },
+                {
+                    family: 'OTP or banking language',
+                    alias: null,
+                    patterns: [
+                        /\b(?:OTP|one[- ]time\s+(?:password|passcode|pin)|authorization\s+code)\b/i,
+                        /\b(?:debit|credit)\s+(?:alert|notification)\b/i,
+                        /your\s+(?:bank\s+)?(?:account|card)\s+(?:has\s+been|was)\s+(?:charged|debited|suspended|blocked)\b/i
+                    ]
+                }
+            ];
+
+            function runClientSignals(text) {
+                var hits = [];
+                var seen = {};
+                SIGNAL_RULES.forEach(function (rule) {
+                    if (seen[rule.family]) return;
+                    rule.patterns.forEach(function (pat) {
+                        if (seen[rule.family]) return;
+                        var m = text.match(pat);
+                        if (!m) return;
+                        seen[rule.family] = true;
+                        var matched = m[0].length > 50 ? m[0].slice(0, 50) + '\u2026' : m[0];
+                        var label = rule.alias
+                            ? rule.family + ' (also: ' + rule.alias + ')'
+                            : rule.family;
+                        label += ' \u2014 \u201c' + matched + '\u201d';
+                        hits.push({
+                            reason: label,
+                            detail: 'Rule-family match in the message text. These are traditional spam signal categories used in filter research. The confidence score above comes from the neural network and may differ from what rules alone would indicate.'
+                        });
+                    });
+                });
+                if (hits.length >= 3) {
+                    hits.push({
+                        reason: 'Several different rule families fired',
+                        detail: hits.length + ' signal families matched. Co-occurring signals across multiple categories are associated with higher spam probability in rule-based classifiers.'
+                    });
+                }
+                return hits;
             }
 
             function initCredibilityBlock() {
@@ -1052,6 +1107,10 @@
                     })
                     .then(function (data) {
                         var result = parsePredictResponse(data);
+                        var clientSigs = runClientSignals(message);
+                        if (clientSigs.length) {
+                            result.signals = clientSigs.concat(result.signals);
+                        }
                         renderResult(result, message);
                         refreshApiStatus();
                     })
@@ -1285,6 +1344,17 @@
                 if (modal.style.display === 'flex' && e.key === 'Escape') closeModal();
             });
         })();
+
+        // Resume download tracking for GoatCounter
+        document.querySelectorAll('a[href*="om-shah-resume.pdf"]').forEach(function (link) {
+            link.addEventListener('click', function () {
+                if (window.goatcounter && window.goatcounter.count) {
+                    window.goatcounter.count({ path: 'resume-download', title: 'Resume Download', event: true });
+                }
+            });
+        });
     </script>
+    <!-- GoatCounter analytics: replace YOUR-CODE with your goatcounter.com site code -->
+    <script data-goatcounter="https://omshah.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 </body>
 </html>
