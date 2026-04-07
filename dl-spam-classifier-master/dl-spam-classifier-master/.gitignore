@@ -12,8 +12,14 @@ glove.twitter.27B.100d*.txt
 # Assignment PDF - not needed in repo
 *.pdf
 
-# Dataset - not needed once model is trained
+# Datasets and raw training data — not needed once model is trained
 spam.csv
+training_data/
+
+# Large / internal model artifacts
+outputs/tokenizer.json
+outputs/train_idx.npy
+outputs/test_idx.npy
 
 # Windows
 Thumbs.db

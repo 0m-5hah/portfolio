@@ -4,3 +4,12 @@ __pycache__/
 .DS_Store
 Thumbs.db
 *.log
+
+# Internal dev / AI handoff notes — not for recruiters
+SPAM-CLASSIFIER-PORTFOLIO-NOTES.md
+run_spam_web_ui_test.py
+spam-web-test-corpus.txt
+spam-ui-test-output/
+
+# Private folder
+secret/
