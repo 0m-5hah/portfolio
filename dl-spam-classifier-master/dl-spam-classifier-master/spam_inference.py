@@ -9,8 +9,13 @@ import time
 
 import numpy as np
 import tensorflow as tf
-from tensorflow.keras.preprocessing.sequence import pad_sequences
-from tensorflow.keras.preprocessing.text import tokenizer_from_json
+
+try:
+    from tf_keras.preprocessing.sequence import pad_sequences
+    from tf_keras.preprocessing.text import tokenizer_from_json
+except ImportError:
+    from tensorflow.keras.preprocessing.sequence import pad_sequences  # type: ignore
+    from tensorflow.keras.preprocessing.text import tokenizer_from_json  # type: ignore
 
 from output_config import load_inference_output_config
 

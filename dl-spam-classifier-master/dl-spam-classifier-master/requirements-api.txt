@@ -2,5 +2,6 @@
 fastapi>=0.109
 uvicorn[standard]>=0.27
 tensorflow-cpu==2.17.0
+tf-keras
 numpy
 pydantic>=2
