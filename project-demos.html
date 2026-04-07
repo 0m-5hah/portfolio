@@ -3,12 +3,179 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Browser MVP demo: SMS spam classifier (rules-based playground). Full model metrics on the About page.">
+    <meta name="description" content="Spam classifier demo: TensorFlow/Keras CNN, FastAPI inference, held-out metrics and failure analysis.">
     <title>Project Demos | Om Shah</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* ── How-it-works modal (self-contained, no var() dependency) ── */
+        .hiw-backdrop {
+            display: none;
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            width: 100% !important;
+            height: 100% !important;
+            z-index: 99999 !important;
+            background: rgba(0,0,0,0.78);
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+            box-sizing: border-box;
+        }
+        body.hiw-open { overflow: hidden; }
+        .hiw-panel {
+            position: relative;
+            background: #12121a;
+            border: 1px solid rgba(0,255,136,0.22);
+            border-top: 3px solid #00ff88;
+            border-radius: 12px;
+            padding: 2rem 2rem 1.75rem;
+            max-width: 520px;
+            width: 100%;
+            max-height: 88vh;
+            overflow-y: auto;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.6);
+            font-family: 'Inter', sans-serif;
+            color: #e4e4e7;
+            box-sizing: border-box;
+        }
+        .hiw-close {
+            position: absolute;
+            top: 0.9rem;
+            right: 0.9rem;
+            background: none;
+            border: none;
+            color: #71717a;
+            font-size: 1.5rem;
+            line-height: 1;
+            cursor: pointer;
+            padding: 0.15rem 0.45rem;
+            border-radius: 4px;
+        }
+        .hiw-close:hover { color: #e4e4e7; background: rgba(255,255,255,0.07); }
+        .hiw-title {
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: #00ff88;
+            margin: 0 0 0.85rem;
+            padding-right: 2rem;
+        }
+        .hiw-lead {
+            font-size: 0.87rem;
+            line-height: 1.6;
+            color: #a1a1aa;
+            margin: 0 0 1.2rem;
+        }
+        .hiw-step {
+            display: flex;
+            gap: 0.8rem;
+            align-items: flex-start;
+            margin-bottom: 0.9rem;
+        }
+        .hiw-step-num {
+            flex-shrink: 0;
+            width: 1.65rem;
+            height: 1.65rem;
+            border-radius: 50%;
+            background: rgba(0,255,136,0.1);
+            border: 1px solid rgba(0,255,136,0.38);
+            color: #00ff88;
+            font-size: 0.72rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 0.05rem;
+            font-family: 'Inter', sans-serif;
+        }
+        .hiw-step strong {
+            display: block;
+            font-size: 0.84rem;
+            font-weight: 600;
+            color: #e4e4e7;
+            margin-bottom: 0.18rem;
+        }
+        .hiw-step p {
+            font-size: 0.81rem;
+            line-height: 1.55;
+            color: #a1a1aa;
+            margin: 0;
+        }
+        .hiw-analogy {
+            margin: 1.2rem 0 0.9rem;
+            padding: 0.8rem 1rem;
+            border-radius: 8px;
+            background: rgba(0,212,255,0.06);
+            border-left: 3px solid rgba(0,212,255,0.45);
+        }
+        .hiw-analogy-label {
+            display: block;
+            font-size: 0.67rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.07em;
+            color: #00d4ff;
+            margin-bottom: 0.4rem;
+            font-family: 'Inter', sans-serif;
+        }
+        .hiw-analogy p {
+            font-size: 0.82rem;
+            line-height: 1.6;
+            color: #a1a1aa;
+            margin: 0;
+        }
+        .hiw-footer-note {
+            font-size: 0.75rem;
+            color: #71717a;
+            margin: 0;
+            padding-top: 0.7rem;
+            border-top: 1px solid rgba(255,255,255,0.07);
+        }
+
+        /* ── Highlight section chrome (self-contained) ── */
+        .demo-highlight-label-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.5rem;
+            margin-bottom: 0.45rem;
+            padding-bottom: 0.4rem;
+            border-bottom: 1px solid rgba(0,255,136,0.15);
+        }
+        .demo-highlight-label {
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: rgba(0,255,136,0.85);
+            font-family: 'Inter', sans-serif;
+        }
+        .how-it-works-link {
+            background: rgba(0,212,255,0.1);
+            border: 1px solid rgba(0,212,255,0.35);
+            border-radius: 20px;
+            padding: 0.2em 0.75em;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.65rem;
+            font-weight: 600;
+            color: #00d4ff;
+            text-decoration: none;
+            letter-spacing: 0.02em;
+            white-space: nowrap;
+            line-height: 1.6;
+            transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+            flex-shrink: 0;
+        }
+        .how-it-works-link:hover {
+            background: rgba(0,212,255,0.2);
+            border-color: rgba(0,212,255,0.6);
+            color: #fff;
+        }
+    </style>
 </head>
 <body class="page-demo">
     <nav class="navbar">
@@ -33,16 +200,55 @@
         <section id="project-demos" class="project-demos">
             <div class="container demo-container">
                 <header class="demo-hero">
-                    <p class="demo-eyebrow">Interactive demo</p>
+                    <p class="demo-eyebrow">Live demo</p>
                     <h1 class="demo-page-title">Spam message classifier</h1>
-                    <p class="demo-lead">
-                        I built a CNN plus GloVe spam filter for coursework. On the <strong>UCI</strong> test set it reached about <strong>98.74%</strong> accuracy,
-                        <strong>95.21%</strong> spam F1, and <strong>99.42%</strong> ROC-AUC. The playground below uses <strong>hand-tuned rules in your browser</strong> (instant, no server), not the trained network.
-                    </p>
-                    <p class="demo-note">
-                        For recruiters: this page is a fast browser MVP (rules-based scoring). The trained model, metrics, and limitations are on <a href="spam-model.html">About the model</a>. Real inboxes are harder than UCI; the CNN still misses some spam (see false negatives in <code>outputs/test_predictions_dl.csv</code> in the project repo).
+                    <p class="demo-lead demo-lead-tight">
+                        This tool checks if a message is spam or not. Type in any message and it tells you within seconds.
                     </p>
                 </header>
+
+                <div class="demo-hero-grid" aria-label="Overview">
+                    <div class="demo-hero-card">
+                        <h2 class="demo-hero-card-title">How to use it</h2>
+                        <p class="demo-hero-card-text">
+                            Type a message and click <strong>Analyze</strong>. The result comes from an AI model running on a backend server — not simple rules in your browser.
+                        </p>
+                    </div>
+                    <div class="demo-hero-card">
+                        <h2 class="demo-hero-card-title">How it was built</h2>
+                        <ul class="demo-hero-card-list">
+                            <li><a href="spam-model.html#engineering">Model design and comparisons</a></li>
+                            <li><a href="spam-model.html#failure-cases">Examples where it gets it wrong</a></li>
+                            <li><a href="spam-model.html#artifacts">Accuracy stats and outputs</a></li>
+                        </ul>
+                    </div>
+                    <div class="demo-hero-card">
+                        <h2 class="demo-hero-card-title">What's powering it</h2>
+                        <p class="demo-hero-card-text">
+                            Python, TensorFlow/Keras (AI libraries), and a small local server. Trained on real SMS data — <strong>~98.7% accuracy</strong> on test data.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="demo-pipeline demo-pipeline--crosslink" id="pipeline">
+                    <p class="demo-pipeline-crosslink-text">
+                        This is a learning project, not a production spam filter. For a full technical breakdown, see the
+                        <a href="spam-model.html#pipeline">model write-up page</a>.
+                    </p>
+                </div>
+
+                <div id="demo-credibility" class="demo-credibility" hidden>
+                    <label class="demo-credibility-toggle">
+                        <input type="checkbox" id="demo-show-failure" autocomplete="off" />
+                        <span id="demo-credibility-toggle-label">Example of when it gets it wrong</span>
+                    </label>
+                    <div id="demo-credibility-panel" class="demo-credibility-panel" hidden></div>
+                </div>
+
+                <div id="spam-api-banner" class="demo-api-banner demo-api-banner--pending" role="status">
+                    <span class="demo-api-banner-dot" aria-hidden="true"></span>
+                    <span id="spam-api-status-text">Checking if the model is running…</span>
+                </div>
 
                 <article class="demo-card-wide">
                     <div class="demo-layout">
@@ -58,11 +264,23 @@
                                     <div class="demo-input-shell">
                                         <span class="demo-input-label" id="spam-input-label">Message</span>
                                         <label for="spam-input" class="visually-hidden">SMS message</label>
-                                        <textarea id="spam-input" class="demo-input" rows="8" spellcheck="true" placeholder="Paste or type a message to analyze..." aria-labelledby="spam-input-label"></textarea>
+                                        <textarea id="spam-input" class="demo-input" rows="8" spellcheck="true" placeholder="Example: short SMS or email-style line to classify…" aria-labelledby="spam-input-label"></textarea>
                                     </div>
                                     <div id="spam-highlight-wrap" class="demo-highlight-wrap" hidden>
-                                        <span class="demo-highlight-label">Matched text <span class="demo-highlight-sublabel">(same as input, with hits highlighted)</span></span>
-                                        <div id="spam-highlight" class="demo-highlight-body" aria-hidden="true"></div>
+                                        <span class="demo-highlight-label-row">
+                                            <span class="demo-highlight-label">Which words influenced the score most</span>
+                                            <button type="button" class="how-it-works-link" aria-haspopup="dialog" id="highlight-how-btn">How does this work?</button>
+                                        </span>
+                                        <div id="spam-highlight-explainer" class="demo-highlight-explainer">
+                                            <p class="demo-highlight-explainer-intro">The model scores the whole message. To see why, it hides one word at a time and checks how much the score changes.</p>
+                                            <ul class="demo-highlight-explainer-bullets">
+                                                <li><span class="demo-highlight-sample-wrap"><mark class="demo-highlight-sample">highlighted</mark></span> words changed the score the most</li>
+                                                <li>The model relied on those words more than others</li>
+                                                <li>Unmarked words had little effect on the result</li>
+                                            </ul>
+                                            <p id="spam-highlight-why" class="demo-highlight-why" hidden></p>
+                                        </div>
+                                        <div id="spam-highlight" class="demo-highlight-body" aria-hidden="true" role="region" aria-describedby="spam-highlight-explainer" aria-label="Highlighted words"></div>
                                     </div>
                                 </div>
                             </div>
@@ -72,40 +290,73 @@
                                     Analyze
                                 </button>
                                 <button id="clear-btn" class="btn btn-secondary" type="button">Clear</button>
-                                <a href="spam-model.html" class="btn btn-secondary btn-ghost">About this model</a>
+                                <a href="spam-model.html#pipeline" class="btn btn-secondary btn-ghost">About this model</a>
+                            </div>
+                            <div class="demo-inbox">
+                                <button type="button" id="demo-inbox-toggle" class="demo-inbox-toggle" aria-expanded="false" aria-controls="demo-inbox-panel">
+                                    Simulate inbox (multiple messages)
+                                </button>
+                                <div id="demo-inbox-panel" class="demo-inbox-panel" hidden>
+                                    <label for="spam-batch-input" class="demo-inbox-label">One message per line, up to eight lines. Each line is scored independently.</label>
+                                    <textarea id="spam-batch-input" class="demo-input demo-input-batch" rows="6" spellcheck="false" placeholder="Hey are we still on for lunch?&#10;WINNER! Claim your prize now click here&#10;Your package could not be delivered"></textarea>
+                                    <div class="demo-inbox-actions">
+                                        <button type="button" id="demo-batch-run" class="btn btn-secondary">Run batch</button>
+                                        <span id="demo-batch-status" class="demo-batch-status" role="status"></span>
+                                    </div>
+                                    <div id="demo-batch-results" class="demo-batch-results" hidden></div>
+                                </div>
                             </div>
                         </div>
 
                         <aside class="demo-panel demo-panel-output" aria-live="polite">
                             <div class="demo-output-header">
                                 <h2 class="demo-output-title">Analysis</h2>
-                                <p class="demo-output-sub">Rules-based score and matched phrases. CNN metrics are on <a href="spam-model.html">About this model</a>.</p>
+                                <p class="demo-output-sub" id="demo-output-sub">Spam or not spam — plus a confidence score and a breakdown of what influenced the result.</p>
                             </div>
 
                             <div id="demo-result-empty" class="demo-result-empty">
                                 <div class="demo-empty-icon" aria-hidden="true">◇</div>
-                                <p class="demo-empty-title">No message analyzed yet</p>
-                                <p class="demo-empty-text">Type something on the left, then hit <strong>Analyze</strong>. You will get a spam score and a list of what looked suspicious.</p>
+                                <p class="demo-empty-title">No result yet</p>
+                                <p class="demo-empty-text">Type a message on the left and click <strong>Analyze</strong> to see the result.</p>
                             </div>
 
                             <div id="demo-result" class="demo-result" hidden>
+                                <div id="demo-summary" class="demo-summary" hidden>
+                                    <h3 class="demo-summary-heading">Summary</h3>
+                                    <p id="demo-summary-text" class="demo-summary-text"></p>
+                                </div>
+
                                 <div id="verdict-badge" class="verdict-badge" data-verdict="">
                                     <span id="prediction-text" class="verdict-text">-</span>
                                 </div>
 
                                 <div class="confidence-block">
                                     <div class="confidence-row">
-                                        <span class="confidence-label">Likelihood (rules)</span>
+                                        <span class="confidence-label" id="confidence-label">P(spam)</span>
                                         <span id="confidence-text" class="confidence-value">-</span>
                                     </div>
                                     <div class="confidence-track" role="presentation">
                                         <div id="confidence-fill" class="confidence-fill"></div>
                                     </div>
+                                    <p id="demo-confidence-hint" class="demo-confidence-hint" hidden></p>
+                                    <p id="demo-latency-line" class="demo-latency-line" hidden></p>
                                 </div>
 
                                 <div class="signals-block">
-                                    <h3 class="signals-heading">Signals</h3>
+                                    <h3 class="signals-heading">Technical details</h3>
                                     <ul id="signals-list" class="result-signals"></ul>
+                                </div>
+
+                                <div id="demo-inference-trace" class="demo-inference-trace" hidden>
+                                    <div class="demo-inference-head">
+                                        <span class="demo-inference-badge">Trace</span>
+                                        <span>Execution path</span>
+                                    </div>
+                                    <p class="demo-inference-sub">
+                                        Reflects the server-side inference module; no third-party LLM API.
+                                    </p>
+                                    <pre id="demo-inference-pre" class="demo-inference-pre" aria-live="polite"></pre>
+                                    <ul id="demo-inference-flags" class="demo-inference-flags"></ul>
                                 </div>
                             </div>
                         </aside>
@@ -116,7 +367,41 @@
     </main>
 
     <script>
+        var clientConfig = null;
+        var INFERENCE_CONFIG_REL = 'dl-spam-classifier-master/dl-spam-classifier-master/inference_output_config.json';
+
+        function getApiBase() {
+            try {
+                var q = new URLSearchParams(window.location.search).get('api');
+                if (q) return q.replace(/\/$/, '');
+                var ls = localStorage.getItem('spamApiBase');
+                if (ls) return ls.replace(/\/$/, '');
+            } catch (e) {}
+            return 'http://127.0.0.1:8765';
+        }
+
+        function loadClientConfig() {
+            return fetch(INFERENCE_CONFIG_REL)
+                .then(function (r) {
+                    if (!r.ok) return Promise.reject();
+                    return r.json();
+                })
+                .catch(function () {
+                    return fetch(getApiBase() + '/inference-config').then(function (r) {
+                        if (!r.ok) return Promise.reject();
+                        return r.json();
+                    });
+                })
+                .then(function (cfg) {
+                    clientConfig = cfg;
+                })
+                .catch(function () {
+                    clientConfig = null;
+                });
+        }
+
         document.addEventListener('DOMContentLoaded', function () {
+            loadClientConfig().finally(function () {
             const menuBtn = document.querySelector('.mobile-menu-btn');
             const navLinks = document.querySelector('.nav-links');
 
@@ -146,6 +431,127 @@
             const signalsList = document.getElementById('signals-list');
             const highlightWrap = document.getElementById('spam-highlight-wrap');
             const highlightEl = document.getElementById('spam-highlight');
+            const highlightWhyEl = document.getElementById('spam-highlight-why');
+            const inboxToggle = document.getElementById('demo-inbox-toggle');
+            const inboxPanel = document.getElementById('demo-inbox-panel');
+            const batchInput = document.getElementById('spam-batch-input');
+            const batchRun = document.getElementById('demo-batch-run');
+            const batchStatus = document.getElementById('demo-batch-status');
+            const batchResults = document.getElementById('demo-batch-results');
+            const inferenceWrap = document.getElementById('demo-inference-trace');
+            const inferencePre = document.getElementById('demo-inference-pre');
+            const inferenceFlags = document.getElementById('demo-inference-flags');
+            const demoSummary = document.getElementById('demo-summary');
+            const demoSummaryText = document.getElementById('demo-summary-text');
+            const demoConfidenceHint = document.getElementById('demo-confidence-hint');
+            const demoLatencyLine = document.getElementById('demo-latency-line');
+            var inferenceTick = null;
+
+            function displayProbabilityPercent(p) {
+                var raw = p * 100;
+                var cap = 99.9;
+                try {
+                    var ic = clientConfig && clientConfig.interpretation;
+                    if (ic && ic.display_pct_cap != null) {
+                        cap = Number(ic.display_pct_cap);
+                    }
+                } catch (e) {}
+                var displayNum = raw >= cap ? cap : raw;
+                var text = '~' + displayNum.toFixed(1) + '%';
+                var saturated = raw >= cap - 0.05;
+                var barW = Math.min(cap, raw);
+                return { text: text, barWidth: barW, saturated: saturated };
+            }
+
+            function credSaturatedUiNote() {
+                var cr = clientConfig && clientConfig.client && clientConfig.client.credibility;
+                return (cr && cr.saturated_ui_note) || '';
+            }
+
+            function getLoadingSuffix() {
+                var s = clientConfig && clientConfig.client && clientConfig.client.loading_suffix;
+                return s || 'tokenize, pad, one CNN forward pass';
+            }
+
+            function getApiVersionError() {
+                var s = clientConfig && clientConfig.client && clientConfig.client.api_version_error;
+                return (
+                    s ||
+                    'API response does not match this demo (server may need updating).'
+                );
+            }
+
+            function synthesizeInterpretation(p, thr) {
+                var ic = clientConfig && clientConfig.interpretation;
+                var hamBelow =
+                    ic && ic.clear_ham_below != null ? Number(ic.clear_ham_below) : 0.35;
+                var spamAbove =
+                    ic && ic.clear_spam_above != null ? Number(ic.clear_spam_above) : 0.65;
+                if (p <= hamBelow) {
+                    return { band: 'clear_ham', lean: null };
+                }
+                if (p >= spamAbove) {
+                    return { band: 'clear_spam', lean: null };
+                }
+                return { band: 'uncertain', lean: p < thr ? 'ham' : 'spam' };
+            }
+
+            function parsePredictResponse(data) {
+                if (
+                    data.summary == null ||
+                    data.label == null ||
+                    data.confidence_hint == null ||
+                    data.technical_note == null ||
+                    data.spam_probability == null
+                ) {
+                    throw new Error(getApiVersionError());
+                }
+                var p = data.spam_probability;
+                var thr =
+                    data.threshold != null
+                        ? Number(data.threshold)
+                        : clientConfig &&
+                          clientConfig.decision &&
+                          clientConfig.decision.default_threshold != null
+                          ? Number(clientConfig.decision.default_threshold)
+                          : 0.5;
+                var binarySpam =
+                    data.binary_spam != null ? data.binary_spam : p >= thr;
+                var interpretation =
+                    data.interpretation != null
+                        ? data.interpretation
+                        : synthesizeInterpretation(p, thr);
+                var spans = data.highlight_spans || [];
+                var sigs = [
+                    {
+                        reason: 'Model notes',
+                        detail: data.technical_note
+                    }
+                ];
+                if (data.attribution_signal && spans.length) {
+                    sigs.push({
+                        reason: data.attribution_signal.title,
+                        detail: data.attribution_signal.detail
+                    });
+                }
+                return {
+                    label: data.label,
+                    binarySpam: binarySpam,
+                    interpretation: interpretation,
+                    probability: p,
+                    trace: data.trace || null,
+                    apiError: false,
+                    summaryText: data.summary,
+                    thresholdHint: data.confidence_hint,
+                    signals: sigs,
+                    highlightSpans: spans
+                };
+            }
+
+            function traceLabel(key, fallback) {
+                var tl = clientConfig && clientConfig.client && clientConfig.client.trace_labels;
+                return (tl && tl[key]) || fallback;
+            }
 
             signalsList.addEventListener('click', function (e) {
                 var btn = e.target.closest('.signal-toggle');
@@ -161,15 +567,18 @@
                 row.classList.toggle('is-open', next);
             });
 
-            function buildSignalRow(label, detailText) {
+            function buildSignalRow(label, detailText, options) {
+                options = options || {};
                 var li = document.createElement('li');
                 li.className = 'signal-row';
+                if (options.openDetail) li.classList.add('is-open');
                 var card = document.createElement('div');
                 card.className = 'signal-card';
                 var btn = document.createElement('button');
                 btn.type = 'button';
                 btn.className = 'signal-toggle';
-                btn.setAttribute('aria-expanded', 'false');
+                var expanded = !!options.openDetail;
+                btn.setAttribute('aria-expanded', expanded ? 'true' : 'false');
                 var chev = document.createElement('span');
                 chev.className = 'signal-chevron';
                 chev.setAttribute('aria-hidden', 'true');
@@ -178,18 +587,21 @@
                 sumText.className = 'signal-summary-text';
                 sumText.textContent = label;
                 var explain = document.createElement('span');
-                explain.className = 'signal-explain';
-                explain.textContent = 'Explanation';
+                    explain.className = 'signal-explain';
+                    explain.textContent = 'Details';
                 btn.appendChild(chev);
                 btn.appendChild(sumText);
                 btn.appendChild(explain);
                 var panel = document.createElement('div');
                 panel.className = 'signal-detail';
-                panel.hidden = true;
+                panel.hidden = !expanded;
                 var inner = document.createElement('div');
                 inner.className = 'signal-detail-inner';
                 var p = document.createElement('p');
-                p.textContent = detailText || 'No extra detail for this rule yet.';
+                if (options.preWrap) {
+                    p.className = 'signal-detail-pre';
+                }
+                p.textContent = detailText || 'No additional details.';
                 inner.appendChild(p);
                 panel.appendChild(inner);
                 card.appendChild(btn);
@@ -206,101 +618,237 @@
                     .replace(/"/g, '&quot;');
             }
 
-            function foldHomoglyphs(str) {
-                var map = {
-                    '\u0430': 'a', '\u0435': 'e', '\u0438': 'i', '\u043E': 'o', '\u0440': 'p', '\u0441': 'c', '\u0443': 'y', '\u0445': 'x',
-                    '\u0410': 'A', '\u0412': 'B', '\u0415': 'E', '\u0418': 'I', '\u041E': 'O', '\u0420': 'P', '\u0421': 'C',
-                    '\u0456': 'i', '\u0406': 'I',
-                    '\u0391': 'A', '\u0392': 'B', '\u0395': 'E', '\u0396': 'Z', '\u0397': 'H', '\u0399': 'I', '\u039A': 'K', '\u039C': 'M',
-                    '\u039D': 'N', '\u039F': 'O', '\u03A1': 'P', '\u03A4': 'T', '\u03A7': 'X', '\u03A5': 'Y',
-                    '\u03B1': 'a', '\u03B5': 'e', '\u03B9': 'i', '\u03BF': 'o', '\u03C1': 'p', '\u03C5': 'u', '\u03C7': 'x'
-                };
-                var out = '';
-                for (var i = 0; i < str.length; i++) {
-                    var ch = str[i];
-                    out += map[ch] !== undefined ? map[ch] : ch;
+            function initCredibilityBlock() {
+                var credBlock = document.getElementById('demo-credibility');
+                var credToggle = document.getElementById('demo-show-failure');
+                var credPanel = document.getElementById('demo-credibility-panel');
+                var lab = document.getElementById('demo-credibility-toggle-label');
+                var cr = clientConfig && clientConfig.client && clientConfig.client.credibility;
+                if (!credBlock || !credToggle || !credPanel) return;
+                if (!cr || !cr.failure_detail) {
+                    credBlock.hidden = true;
+                    return;
                 }
-                return out;
+                credBlock.hidden = false;
+                if (lab && cr.toggle_label) lab.textContent = cr.toggle_label;
+                credPanel.innerHTML =
+                    (cr.failure_title
+                        ? '<p class="demo-credibility-title">' + escapeHtml(cr.failure_title) + '</p>'
+                        : '') +
+                    '<p class="demo-credibility-text">' + escapeHtml(cr.failure_detail) + '</p>';
+                credToggle.addEventListener('change', function () {
+                    credPanel.hidden = !credToggle.checked;
+                });
             }
 
-            function dedupeByKey(hits) {
-                var m = {};
-                hits.forEach(function (h) {
-                    var k = h.key;
-                    var prev = m[k];
-                    if (!prev || h.w > prev.w || (h.w === prev.w && (h.end - h.start) > (prev.end - prev.start))) {
-                        m[k] = h;
+            function stopInferenceTick() {
+                if (inferenceTick) {
+                    clearInterval(inferenceTick);
+                    inferenceTick = null;
+                }
+            }
+
+            function clearInferenceUI() {
+                stopInferenceTick();
+                if (inferenceWrap) inferenceWrap.hidden = true;
+                if (inferencePre) inferencePre.textContent = '';
+                if (inferenceFlags) inferenceFlags.innerHTML = '';
+                if (demoSummary) demoSummary.hidden = true;
+                if (demoSummaryText) demoSummaryText.textContent = '';
+                if (demoConfidenceHint) {
+                    demoConfidenceHint.hidden = true;
+                    demoConfidenceHint.textContent = '';
+                }
+                if (demoLatencyLine) {
+                    demoLatencyLine.hidden = true;
+                    demoLatencyLine.textContent = '';
+                }
+                if (highlightWhyEl) {
+                    highlightWhyEl.hidden = true;
+                    highlightWhyEl.textContent = '';
+                }
+            }
+
+            function showAnalysisLoading() {
+                stopInferenceTick();
+                resultEmpty.hidden = true;
+                resultBox.hidden = false;
+                predictionText.textContent = 'Running…';
+                verdictBadge.setAttribute('data-verdict', 'neutral');
+                confidenceText.textContent = '…';
+                confidenceFill.style.width = '0%';
+                confidenceFill.classList.remove('is-spam', 'is-ham', 'is-uncertain');
+                signalsList.innerHTML = '';
+                if (demoSummary) demoSummary.hidden = true;
+                if (demoConfidenceHint) demoConfidenceHint.hidden = true;
+                if (highlightWrap) highlightWrap.hidden = true;
+                if (highlightEl) {
+                    highlightEl.innerHTML = '';
+                    highlightEl.setAttribute('aria-hidden', 'true');
+                }
+                if (highlightWhyEl) {
+                    highlightWhyEl.hidden = true;
+                    highlightWhyEl.textContent = '';
+                }
+                if (inferenceWrap) {
+                    inferenceWrap.hidden = false;
+                    inferenceFlags.innerHTML = '';
+                }
+                var pulse = 0;
+                inferenceTick = setInterval(function () {
+                    pulse += 1;
+                    if (!inferencePre) return;
+                    var dots = '·'.repeat((pulse % 3) + 1);
+                    inferencePre.textContent =
+                        'POST ' +
+                        getApiBase() +
+                        '/predict …\n' +
+                        '  ' +
+                        dots +
+                        ' ' +
+                        getLoadingSuffix();
+                }, 380);
+            }
+
+            function renderInferenceTrace(trace, p) {
+                stopInferenceTick();
+                if (!inferenceWrap || !inferencePre || !trace) return;
+                inferenceWrap.hidden = false;
+                var lines;
+                if (trace.display_lines && trace.display_lines.length) {
+                    lines = trace.display_lines;
+                } else {
+                    var shapeStr = trace.padded_shape
+                        ? JSON.stringify(trace.padded_shape)
+                        : '(1, ' + (trace.max_len != null ? trace.max_len : '?') + ')';
+                    var line4 =
+                        '[4/4] dense sigmoid → P(spam) = ' +
+                        Number(p).toFixed(6) +
+                        (trace.decision_threshold != null
+                            ? '  (label Spam if P >= ' + Number(trace.decision_threshold).toFixed(4) + ')'
+                            : '');
+                    lines = [
+                        '[1/4] texts_to_sequences → ' + trace.token_count + ' token id(s) before padding',
+                        '[2/4] pad_sequences → ' + shapeStr + (trace.truncated ? ' (sequence truncated to maxlen)' : ''),
+                        '[3/4] ' + (trace.architecture || 'CNN forward pass'),
+                        line4,
+                    ];
+                }
+                inferencePre.textContent = lines.join('\n');
+                inferenceFlags.innerHTML = '';
+
+                function addLiStrongCode(label, codeText) {
+                    var li = document.createElement('li');
+                    var s = document.createElement('strong');
+                    s.textContent = label + ' ';
+                    li.appendChild(s);
+                    var c = document.createElement('code');
+                    c.textContent = codeText;
+                    li.appendChild(c);
+                    inferenceFlags.appendChild(li);
+                }
+
+                if (trace.model_file) {
+                    addLiStrongCode(traceLabel('weights_file', 'Weights file:'), trace.model_file);
+                }
+                if (trace.backend) {
+                    var li2 = document.createElement('li');
+                    li2.appendChild(document.createTextNode(trace.backend));
+                    inferenceFlags.appendChild(li2);
+                }
+                if (trace.token_ids_head && trace.token_ids_head.length) {
+                    var li3 = document.createElement('li');
+                    var st = document.createElement('strong');
+                    st.textContent = traceLabel('token_ids_head', 'Token id head (vocab indices): ');
+                    li3.appendChild(st);
+                    var ids = trace.token_ids_head.join(', ');
+                    var extra =
+                        trace.token_count > trace.token_ids_head.length
+                            ? ' … (+' + (trace.token_count - trace.token_ids_head.length) + ' ids)'
+                            : '';
+                    li3.appendChild(document.createTextNode(ids + extra));
+                    inferenceFlags.appendChild(li3);
+                }
+                if (trace.inference_ms != null) {
+                    var liMs = document.createElement('li');
+                    liMs.appendChild(
+                        document.createTextNode(
+                            'Forward pass latency: ~' + trace.inference_ms + ' ms (host-dependent)'
+                        )
+                    );
+                    inferenceFlags.appendChild(liMs);
+                }
+            }
+
+            function getSetupHelpText(errMsg) {
+                var sh = clientConfig && clientConfig.client && clientConfig.client.setup_help;
+                if (sh && sh.quick_fix_lines && sh.quick_fix_lines.length) {
+                    var lines = [];
+                    if (window.location.protocol === 'file:' && sh.file_protocol_note) {
+                        lines.push(sh.file_protocol_note, '');
                     }
-                });
-                return Object.keys(m).map(function (k) {
-                    return m[k];
-                });
+                    if (sh.quick_fix_header) lines.push(sh.quick_fix_header);
+                    sh.quick_fix_lines.forEach(function (line) {
+                        lines.push('• ' + line);
+                    });
+                    var errSuffix = (sh.error_suffix || 'What went wrong: {error}').replace(
+                        '{error}',
+                        String(errMsg || 'unknown')
+                    );
+                    lines.push('', errSuffix);
+                    return lines.join('\n');
+                }
+                var isFile = window.location.protocol === 'file:';
+                var lines = [];
+                lines.push(
+                    'The live demo needs the inference API (FastAPI) running and reachable from this page.'
+                );
+                if (isFile) {
+                    lines.push(
+                        'This page is on file://; browsers often block localhost. Use an http:// URL or see the repository for serving static files.'
+                    );
+                }
+                lines.push(
+                    'Implementation and runbook: dl-spam-classifier-master/dl-spam-classifier-master/ (INFERENCE.md).',
+                    '',
+                    'Error: ' + String(errMsg || 'unknown')
+                );
+                return lines.join('\n');
             }
 
-            function mergeOverlappingHits(hits, text) {
-                if (hits.length === 0) return [];
-                hits = hits.slice().sort(function (a, b) {
-                    return a.start - b.start || b.end - a.end;
-                });
-                var out = [];
-                var cur = {
-                    start: hits[0].start,
-                    end: hits[0].end,
-                    w: hits[0].w,
-                    reasons: [hits[0].reason],
-                    details: [hits[0].detail],
-                    keys: [hits[0].key || hits[0].reason]
-                };
-                for (var i = 1; i < hits.length; i++) {
-                    var h = hits[i];
-                    if (h.start < cur.end) {
-                        cur.end = Math.max(cur.end, h.end);
-                        cur.w = Math.max(cur.w, h.w);
-                        if (cur.keys.indexOf(h.key || h.reason) === -1) {
-                            cur.reasons.push(h.reason);
-                            cur.details.push(h.detail);
-                            cur.keys.push(h.key || h.reason);
+            function refreshApiStatus() {
+                var banner = document.getElementById('spam-api-banner');
+                var textEl = document.getElementById('spam-api-status-text');
+                if (!banner || !textEl) return;
+                var base = getApiBase();
+                fetch(base + '/health', { method: 'GET' })
+                    .then(function (r) {
+                        if (!r.ok) throw new Error(String(r.status));
+                        return r.json();
+                    })
+                    .then(function (j) {
+                        if (j && j.ok && j.model_loaded) {
+                            banner.className = 'demo-api-banner demo-api-banner--ok';
+                            textEl.textContent = 'Model is running and ready to use.';
+                        } else {
+                            banner.className = 'demo-api-banner demo-api-banner--warn';
+                            textEl.textContent =
+                                'Server is reachable but the model is not loaded yet.';
                         }
-                    } else {
-                        out.push(finishMerged(cur, text));
-                        cur = {
-                            start: h.start,
-                            end: h.end,
-                            w: h.w,
-                            reasons: [h.reason],
-                            details: [h.detail],
-                            keys: [h.key || h.reason]
-                        };
-                    }
-                }
-                out.push(finishMerged(cur, text));
-                return out;
-            }
-
-            function finishMerged(cur, text) {
-                var snippet = text.slice(cur.start, cur.end).replace(/\s+/g, ' ').trim();
-                if (snippet.length > 72) snippet = snippet.slice(0, 69) + '…';
-                var reasonJoined = cur.reasons.length > 1
-                    ? cur.reasons[0] + ' (also: ' + cur.reasons.slice(1).join('; ') + ')'
-                    : cur.reasons[0];
-                return {
-                    start: cur.start,
-                    end: cur.end,
-                    w: cur.w,
-                    key: cur.keys[0],
-                    reason: reasonJoined,
-                    detail: cur.details[0],
-                    matchSnippet: snippet
-                };
-            }
-
-            function calibrateRawScore(raw) {
-                var t = 1 - Math.exp(-raw * 1.85);
-                return Math.min(0.98, Math.max(0.02, 0.02 + 0.96 * t));
+                    })
+                    .catch(function () {
+                        banner.className = 'demo-api-banner demo-api-banner--warn';
+                        var extra =
+                            window.location.protocol === 'file:'
+                                ? ' Try opening the page over http:// instead of file://.'
+                                : '';
+                        textEl.textContent =
+                            'Model server is offline — results are not available right now.' + extra;
+                    });
             }
 
             function buildHighlightHtml(text, spans) {
-                if (!spans.length) return escapeHtml(text);
+                if (!spans || !spans.length) return escapeHtml(text);
                 spans = spans.slice().sort(function (a, b) {
                     return a.start - b.start;
                 });
@@ -308,261 +856,26 @@
                 var pos = 0;
                 spans.forEach(function (sp) {
                     html += escapeHtml(text.slice(pos, sp.start));
-                    html += '<mark class="signal-hit">' + escapeHtml(text.slice(sp.start, sp.end)) + '</mark>';
+                    var titleAttr = '';
+                    if (sp.delta != null && !isNaN(Number(sp.delta))) {
+                        var deltaPct = escapeHtml(
+                            (Math.abs(Number(sp.delta)) * 100).toFixed(2)
+                        );
+                        titleAttr =
+                            ' title="Hiding this word moved the spam score by ~' +
+                            deltaPct +
+                            '%"';
+                    }
+                    html +=
+                        '<mark class="signal-hit"' +
+                        titleAttr +
+                        '>' +
+                        escapeHtml(text.slice(sp.start, sp.end)) +
+                        '</mark>';
                     pos = sp.end;
                 });
                 html += escapeHtml(text.slice(pos));
                 return html;
-            }
-
-            function classifyMessage(text) {
-                var folded = foldHomoglyphs(text);
-                var lower = folded.toLowerCase();
-                var hits = [];
-
-                function pushHit(start, end, w, reason, detail, key) {
-                    if (end <= start) return;
-                    hits.push({
-                        start: start,
-                        end: end,
-                        w: w,
-                        reason: reason,
-                        detail: detail || '',
-                        key: key || reason
-                    });
-                }
-
-                var patterns = [
-                    {
-                        re: /malicious|malware|virus|trojan|ransom|spyware|phishing|phish|\bscam\b/i,
-                        w: 0.42,
-                        key: 'threat',
-                        reason: 'Threat, scam, or malware wording',
-                        detail: 'The score goes up when the text talks about malware, phishing, or scams. Real companies almost never cold text you to download random files or sound like a fake security alert.'
-                    },
-                    {
-                        re: /congratul/i,
-                        w: 0.22,
-                        key: 'congrat',
-                        reason: 'Congratulations or prize style text (typos count too)',
-                        detail: 'Lots of fake prize texts start with congratulations, and people mistype it all the time. The pattern matches anything that starts like congratul so CONGRATULAITONS still counts.'
-                    },
-                    {
-                        // Prize wording: plain word-boundary rules match "won" inside "won't" (boundary sits between n and apostrophe). won(?![\u2019']t) skips that contraction; see SPAM-CLASSIFIER-PORTFOLIO-NOTES.md.
-                        re: /\b(won(?![\u2019']t)|winner|win\s+(a|the|an)?)\b/i,
-                        w: 0.16,
-                        key: 'won',
-                        reason: 'You won or prize winner wording',
-                        detail: 'Random you won messages are a classic bait. Real lotteries and phone carriers do not usually tell you that you won only in a text with no prior signup.'
-                    },
-                    {
-                        re: /iphone|ipad|galaxy|pixel|smartphone|gift\s*card|cash\s*prize/i,
-                        w: 0.14,
-                        key: 'prize_device',
-                        reason: 'Phone, gift, or cash prize bait',
-                        detail: 'Big prizes and free phones get people to click. Together with other red flags, that usually points to spam or a scam.'
-                    },
-                    {
-                        re: /download|dowload|dow+nload|click\s+here|tap\s+here|follow\s+(this\s+)?link/i,
-                        w: 0.14,
-                        key: 'click_dl',
-                        reason: 'Download or click here style wording',
-                        detail: 'Spammers want you to tap links or download files. Typos like dowload are still matched on purpose so they cannot hide behind bad spelling.'
-                    },
-                    {
-                        re: /\bfree\b|100%\s*off|no\s+cost|zero\s+dollars/i,
-                        w: 0.12,
-                        key: 'free',
-                        reason: 'Free offer wording',
-                        detail: 'Free is a common hook. It is more worrying when it shows up next to links or prizes than when a friend says something is free in a normal chat.'
-                    },
-                    {
-                        re: /\b(urgent|immediately|act\s+now|expires|limited\s+time)\b/i,
-                        w: 0.12,
-                        key: 'urgent',
-                        reason: 'Urgent or pressure language',
-                        detail: 'Rush wording makes people skip thinking. Banks and government offices rarely say you must act in the next hour based only on an SMS.'
-                    },
-                    {
-                        re: /\b(verify|re-?verify|confirm|re-?activate|suspended|locked|compromised|unusual\s+login)\b/i,
-                        w: 0.14,
-                        key: 'verify_word',
-                        reason: 'Verify / confirm / account scare wording',
-                        detail: 'Phishers push verify or confirm now. If you are unsure, open the real app or type the bank site yourself. Do not trust links in the text.'
-                    },
-                    {
-                        re: /\b(account|password|pin|credentials)\b/i,
-                        w: 0.1,
-                        key: 'acct_word',
-                        reason: 'Account or password keywords',
-                        detail: 'These words are common in both real alerts and phishing. They add weight mainly next to links or verify-style pressure.'
-                    },
-                    {
-                        re: /\b(verify|confirm|re-?activate|suspended|locked)\b.*\b(account|password|pin)\b/i,
-                        w: 0.18,
-                        key: 'verify_acct_combo',
-                        reason: 'Verify account or password combo',
-                        detail: 'Classic phishing pairs verify your account with urgency. Banks rarely ask only over SMS with a strange link.'
-                    },
-                    {
-                        re: /\b(bank|banking|paypal|venmo|zelle|wire\s+transfer|routing\s*#|iban|swift)\b/i,
-                        w: 0.15,
-                        key: 'banking',
-                        reason: 'Banking or money-transfer wording',
-                        detail: 'Unexpected texts about wires, Zelle, or bank details are high risk. Call the number on your card, not the one in the text.'
-                    },
-                    {
-                        re: /\b(parcel|package|delivery|courier|usps|fedex|ups|dhl|tracking\s*#|out\s+for\s+delivery)\b/i,
-                        w: 0.13,
-                        key: 'parcel',
-                        reason: 'Parcel or delivery bait',
-                        detail: 'Fake missed delivery texts try to get a fee or your details. Check the carrier site with the real tracking number you already have.'
-                    },
-                    {
-                        re: /\b(otp|one[- ]time|2fa|two[- ]factor|security\s+code)\b/i,
-                        w: 0.11,
-                        key: 'otp',
-                        reason: 'OTP or 2FA wording',
-                        detail: 'Scammers phish for codes. Never share OTPs; real support will not ask for them in a random SMS.'
-                    },
-                    {
-                        re: /\b(claim|collect|redeem)\b/i,
-                        w: 0.1,
-                        key: 'claim',
-                        reason: 'Claim or redeem wording',
-                        detail: 'Claim your prize often leads to forms, fees, or malware. Real rewards usually come through channels you already know, not a random SMS.'
-                    },
-                    {
-                        re: /\b(prize|lottery|jackpot|reward)\b/i,
-                        w: 0.12,
-                        key: 'prize',
-                        reason: 'Prize or lottery wording',
-                        detail: 'Jackpot and lottery scams are everywhere. If you never entered, treat any win text as fake.'
-                    },
-                    {
-                        re: /\$\d+|\d+\s*(usd|aud|gbp|eur|dollars?|inr)/i,
-                        w: 0.1,
-                        key: 'money_amt',
-                        reason: 'Money amount in the message',
-                        detail: 'Dollar amounts show up in real texts too, like receipts. This rule only adds a small nudge on top of everything else.'
-                    },
-                    {
-                        re: /\b(bitly|tinyurl|t\.co|goo\.gl|short\.link)\b/i,
-                        w: 0.12,
-                        key: 'shortener',
-                        reason: 'URL shortener domain',
-                        detail: 'Short links hide the real destination. They are not always bad but are common in phishing.'
-                    },
-                    {
-                        re: /\[link\]|\bclick\s+the\s+link\b|\bopen\s+attachment\b/i,
-                        w: 0.1,
-                        key: 'link_phrase',
-                        reason: 'Generic link or attachment prompt',
-                        detail: 'Vague instructions to open links or attachments are common in phishing.'
-                    },
-                    {
-                        re: /\b(viagra|cialis|casino|bitcoin|crypto\s+wallet)\b/i,
-                        w: 0.12,
-                        key: 'spam_lex',
-                        reason: 'Common spam product keywords',
-                        detail: 'These show up heavily in bulk SMS spam filters.'
-                    },
-                    {
-                        re: /\b(gratis|gagnez|felicidades|felicitaciones|verifiez|v\u00e9rifier|compte\s+suspendu)\b/iu,
-                        w: 0.1,
-                        key: 'ml_hint',
-                        reason: 'Non-English spam hints (French/Spanish samples)',
-                        detail: 'Lightweight hints for common scam phrases outside English; not exhaustive.'
-                    }
-                ];
-
-                patterns.forEach(function (p) {
-                    var re = new RegExp(p.re.source, 'giu');
-                    var m;
-                    while ((m = re.exec(lower)) !== null) {
-                        pushHit(m.index, m.index + m[0].length, p.w, p.reason, p.detail, p.key);
-                        if (m.index === re.lastIndex) re.lastIndex++;
-                    }
-                });
-
-                var urlRe = /https?:\/\/[^\s]+|www\.[^\s]+/gi;
-                var um;
-                while ((um = urlRe.exec(text)) !== null) {
-                    pushHit(um.index, um.index + um[0].length, 0.16, 'Contains a URL', 'Links show up a lot in phishing and junk promos. Treat strange short links as risky until you check them somewhere safe.', 'url');
-                }
-
-                var capsRe = /[A-Z]{5,}/g;
-                var cm;
-                while ((cm = capsRe.exec(text)) !== null) {
-                    pushHit(cm.index, cm.index + cm[0].length, 0.1, 'Heavy all-caps emphasis', 'ALL CAPS often means pasted marketing or someone shouting. By itself it is weak, but it helps when other flags are there.', 'caps');
-                }
-
-                var bangRe = /!+/g;
-                var bestBang = null;
-                var bangCount = 0;
-                var bm;
-                while ((bm = bangRe.exec(text)) !== null) {
-                    bangCount += bm[0].length;
-                    if (!bestBang || bm[0].length > bestBang.len) {
-                        bestBang = { start: bm.index, end: bm.index + bm[0].length, len: bm[0].length };
-                    }
-                }
-                if (bangCount >= 2 && bestBang) {
-                    pushHit(bestBang.start, bestBang.end, 0.08, 'Repeated exclamation marks', 'Lots of exclamation marks show up in scams and shouty ads because they want you excited, not careful.', 'bang');
-                }
-
-                var deduped = dedupeByKey(hits);
-                var merged = mergeOverlappingHits(deduped, text);
-                var rawScore = 0;
-                merged.forEach(function (h) {
-                    rawScore += h.w;
-                });
-
-                var nRuleKinds = deduped.length;
-                if (nRuleKinds >= 3) {
-                    rawScore += 0.08;
-                }
-
-                var spamProbability = calibrateRawScore(rawScore);
-                var isSpam = spamProbability >= 0.5;
-
-                var signals = merged.map(function (h) {
-                    var label = h.reason;
-                    if (h.matchSnippet) {
-                        label += ' — “' + h.matchSnippet + '”';
-                    }
-                    return { reason: label, detail: h.detail || '' };
-                });
-
-                if (nRuleKinds >= 3) {
-                    signals.push({
-                        reason: 'Several different rule families fired',
-                        detail: 'When many distinct patterns match (after merging overlaps), the text is more likely to be junk or harmful than when only one small thing looks off.'
-                    });
-                }
-
-                if (signals.length === 0) {
-                    signals.push({
-                        reason: 'No strong spam indicators matched',
-                        detail: 'No strong spam patterns matched this run. You can still treat unknown texts with care.'
-                    });
-                }
-
-                var highlightSpans = merged
-                    .filter(function (h) {
-                        return h.end > h.start;
-                    })
-                    .map(function (h) {
-                        return { start: h.start, end: h.end };
-                    });
-
-                return {
-                    label: isSpam ? 'Spam' : 'Not spam',
-                    probability: spamProbability,
-                    signals: signals,
-                    highlightSpans: highlightSpans,
-                    rawScore: rawScore
-                };
             }
 
             function showResults(show) {
@@ -571,20 +884,86 @@
             }
 
             function renderResult(result, sourceText) {
+                if (result.apiError) {
+                    stopInferenceTick();
+                    if (inferenceWrap) {
+                        inferenceWrap.hidden = false;
+                        if (inferencePre) inferencePre.textContent = result.inferenceErrorText || '';
+                        if (inferenceFlags) inferenceFlags.innerHTML = '';
+                    }
+                } else if (result.trace) {
+                    renderInferenceTrace(result.trace, result.probability);
+                } else if (inferenceWrap) {
+                    inferenceWrap.hidden = true;
+                }
+
                 predictionText.textContent = result.label;
-                var isSpam = result.label === 'Spam';
-                verdictBadge.setAttribute('data-verdict', isSpam ? 'spam' : 'ham');
-                var pct = (result.probability * 100).toFixed(1);
-                confidenceText.textContent = pct + '%';
-                confidenceFill.style.width = pct + '%';
-                confidenceFill.classList.toggle('is-spam', isSpam);
-                confidenceFill.classList.toggle('is-ham', !isSpam);
+                if (result.apiError) {
+                    verdictBadge.setAttribute('data-verdict', 'neutral');
+                    confidenceText.textContent = '-';
+                    confidenceFill.style.width = '0%';
+                    confidenceFill.classList.remove('is-spam', 'is-ham', 'is-uncertain');
+                    if (demoSummary) demoSummary.hidden = true;
+                    if (demoConfidenceHint) demoConfidenceHint.hidden = true;
+                    if (demoLatencyLine) {
+                        demoLatencyLine.hidden = true;
+                        demoLatencyLine.textContent = '';
+                    }
+                } else {
+                    var band = result.interpretation && result.interpretation.band;
+                    if (band === 'clear_spam') {
+                        verdictBadge.setAttribute('data-verdict', 'spam');
+                    } else if (band === 'clear_ham') {
+                        verdictBadge.setAttribute('data-verdict', 'ham');
+                    } else {
+                        verdictBadge.setAttribute('data-verdict', 'uncertain');
+                    }
+                    var dp = displayProbabilityPercent(result.probability);
+                    confidenceText.textContent = dp.text;
+                    confidenceFill.style.width = dp.barWidth + '%';
+                    confidenceFill.classList.remove('is-spam', 'is-ham', 'is-uncertain');
+                    if (band === 'clear_spam') {
+                        confidenceFill.classList.add('is-spam');
+                    } else if (band === 'clear_ham') {
+                        confidenceFill.classList.add('is-ham');
+                    } else {
+                        confidenceFill.classList.add('is-uncertain');
+                    }
+                    if (demoSummary && demoSummaryText) {
+                        demoSummaryText.textContent = result.summaryText || '';
+                        demoSummary.hidden = !result.summaryText;
+                    }
+                    if (demoConfidenceHint) {
+                        if (result.thresholdHint) {
+                            var hintText = result.thresholdHint;
+                            if (dp.saturated && credSaturatedUiNote() && result.binarySpam) {
+                                hintText = hintText + ' ' + credSaturatedUiNote();
+                            }
+                            demoConfidenceHint.textContent = hintText;
+                            demoConfidenceHint.hidden = false;
+                        } else {
+                            demoConfidenceHint.hidden = true;
+                            demoConfidenceHint.textContent = '';
+                        }
+                    }
+                    if (demoLatencyLine && result.trace && result.trace.inference_ms != null) {
+                        demoLatencyLine.textContent =
+                            'Forward pass ~' +
+                            result.trace.inference_ms +
+                            ' ms; occlusion highlights add additional passes.';
+                        demoLatencyLine.hidden = false;
+                    } else if (demoLatencyLine) {
+                        demoLatencyLine.hidden = true;
+                        demoLatencyLine.textContent = '';
+                    }
+                }
                 signalsList.innerHTML = '';
 
                 result.signals.forEach(function (signal) {
                     var label = typeof signal === 'string' ? signal : signal.reason;
                     var detail = typeof signal === 'string' ? '' : (signal.detail || '');
-                    signalsList.appendChild(buildSignalRow(label, detail));
+                    var opts = typeof signal === 'object' && signal ? signal._rowOpts : null;
+                    signalsList.appendChild(buildSignalRow(label, detail, opts || {}));
                 });
 
                 renderHighlights(sourceText || '', result);
@@ -596,46 +975,316 @@
                 if (!result || !result.highlightSpans || result.highlightSpans.length === 0) {
                     highlightWrap.hidden = true;
                     highlightEl.innerHTML = '';
+                    highlightEl.setAttribute('aria-hidden', 'true');
+                    if (highlightWhyEl) {
+                        highlightWhyEl.hidden = true;
+                        highlightWhyEl.textContent = '';
+                    }
                     return;
+                }
+                if (highlightWhyEl) {
+                    var b = result.interpretation && result.interpretation.band;
+                    var lean = result.interpretation && result.interpretation.lean;
+                    var why;
+                    if (b === 'clear_spam') {
+                        why = 'These words pushed the score toward spam the most.';
+                    } else if (b === 'uncertain' && lean === 'spam') {
+                        why = 'The score is borderline. These words nudged it toward spam.';
+                    } else if (b === 'uncertain' && lean === 'ham') {
+                        why = 'The score is borderline. These words still pulled slightly toward spam, but not enough to cross the threshold.';
+                    } else {
+                        why = 'This message scored as not spam. These words still had the most effect, even if small.';
+                    }
+                    highlightWhyEl.textContent = why;
+                    highlightWhyEl.hidden = false;
                 }
                 highlightEl.innerHTML = buildHighlightHtml(text, result.highlightSpans);
                 highlightWrap.hidden = false;
+                highlightEl.setAttribute('aria-hidden', 'false');
+                try {
+                    var reduceMotion =
+                        window.matchMedia &&
+                        window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+                    highlightWrap.scrollIntoView({
+                        behavior: reduceMotion ? 'auto' : 'smooth',
+                        block: 'nearest',
+                    });
+                } catch (e) {}
             }
 
             analyzeBtn.addEventListener('click', function () {
                 var message = input.value.trim();
                 if (!message) {
-                    predictionText.textContent = 'Enter a message first';
+                    clearInferenceUI();
+                    predictionText.textContent = 'Add a message first';
                     verdictBadge.setAttribute('data-verdict', 'neutral');
                     confidenceText.textContent = '-';
                     confidenceFill.style.width = '0%';
                     signalsList.innerHTML = '';
                     if (highlightWrap) highlightWrap.hidden = true;
-                    signalsList.appendChild(buildSignalRow(
-                        'No input',
-                        'Paste a message on the left, then press Analyze.'
-                    ));
+                    if (highlightWhyEl) {
+                        highlightWhyEl.hidden = true;
+                        highlightWhyEl.textContent = '';
+                    }
+                    signalsList.appendChild(
+                        buildSignalRow('No input', 'Enter a message in the text area, then select Analyze.')
+                    );
                     showResults(true);
                     return;
                 }
 
-                var result = classifyMessage(message);
-                renderResult(result, message);
+                analyzeBtn.disabled = true;
+                analyzeBtn.setAttribute('aria-busy', 'true');
+                showAnalysisLoading();
+                var url = getApiBase() + '/predict';
+                fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ text: message })
+                })
+                    .then(function (r) {
+                        if (!r.ok) {
+                            return r.text().then(function (t) {
+                                throw new Error(r.status + ' ' + (t || r.statusText));
+                            });
+                        }
+                        return r.json();
+                    })
+                    .then(function (data) {
+                        var result = parsePredictResponse(data);
+                        renderResult(result, message);
+                        refreshApiStatus();
+                    })
+                    .catch(function (err) {
+                        var errText = getSetupHelpText(err.message || err);
+                        renderResult(
+                            {
+                                label: 'Unavailable',
+                                probability: 0,
+                                apiError: true,
+                                inferenceErrorText: errText,
+                                signals: [
+                                    {
+                                        reason: 'Inference unavailable',
+                                        detail: errText,
+                                        _rowOpts: { openDetail: true, preWrap: true }
+                                    }
+                                ],
+                                highlightSpans: []
+                            },
+                            message
+                        );
+                        refreshApiStatus();
+                    })
+                    .finally(function () {
+                        analyzeBtn.disabled = false;
+                        analyzeBtn.removeAttribute('aria-busy');
+                    });
             });
 
+            refreshApiStatus();
+            initCredibilityBlock();
+
+            if (inboxToggle && inboxPanel) {
+                inboxToggle.addEventListener('click', function () {
+                    inboxPanel.hidden = !inboxPanel.hidden;
+                    inboxToggle.setAttribute('aria-expanded', String(!inboxPanel.hidden));
+                });
+            }
+
+            if (batchRun && batchInput && batchStatus && batchResults) {
+                batchRun.addEventListener('click', function () {
+                    var lines = batchInput.value
+                        .split('\n')
+                        .map(function (s) {
+                            return s.trim();
+                        })
+                        .filter(Boolean)
+                        .slice(0, 8);
+                    if (!lines.length) {
+                        batchStatus.textContent = 'Add at least one non-empty line.';
+                        batchResults.hidden = true;
+                        batchResults.innerHTML = '';
+                        return;
+                    }
+                    batchRun.disabled = true;
+                    batchStatus.textContent = '';
+                    batchResults.hidden = true;
+                    batchResults.innerHTML = '';
+
+                    var rows = [];
+                    var i = 0;
+
+                    function step() {
+                        if (i >= lines.length) {
+                            var html =
+                                '<div class="demo-batch-table-wrap"><table class="demo-batch-table"><thead><tr><th>#</th><th>Snippet</th><th>Verdict</th><th>P(spam)</th></tr></thead><tbody>';
+                            rows.forEach(function (r, ri) {
+                                if (r.error) {
+                                    html +=
+                                        '<tr><td>' +
+                                        (ri + 1) +
+                                        '</td><td class="demo-batch-snippet">' +
+                                        escapeHtml(r.snippet) +
+                                        '</td><td class="demo-batch-label--err" colspan="2">' +
+                                        escapeHtml(r.error) +
+                                        '</td></tr>';
+                                } else {
+                                    var lblClass = 'demo-batch-label--ham';
+                                    if (r.label.indexOf('Uncertain') === 0) {
+                                        lblClass = 'demo-batch-label--uncertain';
+                                    } else if (r.label === 'Spam') {
+                                        lblClass = 'demo-batch-label--spam';
+                                    }
+                                    html +=
+                                        '<tr><td>' +
+                                        (ri + 1) +
+                                        '</td><td class="demo-batch-snippet">' +
+                                        escapeHtml(r.snippet) +
+                                        '</td><td class="' +
+                                        lblClass +
+                                        '">' +
+                                        escapeHtml(r.label) +
+                                        '</td><td>' +
+                                        escapeHtml(r.pct) +
+                                        '</td></tr>';
+                                }
+                            });
+                            html += '</tbody></table></div>';
+                            batchResults.innerHTML = html;
+                            batchResults.hidden = false;
+                            batchStatus.textContent = 'Done: ' + lines.length + ' message(s).';
+                            batchRun.disabled = false;
+                            return;
+                        }
+                        var line = lines[i];
+                        var snip = line.length > 60 ? line.slice(0, 60) + '\u2026' : line;
+                        batchStatus.textContent = 'Scoring ' + (i + 1) + ' / ' + lines.length + '\u2026';
+                        fetch(getApiBase() + '/predict', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ text: line })
+                        })
+                            .then(function (r) {
+                                if (!r.ok) {
+                                    return r.text().then(function (t) {
+                                        throw new Error(r.status + ' ' + (t || r.statusText));
+                                    });
+                                }
+                                return r.json();
+                            })
+                            .then(function (data) {
+                                var res = parsePredictResponse(data);
+                                var dp = displayProbabilityPercent(res.probability);
+                                rows.push({ snippet: snip, label: res.label, pct: dp.text });
+                                i++;
+                                step();
+                            })
+                            .catch(function (err) {
+                                rows.push({
+                                    snippet: snip,
+                                    error: err.message || String(err)
+                                });
+                                i++;
+                                step();
+                            });
+                    }
+                    step();
+                });
+            }
+
             clearBtn.addEventListener('click', function () {
+                clearInferenceUI();
                 input.value = '';
                 showResults(false);
                 predictionText.textContent = '-';
                 verdictBadge.setAttribute('data-verdict', '');
                 confidenceText.textContent = '-';
                 confidenceFill.style.width = '0%';
-                confidenceFill.classList.remove('is-spam', 'is-ham');
+                confidenceFill.classList.remove('is-spam', 'is-ham', 'is-uncertain');
                 signalsList.innerHTML = '';
                 if (highlightWrap) highlightWrap.hidden = true;
                 if (highlightEl) highlightEl.innerHTML = '';
+                if (highlightWhyEl) {
+                    highlightWhyEl.hidden = true;
+                    highlightWhyEl.textContent = '';
+                }
+                if (batchStatus) batchStatus.textContent = '';
+                if (batchResults) {
+                    batchResults.hidden = true;
+                    batchResults.innerHTML = '';
+                }
             });
+            }); // loadClientConfig().finally
         });
+
+        // How-it-works modal — injected directly into <body> to avoid stacking context issues
+        (function () {
+            var openBtn = document.getElementById('highlight-how-btn');
+            if (!openBtn) return;
+
+            var modal = document.createElement('div');
+            modal.id = 'highlight-how-modal';
+            modal.className = 'hiw-backdrop';
+            modal.setAttribute('role', 'dialog');
+            modal.setAttribute('aria-modal', 'true');
+            modal.setAttribute('aria-labelledby', 'hiw-title');
+            modal.innerHTML = [
+                '<div class="hiw-panel">',
+                  '<button type="button" class="hiw-close" aria-label="Close">&times;</button>',
+                  '<h2 class="hiw-title" id="hiw-title">How the word highlights work</h2>',
+                  '<p class="hiw-lead">The model reads the whole message and gives it a single spam score.',
+                  ' But how do you know <em>which words</em> tipped it toward spam? That\'s what the highlights show.</p>',
+                  '<div class="hiw-step"><span class="hiw-step-num">1</span><div>',
+                    '<strong>Score the full message</strong>',
+                    '<p>The model reads every word together and produces one number: the likelihood it\'s spam.</p>',
+                  '</div></div>',
+                  '<div class="hiw-step"><span class="hiw-step-num">2</span><div>',
+                    '<strong>Hide one word, score again</strong>',
+                    '<p>The server covers up one word, re-runs the model, and records whether the score went up or down.</p>',
+                  '</div></div>',
+                  '<div class="hiw-step"><span class="hiw-step-num">3</span><div>',
+                    '<strong>Repeat for every word</strong>',
+                    '<p>This is done once per word, giving each word its own "impact score."</p>',
+                  '</div></div>',
+                  '<div class="hiw-step"><span class="hiw-step-num">4</span><div>',
+                    '<strong>Highlight the ones that mattered</strong>',
+                    '<p>Words that caused the biggest change are highlighted in yellow — those are the words the model relied on most.</p>',
+                  '</div></div>',
+                  '<div class="hiw-analogy">',
+                    '<span class="hiw-analogy-label">Think of it like this</span>',
+                    '<p>Imagine reading a suspicious message and covering "FREE PRIZE" with your thumb.',
+                    ' If it suddenly sounds fine, those words were doing all the work.',
+                    ' If covering "the" changes nothing, it was irrelevant.',
+                    ' The model does exactly that — automatically, for every word.</p>',
+                  '</div>',
+                  '<p class="hiw-footer-note">Hover any highlighted word to see how much the score shifted when it was hidden.</p>',
+                '</div>'
+            ].join('');
+            document.body.appendChild(modal);
+
+            var closeBtn = modal.querySelector('.hiw-close');
+
+            function openModal() {
+                modal.style.display = 'flex';
+                document.body.classList.add('hiw-open');
+                if (closeBtn) closeBtn.focus();
+            }
+            function closeModal() {
+                modal.style.display = 'none';
+                document.body.classList.remove('hiw-open');
+                openBtn.focus();
+            }
+
+            openBtn.addEventListener('click', openModal);
+            if (closeBtn) closeBtn.addEventListener('click', closeModal);
+            modal.addEventListener('click', function (e) {
+                if (e.target === modal) closeModal();
+            });
+            document.addEventListener('keydown', function (e) {
+                if (modal.style.display === 'flex' && e.key === 'Escape') closeModal();
+            });
+        })();
     </script>
 </body>
 </html>

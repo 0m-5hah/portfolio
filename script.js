@@ -158,7 +158,9 @@ function initTerminalTyping() {
         'cat outputs/metrics_dl.csv'
     ];
 
-    const typingElement = document.querySelector('.terminal-line .typing');
+    const typingElement = document.querySelector('.terminal-command-animated');
+    if (!typingElement) return;
+
     let commandIndex = 0;
     let charIndex = 0;
     let isDeleting = false;
@@ -175,14 +177,14 @@ function initTerminalTyping() {
         }
 
         if (!isDeleting) {
-            typingElement.textContent = currentCommand.substring(0, charIndex + 1) + '_';
+            typingElement.textContent = currentCommand.substring(0, charIndex + 1);
             charIndex++;
 
             if (charIndex === currentCommand.length) {
                 isPaused = true;
             }
         } else {
-            typingElement.textContent = currentCommand.substring(0, charIndex - 1) + '_';
+            typingElement.textContent = currentCommand.substring(0, charIndex - 1);
             charIndex--;
 
             if (charIndex === 0) {

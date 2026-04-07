@@ -1,55 +1,14 @@
-# Cybersecurity Portfolio
+# Portfolio (Om Shah)
 
-A professional, modern portfolio website designed for cybersecurity professionals.
+Static site: cybersecurity and automation background, projects (including ML demo), resume links, and contact details.
 
-## Quick Start
+## Local preview
 
-1. Open `index.html` in your browser to preview
-2. Customize the content with your information
-3. Deploy to GitHub Pages, Netlify, or Vercel
-
-## Customization
-
-### Personal Information
-
-Edit `index.html` and replace:
-
-- **"Your Name"** - Your actual name
-- **"your.email@example.com"** - Your email address
-- **"Your University Name"** - Your school/university
-- **Social links** - Update href attributes with your profiles
-
-### Profile Photo
-
-Replace the placeholder in the About section:
-
-```html
-<div class="image-placeholder">
-    <!-- Replace with: -->
-    <img src="your-photo.jpg" alt="Your Name" style="width: 100%; height: 100%; object-fit: cover; border-radius: 8px;">
-</div>
-```
-
-### Projects
-
-Update the project cards with your actual projects:
-- Change titles and descriptions
-- Update GitHub/demo links
-- Modify technology tags
-
-### Certifications
-
-Replace placeholder certifications with your actual credentials:
-- CompTIA Security+, CEH, OSCP, etc.
-- Adjust dates and descriptions
-
-### Statistics
-
-Update the numbers in the About section stats to reflect your actual achievements.
+Open `index.html` in a browser, or serve the folder with any static file server.
 
 ## Deployment
 
-### GitHub Pages (this site — `portfolio` repo)
+### GitHub Pages (this site, `portfolio` repo)
 
 This project is meant to live in a repository named **`portfolio`**, so the public URL is:
 
