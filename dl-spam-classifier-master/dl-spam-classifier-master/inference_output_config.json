@@ -30,7 +30,7 @@
   },
   "trace": {
     "architecture": "Embedding (trainable) → Conv1D → GlobalMaxPool → Dense → sigmoid",
-    "backend": "TensorFlow/Keras on the inference host. No cloud LLM call.",
+    "backend": "ONNX Runtime (CPU) on the inference host. No cloud LLM call.",
     "display": {
       "step1": "[1/4] texts_to_sequences → {token_count} token id(s) before padding",
       "step2": "[2/4] pad_sequences → {shape_str}{trunc_note}",
