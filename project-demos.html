@@ -211,7 +211,7 @@
                     <div class="demo-hero-card">
                         <h2 class="demo-hero-card-title">How to use it</h2>
                         <p class="demo-hero-card-text">
-                            Type a message and click <strong>Analyze</strong>. The result comes from an AI model running on a backend server — not simple rules in your browser.
+                            Type a message and click <strong>Analyze</strong>. The result comes from an AI model running on a backend server - not simple rules in your browser.
                         </p>
                     </div>
                     <div class="demo-hero-card">
@@ -225,7 +225,7 @@
                     <div class="demo-hero-card">
                         <h2 class="demo-hero-card-title">What's powering it</h2>
                         <p class="demo-hero-card-text">
-                            Python, TensorFlow/Keras (AI libraries), and a small local server. Trained on real SMS data — <strong>~98.7% accuracy</strong> on test data.
+                            Python, TensorFlow/Keras (AI libraries), and a small local server. Trained on real SMS data - <strong>~98.7% accuracy</strong> on test data.
                         </p>
                     </div>
                 </div>
@@ -311,7 +311,7 @@
                         <aside class="demo-panel demo-panel-output" aria-live="polite">
                             <div class="demo-output-header">
                                 <h2 class="demo-output-title">Analysis</h2>
-                                <p class="demo-output-sub" id="demo-output-sub">Spam or not spam — plus a confidence score and a breakdown of what influenced the result.</p>
+                                <p class="demo-output-sub" id="demo-output-sub">Spam or not spam - plus a confidence score and a breakdown of what influenced the result.</p>
                             </div>
 
                             <div id="demo-result-empty" class="demo-result-empty">
@@ -377,7 +377,7 @@
                 var ls = localStorage.getItem('spamApiBase');
                 if (ls) return ls.replace(/\/$/, '');
             } catch (e) {}
-            return 'http://127.0.0.1:8765';
+            return 'https://portfolio-jxw0.onrender.com';
         }
 
         function loadClientConfig() {
@@ -843,7 +843,7 @@
                                 ? ' Try opening the page over http:// instead of file://.'
                                 : '';
                         textEl.textContent =
-                            'Model server is offline — results are not available right now.' + extra;
+                            'Model server is offline - results are not available right now.' + extra;
                     });
             }
 
@@ -1218,7 +1218,7 @@
             }); // loadClientConfig().finally
         });
 
-        // How-it-works modal — injected directly into <body> to avoid stacking context issues
+        // How-it-works modal - injected directly into <body> to avoid stacking context issues
         (function () {
             var openBtn = document.getElementById('highlight-how-btn');
             if (!openBtn) return;
@@ -1249,14 +1249,14 @@
                   '</div></div>',
                   '<div class="hiw-step"><span class="hiw-step-num">4</span><div>',
                     '<strong>Highlight the ones that mattered</strong>',
-                    '<p>Words that caused the biggest change are highlighted in yellow — those are the words the model relied on most.</p>',
+                    '<p>Words that caused the biggest change are highlighted in yellow - those are the words the model relied on most.</p>',
                   '</div></div>',
                   '<div class="hiw-analogy">',
                     '<span class="hiw-analogy-label">Think of it like this</span>',
                     '<p>Imagine reading a suspicious message and covering "FREE PRIZE" with your thumb.',
                     ' If it suddenly sounds fine, those words were doing all the work.',
                     ' If covering "the" changes nothing, it was irrelevant.',
-                    ' The model does exactly that — automatically, for every word.</p>',
+                    ' The model does exactly that - automatically, for every word.</p>',
                   '</div>',
                   '<p class="hiw-footer-note">Hover any highlighted word to see how much the score shifted when it was hidden.</p>',
                 '</div>'
