@@ -24,7 +24,7 @@ def _max_len() -> int:
 
 
 def _pad_sequences(sequences: list[list[int]], maxlen: int) -> np.ndarray:
-    out = np.zeros((len(sequences), maxlen), dtype=np.int32)
+    out = np.zeros((len(sequences), maxlen), dtype=np.float32)
     for i, seq in enumerate(sequences):
         trunc = seq[:maxlen]
         out[i, : len(trunc)] = trunc
@@ -104,7 +104,8 @@ def load_model_and_tokenizer():
 
 def _run_session(session: ort.InferenceSession, padded: np.ndarray) -> np.ndarray:
     input_name = session.get_inputs()[0].name
-    return session.run(None, {input_name: padded.astype(np.int32)})[0].reshape(-1)
+    # ONNX model was exported from SavedModel with float32 input
+    return session.run(None, {input_name: padded.astype(np.float32)})[0].reshape(-1)
 
 
 def predict_spam_probability(text: str, model, tokenizer) -> tuple[float, dict]:

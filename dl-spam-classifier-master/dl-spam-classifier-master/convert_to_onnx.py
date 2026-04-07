@@ -28,20 +28,27 @@ def main() -> None:
     model = tf.keras.models.load_model(str(KERAS_PATH))
     model.summary()
 
-    print("Converting to ONNX …")
-    import tf2onnx  # noqa: PLC0415
-    import tf2onnx.convert  # noqa: PLC0415
+    print("Converting to ONNX via SavedModel …")
+    import tempfile  # noqa: PLC0415
+    import subprocess  # noqa: PLC0415
+    import sys  # noqa: PLC0415
 
-    # Build the concrete function from the model
-    input_signature = [
-        tf.TensorSpec(shape=(None, model.input_shape[1]), dtype=tf.int32, name="input_1")
-    ]
-    onnx_model, _ = tf2onnx.convert.from_keras(
-        model,
-        input_signature=input_signature,
-        opset=13,
-        output_path=str(ONNX_PATH),
-    )
+    with tempfile.TemporaryDirectory() as tmp:
+        saved_model_dir = str(Path(tmp) / "saved_model")
+        print(f"  Saving as SavedModel to {saved_model_dir} …")
+        model.export(saved_model_dir)
+        print("  Running tf2onnx conversion …")
+        result = subprocess.run(
+            [
+                sys.executable, "-m", "tf2onnx.convert",
+                "--saved-model", saved_model_dir,
+                "--output", str(ONNX_PATH),
+                "--opset", "13",
+            ],
+            check=True,
+            capture_output=False,
+        )
+
     size_mb = ONNX_PATH.stat().st_size / 1_048_576
     print(f"Saved {ONNX_PATH}  ({size_mb:.1f} MB)")
     print("Done. Commit outputs/dl_model.onnx and push.")

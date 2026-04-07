@@ -1,2 +1,3 @@
 *.keras filter=lfs diff=lfs merge=lfs -text
 dl-spam-classifier-master/dl-spam-classifier-master/outputs/tokenizer.json filter=lfs diff=lfs merge=lfs -text
+*.onnx filter=lfs diff=lfs merge=lfs -text

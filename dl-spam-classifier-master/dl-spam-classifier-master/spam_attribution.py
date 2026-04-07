@@ -67,13 +67,13 @@ def occlusion_highlight_spans(
         return []
 
     spans = _word_spans_in_original(text, words)
-    row = padded[0].astype(np.int32, copy=False)
+    row = padded[0].astype(np.float32, copy=False)
     active = np.where(row != 0)[0]
     if active.size == 0:
         return []
 
     n = int(active.size)
-    batch = np.tile(np.array(padded, dtype=np.int32), (n + 1, 1))
+    batch = np.tile(np.array(padded, dtype=np.float32), (n + 1, 1))
     for k in range(n):
         j = int(active[k])
         batch[k + 1, j] = 0
