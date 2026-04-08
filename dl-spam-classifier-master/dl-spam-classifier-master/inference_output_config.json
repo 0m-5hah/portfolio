@@ -59,7 +59,7 @@
     "credibility": {
       "toggle_label": "Example failure case from small-text CNNs",
       "failure_title": "Representative error",
-      "failure_detail": "Bland office lines (e.g. “Meeting at 3pm: bring the report”) are sometimes scored as spam; production systems layer more signals.",
+      "failure_detail": "Real test: a legitimate appointment reminder containing the phrase \"Reply STOP to unsubscribe\" scored 95.7% spam. The model learned that opt-out language is a strong spam signal from training data, and correctly so in most cases. But legitimate services use the same phrase, causing a false positive. This is a known limitation of pattern-based models trained without sender context or opt-in history.",
       "saturated_ui_note": "Bar caps near ~99.9% so saturated scores do not read as a literal 100%."
     }
   },

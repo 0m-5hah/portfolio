@@ -1,10 +1,10 @@
-# Deployment Checklist — Spam Inference API
+﻿# Deployment Checklist - Spam Inference API
 
 Use this doc before every deploy to catch known issues before they happen.
 
 ---
 
-## HuggingFace Spaces settings (current — recommended)
+## HuggingFace Spaces settings (current - recommended)
 
 | Setting | Value |
 |---|---|
@@ -17,7 +17,7 @@ No environment variables needed. Model files (`spam_weights.npz`, `tokenizer.jso
 
 ---
 
-## Render service settings (deprecated — OOM issues, see issues 4–7 below)
+## Render service settings (deprecated - OOM issues, see issues 4–7 below)
 
 | Setting | Value |
 |---|---|
@@ -31,8 +31,8 @@ Environment variables (set in Render dashboard under Environment):
 
 | Key | Value | Required? |
 |---|---|---|
-| `PYTHON_VERSION` | `3.11.9` | Optional — harmless, can leave it |
-| `SPAM_THRESHOLD` | `0.5` | Optional — defaults to value in `inference_output_config.json` |
+| `PYTHON_VERSION` | `3.11.9` | Optional - harmless, can leave it |
+| `SPAM_THRESHOLD` | `0.5` | Optional - defaults to value in `inference_output_config.json` |
 
 ---
 
@@ -42,10 +42,10 @@ Before triggering a deploy, verify locally:
 
 - [ ] `outputs/spam_weights.npz` exists and is **not** an LFS pointer stub (file should be ~7.3 MB)
 - [ ] `outputs/tokenizer.json` exists and is valid JSON (not an LFS pointer stub)
-- [ ] `requirements-api.txt` lists only `fastapi`, `uvicorn`, `numpy`, `pydantic` — **no tensorflow, tf-keras, or onnxruntime**
+- [ ] `requirements-api.txt` lists only `fastapi`, `uvicorn`, `numpy`, `pydantic` - **no tensorflow, tf-keras, or onnxruntime**
 - [ ] `download_models.py` references `spam_weights.npz`, not `dl_model.keras` or `dl_model.onnx`
-- [ ] `spam_inference.py` imports only `numpy` — no `tensorflow` or `onnxruntime`
-- [ ] `inference_output_config.json` backend string says "ONNX Runtime (CPU)" or similar — **not "TensorFlow/Keras"**
+- [ ] `spam_inference.py` imports only `numpy` - no `tensorflow` or `onnxruntime`
+- [ ] `inference_output_config.json` backend string says "ONNX Runtime (CPU)" or similar - **not "TensorFlow/Keras"**
 - [ ] Quick local smoke-test passes:
   ```
   python -c "
@@ -61,7 +61,7 @@ Before triggering a deploy, verify locally:
 ## Issues we hit and how they were resolved
 
 ### 1. Wrong Python version on Render (Python 3.14)
-**Symptom:** Build failed — `No matching distribution found for tensorflow>=2.15`
+**Symptom:** Build failed - `No matching distribution found for tensorflow>=2.15`
 **Cause:** Render defaulted to Python 3.14 which TF doesn't support.
 **Fix:** Set `PYTHON_VERSION=3.11.9` as an environment variable in Render. Also added `runtime.txt` and `.python-version` files as backups.
 
@@ -75,16 +75,16 @@ Before triggering a deploy, verify locally:
 ---
 
 ### 3. Keras version mismatch (`batch_shape` / `optional` error)
-**Symptom:** Model failed to load — `Unrecognized keyword arguments: ['batch_shape', 'optional']`
+**Symptom:** Model failed to load - `Unrecognized keyword arguments: ['batch_shape', 'optional']`
 **Cause:** Model was saved with Keras 3 (TF 2.16+) but loaded under TF 2.15 (Keras 2). InputLayer serialization changed between versions.
 **Fix:** Updated `requirements-api.txt` to `tensorflow-cpu==2.17.0` + added `tf-keras` package. Updated `spam_inference.py` to try `tf_keras.preprocessing` imports first.
 
 ---
 
-### 4. Out of memory — TF 2.17 exceeded 512 MB on Render free tier
+### 4. Out of memory - TF 2.17 exceeded 512 MB on Render free tier
 **Symptom:** Deploy failed with `==> Out of memory (used over 512Mi)` during startup.
 **Cause:** TensorFlow 2.17 uses ~400–500 MB just to import, pushing the service over Render's 512 MB limit before it could even open a port.
-**First attempt fix:** Switched to ONNX Runtime (`onnxruntime-cpu` → then `onnxruntime`). Still OOM — see issue 7 below.
+**First attempt fix:** Switched to ONNX Runtime (`onnxruntime-cpu` → then `onnxruntime`). Still OOM - see issue 7 below.
 
 ---
 
@@ -102,7 +102,7 @@ Before triggering a deploy, verify locally:
 
 ---
 
-### 7. Out of memory — ONNX Runtime also exceeded 512 MB
+### 7. Out of memory - ONNX Runtime also exceeded 512 MB
 **Symptom:** Deploy started, model began loading, then `==> Out of memory (used over 512Mi)`.
 **Cause:** `onnxruntime` itself uses ~150 MB of resident memory. Combined with Python (~30MB), numpy (~40MB), and fastapi/uvicorn (~50MB), total idle memory ~270MB. Adding session initialisation (graph optimisation passes) pushed it over 512MB.
 **Fix:** Eliminated all ML runtime libraries entirely. Switched to **pure numpy forward pass**:
@@ -129,8 +129,8 @@ Before triggering a deploy, verify locally:
 
 ## If you retrain the model
 
-1. Run training locally — produces a new `outputs/dl_model.keras`
-2. Run `python convert_to_onnx.py` — produces `outputs/dl_model.onnx`
+1. Run training locally - produces a new `outputs/dl_model.keras`
+2. Run `python convert_to_onnx.py` - produces `outputs/dl_model.onnx`
 3. Commit both (LFS handles `.keras` and `.onnx` automatically via `.gitattributes`)
 4. Push and redeploy on Render
 
@@ -147,4 +147,4 @@ Expected response:
 { "ok": true, "model_loaded": true, "demo": "spam-cnn-inference" }
 ```
 
-If `model_loaded` is `false`, check the Render build logs — the `download_models.py` step will show whether the files downloaded successfully and their sizes.
+If `model_loaded` is `false`, check the Render build logs - the `download_models.py` step will show whether the files downloaded successfully and their sizes.
