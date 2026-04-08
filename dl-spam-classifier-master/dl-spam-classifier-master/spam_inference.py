@@ -1,6 +1,6 @@
 """
 Load spam_weights.npz + tokenizer.json and score SMS-style strings.
-Pure numpy forward pass — no TensorFlow, no ONNX Runtime.
+Pure numpy forward pass: no TensorFlow, no ONNX Runtime.
 Architecture: Embedding → Conv1D(relu) → GlobalMaxPool → Dense(relu) → Dense(sigmoid)
 """
 from __future__ import annotations

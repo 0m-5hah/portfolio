@@ -19,7 +19,7 @@ training_data/
 # Large / internal model artifacts (indices not needed for inference)
 outputs/train_idx.npy
 outputs/test_idx.npy
-# tokenizer.json is committed — needed by the deployed inference API
+# tokenizer.json is committed (needed by the deployed inference API)
 
 # Windows
 Thumbs.db

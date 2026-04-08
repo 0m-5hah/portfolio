@@ -14,5 +14,5 @@ spam-ui-test-output/
 # Private folder
 secret/
 
-# Large ML model binary — host externally (Hugging Face / GDrive)
+# Large ML model binary: host externally (Hugging Face / GDrive)
 *.keras

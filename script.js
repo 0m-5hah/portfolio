@@ -8,9 +8,19 @@ document.addEventListener('DOMContentLoaded', () => {
     initStaggerDelays();
 });
 
+function prefersReducedMotion() {
+    return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+}
+
 function initCursorGlow() {
     const cursorGlow = document.querySelector('.cursor-glow');
-    
+    if (!cursorGlow) return;
+
+    if (prefersReducedMotion()) {
+        cursorGlow.style.display = 'none';
+        return;
+    }
+
     if (window.matchMedia('(pointer: fine)').matches) {
         document.addEventListener('mousemove', (e) => {
             cursorGlow.style.left = e.clientX + 'px';
@@ -32,16 +42,21 @@ function initCursorGlow() {
 function initMobileMenu() {
     const menuBtn = document.querySelector('.mobile-menu-btn');
     const navLinks = document.querySelector('.nav-links');
+    if (!menuBtn || !navLinks) return;
+
+    const setOpen = (open) => {
+        navLinks.classList.toggle('active', open);
+        menuBtn.classList.toggle('active', open);
+        menuBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
+    };
 
     menuBtn.addEventListener('click', () => {
-        navLinks.classList.toggle('active');
-        menuBtn.classList.toggle('active');
+        setOpen(!navLinks.classList.contains('active'));
     });
 
     document.querySelectorAll('.nav-links a').forEach(link => {
         link.addEventListener('click', () => {
-            navLinks.classList.remove('active');
-            menuBtn.classList.remove('active');
+            setOpen(false);
         });
     });
 }
@@ -49,22 +64,32 @@ function initMobileMenu() {
 function initSmoothScroll() {
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
         anchor.addEventListener('click', function (e) {
+            const href = this.getAttribute('href');
+            if (href.length < 2) return;
+            const target = document.querySelector(href);
+            if (!target) return;
             e.preventDefault();
-            const target = document.querySelector(this.getAttribute('href'));
-            if (target) {
-                const navbarHeight = document.querySelector('.navbar').offsetHeight;
-                const targetPosition = target.getBoundingClientRect().top + window.pageYOffset - navbarHeight;
-                
-                window.scrollTo({
-                    top: targetPosition,
-                    behavior: 'smooth'
-                });
-            }
+            const navbar = document.querySelector('.navbar');
+            const navbarHeight = navbar ? navbar.offsetHeight : 0;
+            const targetPosition = target.getBoundingClientRect().top + window.pageYOffset - navbarHeight;
+            window.scrollTo({
+                top: targetPosition,
+                behavior: prefersReducedMotion() ? 'auto' : 'smooth'
+            });
         });
     });
 }
 
 function initScrollAnimations() {
+    const animateElements = document.querySelectorAll(
+        '.skill-category, .project-card, .cert-card, .education, .about-content, .contact-content, .experience-item'
+    );
+
+    if (prefersReducedMotion()) {
+        animateElements.forEach(el => el.classList.add('animate-in'));
+        return;
+    }
+
     const observerOptions = {
         threshold: 0.1,
         rootMargin: '0px 0px -50px 0px'
@@ -78,10 +103,6 @@ function initScrollAnimations() {
             }
         });
     }, observerOptions);
-
-    const animateElements = document.querySelectorAll(
-        '.skill-category, .project-card, .cert-card, .education, .about-content, .contact-content, .experience-item'
-    );
 
     animateElements.forEach(el => {
         el.style.opacity = '0';
@@ -121,6 +142,13 @@ function initNavbarScroll() {
 }
 
 function initTerminalTyping() {
+    const typingElement = document.querySelector('.terminal-command-animated');
+    if (!typingElement) return;
+    if (prefersReducedMotion()) {
+        typingElement.textContent = 'python3 merge_case_docs.py';
+        return;
+    }
+
     const commands = [
         'python3 merge_case_docs.py',
         'nmap -sV --script=vuln 10.0.0.0/24',
@@ -128,9 +156,6 @@ function initTerminalTyping() {
         'git commit -m "feat: ocr quality checks"',
         'cat outputs/metrics_dl.csv'
     ];
-
-    const typingElement = document.querySelector('.terminal-command-animated');
-    if (!typingElement) return;
 
     let commandIndex = 0;
     let charIndex = 0;
@@ -172,6 +197,8 @@ function initTerminalTyping() {
 }
 
 function initStaggerDelays() {
+    if (prefersReducedMotion()) return;
+
     document.querySelectorAll('.project-card').forEach((card, index) => {
         card.style.transitionDelay = `${index * 0.1}s`;
     });

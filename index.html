@@ -8,7 +8,13 @@
     <meta property="og:title" content="Om Shah | Cybersecurity &amp; Automation">
     <meta property="og:description" content="UTS cybersecurity student with hands-on experience in network scanning, Python automation, and web application testing. Building tools that streamline workflows and strengthen security posture.">
     <meta property="og:type" content="website">
-    <meta property="og:image" content="og-image.svg">
+    <meta property="og:url" content="https://0m-5hah.github.io/portfolio/index.html">
+    <meta property="og:image" content="https://0m-5hah.github.io/portfolio/og-image.svg">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Om Shah | Cybersecurity &amp; Automation">
+    <meta name="twitter:description" content="UTS cybersecurity student with hands-on experience in network scanning, Python automation, and web application testing.">
+    <meta name="twitter:image" content="https://0m-5hah.github.io/portfolio/og-image.svg">
+    <link rel="canonical" href="https://0m-5hah.github.io/portfolio/index.html">
     <title>Om Shah | Cybersecurity &amp; Automation</title>
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
     <link rel="stylesheet" href="styles.css">
@@ -24,7 +30,7 @@
             <span class="terminal-prompt">&gt;_</span>
             <span class="brand-text">security<span class="accent">.portfolio</span></span>
         </a>
-        <ul class="nav-links">
+        <ul class="nav-links" id="nav-links-primary">
             <li><a href="#home">Home</a></li>
             <li><a href="#about">About</a></li>
             <li><a href="#experience">Experience</a></li>
@@ -34,7 +40,7 @@
             <li><a href="#contact">Contact</a></li>
             <li><a href="om-shah-resume.pdf" class="nav-resume" target="_blank" rel="noopener">Resume</a></li>
         </ul>
-        <button class="mobile-menu-btn" aria-label="Toggle menu">
+        <button type="button" class="mobile-menu-btn" aria-label="Toggle menu" aria-expanded="false" aria-controls="nav-links-primary">
             <span></span>
             <span></span>
             <span></span>
@@ -130,27 +136,16 @@
                 <div class="about-content">
                     <div class="about-text">
                         <p>
-                            I'm a cybersecurity student at UTS with industry experience across 
-                            immigration casework, QA, and automation. I focus on decreasing 
-                            manual work, improving documentation, and facilitating compliance 
-                            for audits and reviews, and I build security tools that matter.
+                            I'm a cybersecurity student at UTS with industry experience across
+                            immigration casework, QA, and automation. I build automations that
+                            reduce manual handling and shrink attack surface: fewer copy-paste
+                            workflows, less room for human error in checks, and clearer visibility
+                            into what's exposed when systems are left misconfigured or outdated.
                         </p>
                         <p>
-                            At Migrate Zone, I was promoted to Automation Engineer to handle higher
-                            document volumes after the company expanded into the UAE. I co-led a set
-                            of automation tools that cut the average time to process a visa case from
-                            roughly 8 hours down to 5.3 hours. I've built tools that use text
-                            recognition (OCR) to check documents for completeness, automatically sort
-                            them by type,                             and pre-fill form templates, removing hours of repetitive
-                            data entry.
-                        </p>
-                        <p>
-                            My final-year capstone project, Sentinel, is a security tool that 
-                            automatically scans a computer network, identifies every connected device 
-                            and service, and checks each one against a public database of known 
-                            security flaws. It then produces a clear report of what was found and 
-                            how to fix it. I'm passionate about practical security and automation 
-                            that solves real problems.
+                            The roles and shipped tools at Migrate Zone and ITonKey are summarised
+                            in <a href="#experience">Experience</a> below. For project detail, including
+                            Sentinel, my final-year capstone, see <a href="#projects">Featured Projects</a>.
                         </p>
                         <div class="about-stats">
                             <div class="stat">
@@ -185,11 +180,11 @@
                         </div>
                         <p class="experience-company">Migrate Zone · Jul 2023 to present · Part-time</p>
                         <ul class="experience-bullets">
-                            <li>Promoted to Automation Engineer to update and streamline internal visa processing workflows and support higher documentation volumes after expansion into the UAE</li>
-                            <li>Expanded the internal automation toolkit and consolidated financial audit checks into a single systematic workflow, minimising duplicate checks and manual cross referencing</li>
-                            <li>Co-led the redesign and rollout of modular automations for file naming, risk flagging and routing, trimming average case handling time from ~8.0 hours to ~5.3 hours per case (~35% faster), based on a one-week trial with four mixed senior–junior teams (two on the new toolkit, two on the old process)</li>
-                            <li>Built a pre-fill tool that pulls verified case data into Excel submission forms automatically, removing the need for staff to copy information by hand before each visa application</li>
-                            <li>Built a lightweight monitoring tool that checks government policy pages for updates, so staff no longer need to manually visit each site before processing a case</li>
+                            <li><strong>Promotion after UAE expansion.</strong> Streamlined visa workflows for higher documentation volumes.</li>
+                            <li><strong>Automation toolkit + audits.</strong> One systematic workflow for financial audit checks with less duplicate work.</li>
+                            <li><strong>~35% faster cases (~8h → ~5.3h).</strong> Co-led modular automations (naming, risk, routing) in a one-week, four-team trial.</li>
+                            <li><strong>Excel pre-fill.</strong> Pulls verified case data into submission forms without manual retyping.</li>
+                            <li><strong>Policy monitoring.</strong> Lightweight scraper for government policy pages so staff skip manual checks each time.</li>
                         </ul>
                     </div>
                     <div class="experience-item">
@@ -199,9 +194,9 @@
                         </div>
                         <p class="experience-company">Migrate Zone · Jul 2023 to present · Part-time</p>
                         <ul class="experience-bullets">
-                            <li>Promoted from Administrative Assistant after automating data entry with Python scripts, removing a large portion of manual typing for each case</li>
-                            <li>Co-built a tool that automatically reads and checks all uploaded documents using text recognition (OCR), catching dozens of missing or outdated items per month before visa applications were submitted</li>
-                            <li>Wrote simple step-by-step guides so non-technical admin staff could use the toolkit independently without needing developer help</li>
+                            <li><strong>Promoted from admin.</strong> Python automation cut repetitive data entry per case.</li>
+                            <li><strong>OCR document checks.</strong> Catches missing or outdated items before submissions, dozens per month.</li>
+                            <li><strong>Guides for non-devs.</strong> Step-by-step docs so admins run the toolkit without engineering help.</li>
                         </ul>
                     </div>
                     <div class="experience-item">
@@ -211,8 +206,8 @@
                         </div>
                         <p class="experience-company">ITonKey · Part-time</p>
                         <ul class="experience-bullets">
-                            <li>Built an invoicing tool in Python that automatically generates branded, multi-page PDF invoices from a spreadsheet of billing data, replacing a manual formatting process</li>
-                            <li>Helped build inventory management software for small business clients, including stock tracking and basic reports to help them spot and reduce losses</li>
+                            <li><strong>PDF invoicing.</strong> Python tool: spreadsheet → branded multi-page invoices (replaced manual layout).</li>
+                            <li><strong>Inventory apps.</strong> Stock tracking and reports for small-business clients.</li>
                         </ul>
                     </div>
                 </div>
@@ -234,17 +229,18 @@
                         </div>
                         <div class="project-content">
                             <div class="project-header">
-                                <span class="project-label">Featured Project</span>
+                                <span class="project-scope project-scope--capstone">Capstone</span>
                             </div>
                             <h3 class="project-title">Sentinel: Automated Network Security Scanner</h3>
                             <p class="project-description">
-                                My final-year capstone project at UTS. A Python tool that automatically 
-                                scans a computer network, identifies every connected device and service 
-                                running on it, and checks each one against a public database of known 
-                                security flaws. It cleans up the raw scan output, maps services to their 
-                                known software identifiers, and produces a tidy report with steps to 
-                                verify each issue, giving any team a clear picture of where their 
-                                network is exposed.
+                                My final-year capstone project at UTS. A Python tool that automatically
+                                scans a computer network, identifies every connected device and service
+                                running on it, and checks each one against a public database of known
+                                security flaws. It cleans up the raw scan output, maps services to
+                                CPE-style software identifiers, and queries the NVD so each finding
+                                is tied to known CVEs with severity metadata. The report groups results
+                                by asset and priority so teams can patch or verify the riskiest items
+                                first, with steps to confirm each issue.
                             </p>
                             <ul class="project-tech">
                                 <li>Python</li>
@@ -258,12 +254,15 @@
                     <article class="project-card">
                         <div class="project-content">
                             <div class="project-header">
-                                <span class="folder-icon">📁</span>
+                                <div class="project-header-main">
+                                    <span class="folder-icon">📁</span>
+                                    <span class="project-scope project-scope--production">Production</span>
+                                </div>
                             </div>
                             <h3 class="project-title">Immigration Case Workflow Automation Toolkit</h3>
                             <p class="project-description">
                                 A team-built automation toolkit used at Migrate Zone to process immigration 
-                                case files. Staff upload documents; the tool merges them into a single PDF, 
+                                case files. Staff upload documents and the tool merges them into a single PDF, 
                                 reads and extracts the text automatically (using OCR, text recognition 
                                 technology), and checks that every required document is present based on 
                                 the specific visa type. Missing or outdated items are flagged, and the 
@@ -282,7 +281,10 @@
                     <article class="project-card">
                         <div class="project-content">
                             <div class="project-header">
-                                <span class="folder-icon">📁</span>
+                                <div class="project-header-main">
+                                    <span class="folder-icon">📁</span>
+                                    <span class="project-scope project-scope--production">Production</span>
+                                </div>
                             </div>
                             <h3 class="project-title">PDF Invoicing & Document Tools</h3>
                             <p class="project-description">
@@ -302,7 +304,10 @@
                     <article class="project-card">
                         <div class="project-content">
                             <div class="project-header">
-                                <span class="folder-icon">📁</span>
+                                <div class="project-header-main">
+                                    <span class="folder-icon">📁</span>
+                                    <span class="project-scope project-scope--production">Production</span>
+                                </div>
                             </div>
                             <h3 class="project-title">Document Completeness Check &amp; Form Pre-fill Tool</h3>
                             <p class="project-description">
@@ -323,7 +328,10 @@
                     <article class="project-card">
                         <div class="project-content">
                             <div class="project-header">
-                                <span class="folder-icon">📁</span>
+                                <div class="project-header-main">
+                                    <span class="folder-icon">📁</span>
+                                    <span class="project-scope project-scope--coursework">Coursework</span>
+                                </div>
                                 <div class="project-links">
                                     <a href="project-demos.html" class="project-link" title="Live demo">
                                         <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>
@@ -333,20 +341,17 @@
                                     </a>
                                 </div>
                             </div>
-                            <h3 class="project-title">SMS Spam Detector (Machine Learning)</h3>
+                            <h3 class="project-title">SMS bulk-style detector (machine learning)</h3>
                             <p class="project-description">
-                                A university coursework project: a machine learning model trained to tell 
-                                the difference between spam and legitimate text messages. The model was 
-                                built with a neural network that understands word context, then deployed 
-                                as an API with a live demo on this site. When you type a message in the 
-                                demo, the actual model runs in the background to make the prediction 
-                                (not just a pre-written rule).
+                                Coursework: a neural network on SMS text that outputs <strong>P(bulk-style)</strong>
+                                (dataset spam/not-spam labels): how much the wording resembles bulk or automated
+                                messaging, not whether a message is dangerous. Deployed as a backend API with a
+                                live demo. If the API is down, the demo page falls back to a keyword estimate.
                             </p>
                             <ul class="project-tech">
                                 <li>Python</li>
                                 <li>TensorFlow</li>
                                 <li>GloVe</li>
-                                <li>Coursework</li>
                             </ul>
                             <div class="project-demos-btn">
                                 <a href="project-demos.html" class="btn btn-primary">
@@ -356,6 +361,48 @@
                             </div>
                         </div>
                     </article>
+                </div>
+
+                <div class="projects-coming-soon" id="coming-soon-projects">
+                    <h3 class="projects-coming-soon-heading">Coming soon</h3>
+                    <p class="projects-coming-soon-lead">Write-ups and deployment notes for these builds are in progress.</p>
+                    <div class="projects-coming-soon-grid">
+                        <article class="project-card project-card--soon">
+                            <div class="project-content">
+                                <div class="project-header">
+                                    <div class="project-header-main">
+                                        <span class="folder-icon" aria-hidden="true">☁️</span>
+                                        <span class="project-scope project-scope--soon">Coming soon</span>
+                                    </div>
+                                </div>
+                                <h3 class="project-title">Real-World 3-Tier Web App Deployment on AWS</h3>
+                                <p class="project-description">
+                                    End-to-end deployment walkthrough: networking, compute, and data tiers with production-style constraints.
+                                </p>
+                                <ul class="project-tech">
+                                    <li>AWS</li>
+                                </ul>
+                            </div>
+                        </article>
+                        <article class="project-card project-card--soon">
+                            <div class="project-content">
+                                <div class="project-header">
+                                    <div class="project-header-main">
+                                        <span class="folder-icon" aria-hidden="true">☁️</span>
+                                        <span class="project-scope project-scope--soon">Coming soon</span>
+                                    </div>
+                                </div>
+                                <h3 class="project-title">Serverless Lead Capture on AWS</h3>
+                                <p class="project-description">
+                                    Serverless pipeline for capturing and storing leads with minimal operational overhead.
+                                </p>
+                                <ul class="project-tech">
+                                    <li>AWS</li>
+                                    <li>Serverless</li>
+                                </ul>
+                            </div>
+                        </article>
+                    </div>
                 </div>
             </div>
         </section>
@@ -371,25 +418,25 @@
                     <div class="cert-card">
                         <div class="cert-icon">🔐</div>
                         <h3>Cybersecurity</h3>
-                        <p>Core security principles, threat modeling, and defensive strategies.</p>
+                        <p>Built STRIDE-style threat models for sample applications and documented mitigations for each threat class in written assessments.</p>
                         <span class="cert-date">UTS coursework</span>
                     </div>
                     <div class="cert-card">
                         <div class="cert-icon">🎯</div>
                         <h3>System Security</h3>
-                        <p>Operating system security, access control, and secure configuration.</p>
+                        <p>Hardened Linux VMs (services, permissions, updates) and compared access-control models in practical lab submissions.</p>
                         <span class="cert-date">UTS coursework</span>
                     </div>
                     <div class="cert-card">
                         <div class="cert-icon">🔒</div>
                         <h3>Cloud Security (AWS)</h3>
-                        <p>Cloud security best practices, identity management, and data protection.</p>
+                        <p>Deployed small workloads using IAM roles, security groups, and least-privilege reviews in AWS console lab exercises.</p>
                         <span class="cert-date">UTS coursework</span>
                     </div>
                     <div class="cert-card">
                         <div class="cert-icon">🔍</div>
                         <h3>Digital Forensics</h3>
-                        <p>Evidence collection, analysis, and incident investigation methodologies.</p>
+                        <p>Imaged virtual disks, extracted timelines and artefacts with forensic tools, and wrote short reports with documented handling steps.</p>
                         <span class="cert-date">UTS coursework</span>
                     </div>
                 </div>
@@ -424,7 +471,7 @@
                             <li><span class="skill-bullet"></span>Vulnerability Assessment</li>
                             <li><span class="skill-bullet"></span>Web Application Testing</li>
                             <li><span class="skill-bullet"></span>Known Vulnerability Research</li>
-                            <li><span class="skill-bullet"></span>Penetration Testing</li>
+                            <li><span class="skill-bullet"></span>Offensive security labs (coursework)</li>
                         </ul>
                     </div>
                     <div class="skill-category">

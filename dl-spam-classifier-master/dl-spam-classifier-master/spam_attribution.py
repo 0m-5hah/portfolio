@@ -1,6 +1,6 @@
 """
 Token-level highlights via occlusion: mask one sequence position at a time, measure |Δ P(spam)|.
-No TensorFlow dependency — uses onnxruntime via spam_inference helpers.
+No TensorFlow dependency. Uses onnxruntime via spam_inference helpers.
 """
 from __future__ import annotations
 
