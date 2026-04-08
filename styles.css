@@ -810,6 +810,12 @@ body {
     border-color: rgba(210, 168, 255, 0.35);
 }
 
+.project-scope--personal {
+    color: #e8b86a;
+    background: rgba(232, 184, 106, 0.1);
+    border-color: rgba(232, 184, 106, 0.4);
+}
+
 .folder-icon {
     font-size: 2.5rem;
     opacity: 0.5;
