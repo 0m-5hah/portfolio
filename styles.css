@@ -252,25 +252,6 @@ body {
     line-height: 1.8;
 }
 
-.hero-recruiter-note {
-    font-size: 0.9rem;
-    color: var(--text-muted);
-    max-width: 500px;
-    margin-bottom: 1.75rem;
-    line-height: 1.65;
-}
-
-.hero-recruiter-note a {
-    color: var(--accent-secondary);
-    text-decoration: none;
-    border-bottom: 1px solid rgba(0, 212, 255, 0.35);
-}
-
-.hero-recruiter-note a:hover {
-    color: var(--accent-primary);
-    border-bottom-color: var(--accent-primary);
-}
-
 .hero-cta {
     display: flex;
     gap: 1rem;
@@ -701,9 +682,14 @@ body {
     background: var(--bg-secondary);
 }
 
+/* Wider than the default 1200px container so project cards use horizontal space */
+.projects .container {
+    max-width: min(1520px, 100%);
+}
+
 .projects-grid {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 1.5rem;
 }
 
@@ -735,6 +721,17 @@ body {
     grid-column: span 2;
     display: grid;
     grid-template-columns: 1fr 1.5fr;
+}
+
+@media (min-width: 1280px) {
+    .projects-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 1.25rem 1.5rem;
+    }
+
+    .project-card.featured {
+        grid-column: span 3;
+    }
 }
 
 .project-image {
@@ -810,10 +807,10 @@ body {
     border-color: rgba(210, 168, 255, 0.35);
 }
 
-.project-scope--personal {
-    color: #e8b86a;
-    background: rgba(232, 184, 106, 0.1);
-    border-color: rgba(232, 184, 106, 0.4);
+.project-scope--redteam {
+    color: #f0a0a0;
+    background: rgba(240, 160, 160, 0.1);
+    border-color: rgba(240, 160, 160, 0.4);
 }
 
 .folder-icon {
@@ -2976,11 +2973,6 @@ body {
         margin-right: auto;
     }
 
-    .hero-recruiter-note {
-        margin-left: auto;
-        margin-right: auto;
-    }
-
     .hero-cta {
         justify-content: center;
     }
@@ -3117,10 +3109,9 @@ body {
 .hero-title { animation-delay: 0.2s; }
 .hero-role { animation-delay: 0.3s; }
 .hero-description { animation-delay: 0.4s; }
-.hero-recruiter-note { animation-delay: 0.45s; }
-.hero-cta { animation-delay: 0.55s; }
+.hero-cta { animation-delay: 0.45s; }
 
 .terminal-window {
-    animation: fadeInUp 0.8s ease 0.65s forwards;
+    animation: fadeInUp 0.8s ease 0.55s forwards;
     opacity: 0;
 }
