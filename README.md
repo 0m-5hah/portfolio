@@ -10,11 +10,9 @@ Open `index.html` in a browser, or serve the folder with any static file server.
 
 ### GitHub Pages (this site, `portfolio` repo)
 
-This project is meant to live in a repository named **`portfolio`**, so the public URL is:
+**Live site (canonical):** **https://omshahinfo.com/** (apex, no `www`; browsers add `https://` automatically.)
 
-**https://0m-5hah.github.io/portfolio/**
-
-(That is GitHub’s pattern: `https://<username>.github.io/<repo-name>/` for project sites.)
+The same site is also available via GitHub Pages at **https://0m-5hah.github.io/portfolio/** until DNS is fully switched. A **`CNAME`** file in the repo root points **`omshahinfo.com`** at GitHub Pages; configure the custom domain and DNS as in your registrar (A records for `@` to GitHub’s IPs).
 
 1. On GitHub, create a **public** repository named **`portfolio`**. Do not add a README, `.gitignore`, or license when GitHub offers templates (this folder already has a first commit).
 
@@ -36,7 +34,7 @@ This project is meant to live in a repository named **`portfolio`**, so the publ
 
 3. On the **`portfolio`** repo: **Settings → Pages → Build and deployment → Source** → **Deploy from a branch** → branch **`main`**, folder **`/` (root)** → Save.
 
-4. After a minute or two, open **https://0m-5hah.github.io/portfolio/** (use the trailing slash or open `/portfolio/index.html` if needed the first time).
+4. After a minute or two, open **https://omshahinfo.com/** or **https://0m-5hah.github.io/portfolio/** (use a trailing slash if needed the first time).
 
 **Optional:** A repo named **`0m-5hah.github.io`** (exactly) would serve the site at **`https://0m-5hah.github.io/`** with no `/portfolio` path. This project uses relative asset links, so either layout works.
 

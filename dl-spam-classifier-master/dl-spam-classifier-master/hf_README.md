@@ -9,4 +9,4 @@ pinned: false
 ---
 
 FastAPI inference server for the SMS spam classifier CNN.  
-Frontend demo: [portfolio](https://0m-5hah.github.io/portfolio/project-demos.html)
+Frontend demo: [portfolio](https://omshahinfo.com/project-demos.html)
