@@ -10,9 +10,9 @@ Open `index.html` in a browser, or serve the folder with any static file server.
 
 ### GitHub Pages (this site, `portfolio` repo)
 
-**Live site (canonical):** **https://omshahinfo.com/** (apex, no `www`; browsers add `https://` automatically.)
+**Live site (canonical):** **https://omshahinfo.com/** (apex, no `www`).
 
-The same site is also available via GitHub Pages at **https://0m-5hah.github.io/portfolio/** until DNS is fully switched. A **`CNAME`** file in the repo root points **`omshahinfo.com`** at GitHub Pages; configure the custom domain and DNS as in your registrar (A records for `@` to GitHub’s IPs).
+Mirror URL (GitHub Pages project site): **https://0m-5hah.github.io/portfolio/**. Prefer sharing **`omshahinfo.com`**. Repo root **`CNAME`** contains **`omshahinfo.com`**; DNS uses A records for **`@`** and a CNAME for **`www`** to **`0m-5hah.github.io`** per [GitHub Docs](https://docs.github.com/en/pages/configuring-a-custom-domain-for-your-github-pages-site/managing-a-custom-domain-for-your-github-pages-site). In **Settings → Pages**, turn on **Enforce HTTPS** when available.
 
 1. On GitHub, create a **public** repository named **`portfolio`**. Do not add a README, `.gitignore`, or license when GitHub offers templates (this folder already has a first commit).
 
