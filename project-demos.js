@@ -1395,11 +1395,11 @@
             });
         })();
 
-        // Resume download tracking for GoatCounter
+        // Resume PDF link tracking for GoatCounter
         document.querySelectorAll('a[href*="om-shah-resume.pdf"]').forEach(function (link) {
             link.addEventListener('click', function () {
                 if (window.goatcounter && window.goatcounter.count) {
-                    window.goatcounter.count({ path: 'resume-download', title: 'Resume Download', event: true });
+                    window.goatcounter.count({ path: 'resume-download', title: 'Resume (PDF)', event: true });
                 }
             });
         });

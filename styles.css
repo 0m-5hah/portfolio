@@ -703,6 +703,13 @@ body {
     margin-top: 1.25rem;
 }
 
+.project-demos-btn--row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75rem 1rem;
+}
+
 .project-card {
     background: var(--bg-tertiary);
     border: 1px solid var(--border-color);
@@ -2739,6 +2746,172 @@ body {
 .prediction-ham {
     color: var(--accent-primary);
     font-weight: 700;
+}
+
+.papers {
+    padding: 8rem 2rem;
+}
+
+.papers .container {
+    min-width: 0;
+}
+
+.papers-carousel-outer {
+    margin-top: 1.5rem;
+    position: relative;
+    width: 100%;
+    min-width: 0;
+}
+
+.papers-carousel-viewport {
+    width: 100%;
+    min-width: 0;
+    overflow-x: scroll;
+    overflow-y: hidden;
+    scroll-behavior: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    padding: 0.35rem 0 0.75rem;
+    cursor: grab;
+    outline: none;
+}
+
+.papers-carousel-viewport::-webkit-scrollbar {
+    display: none;
+}
+
+.papers-carousel-viewport:active {
+    cursor: grabbing;
+}
+
+.papers-carousel-viewport:focus-visible {
+    outline: 2px solid var(--accent-primary);
+    outline-offset: 4px;
+    border-radius: 8px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .papers-carousel-viewport {
+        scrollbar-width: thin;
+    }
+}
+
+.papers-track {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    align-items: stretch;
+    gap: 1.25rem;
+    width: max-content;
+    min-height: 100%;
+}
+
+/* Avoid cqw on this scroll viewport: container width can resolve to 0, making min(26rem, calc(100cqw - 2rem)) negative and collapsing cards. */
+.papers-carousel-viewport .paper-card {
+    flex: 0 0 auto;
+    width: min(26rem, calc(100vw - 4rem));
+    max-width: 26rem;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+}
+
+.papers-carousel-viewport .paper-card .paper-description {
+    flex-grow: 1;
+}
+
+.paper-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 1.75rem 2rem;
+    transition: all var(--transition-normal);
+}
+
+.paper-card:hover {
+    border-color: var(--accent-tertiary);
+    box-shadow: 0 16px 36px rgba(0, 212, 255, 0.08);
+}
+
+.paper-header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 0.75rem;
+    margin-bottom: 0.85rem;
+}
+
+.paper-header-main {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75rem 1rem;
+}
+
+.paper-scope {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--accent-primary);
+    background: rgba(0, 255, 136, 0.08);
+    padding: 0.2rem 0.65rem;
+    border-radius: 4px;
+    border: 1px solid rgba(0, 255, 136, 0.22);
+}
+
+.paper-meta {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+
+.paper-title {
+    font-size: 1.15rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0 0 0.65rem;
+    line-height: 1.35;
+}
+
+.paper-description {
+    font-size: 0.92rem;
+    color: var(--text-secondary);
+    line-height: 1.65;
+    margin: 0;
+}
+
+.paper-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1rem 1.25rem;
+    margin-top: 1rem;
+}
+
+.paper-actions .paper-link {
+    margin-top: 0;
+}
+
+.paper-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    margin-top: 1rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.82rem;
+    font-weight: 500;
+    color: var(--accent-secondary);
+    text-decoration: none;
+    border-bottom: 1px solid transparent;
+    transition: color var(--transition-fast), border-color var(--transition-fast);
+}
+
+.paper-link:hover {
+    color: var(--accent-primary);
+    border-bottom-color: var(--accent-primary);
 }
 
 .certifications {

@@ -6,6 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initNavbarScroll();
     initTerminalTyping();
     initStaggerDelays();
+    initPapersCarouselWhenReady();
 });
 
 function prefersReducedMotion() {
@@ -82,7 +83,7 @@ function initSmoothScroll() {
 
 function initScrollAnimations() {
     const animateElements = document.querySelectorAll(
-        '.skill-category, .project-card, .cert-card, .education, .about-content, .contact-content, .experience-item'
+        '.skill-category, .project-card, .cert-card, .papers-carousel-outer, .education, .about-content, .contact-content, .experience-item'
     );
 
     if (prefersReducedMotion()) {
@@ -196,6 +197,199 @@ function initTerminalTyping() {
     setTimeout(typeCommand, 2000);
 }
 
+function initPapersCarouselWhenReady() {
+    const viewport = document.getElementById('papers-carousel-viewport');
+    if (!viewport) return;
+
+    const start = () => initPapersCarousel(viewport);
+
+    if (document.readyState === 'complete') {
+        requestAnimationFrame(() => requestAnimationFrame(start));
+    } else {
+        window.addEventListener('load', () => {
+            requestAnimationFrame(() => requestAnimationFrame(start));
+        });
+    }
+}
+
+function initPapersCarousel(viewport) {
+    if (!viewport) return;
+    if (viewport.dataset.carouselBound === '1') return;
+
+    const track = document.getElementById('papers-track');
+    if (!track || track.children.length === 0) return;
+
+    viewport.dataset.carouselBound = '1';
+
+    const originalsSnapshot = Array.from(track.children);
+    const originalCount = originalsSnapshot.length;
+
+    originalsSnapshot.forEach((node) => {
+        const clone = node.cloneNode(true);
+        clone.setAttribute('aria-hidden', 'true');
+        track.appendChild(clone);
+    });
+
+    /** Distance from track start to duplicate of first card (one full set: LAWS … Ethics, then LAWS again). */
+    function getLoopWidth() {
+        const firstDup = track.children[originalCount];
+        if (!firstDup) return 0;
+
+        const tRect = track.getBoundingClientRect();
+        const dRect = firstDup.getBoundingClientRect();
+        let w = dRect.left - tRect.left;
+
+        if (w < 2) {
+            w = 0;
+            for (let i = 0; i < originalCount; i++) {
+                w += track.children[i].getBoundingClientRect().width;
+            }
+            const c0 = track.children[0];
+            const c1 = track.children[1];
+            if (c0 && c1) {
+                const gap = c1.offsetLeft - c0.offsetLeft - c0.offsetWidth;
+                if (gap >= 0 && Number.isFinite(gap)) {
+                    w += gap * originalCount;
+                }
+            }
+        }
+        return Math.max(0, Math.round(w * 100) / 100);
+    }
+
+    function wrapScrollPosition() {
+        const lw = getLoopWidth();
+        if (lw < 2) return;
+        let sl = viewport.scrollLeft;
+        let changed = false;
+        while (sl >= lw) {
+            sl -= lw;
+            changed = true;
+        }
+        while (sl < 0) {
+            sl += lw;
+            changed = true;
+        }
+        if (changed) {
+            viewport.scrollLeft = sl;
+        }
+    }
+
+    viewport.style.scrollBehavior = 'auto';
+    viewport.style.overflowX = 'scroll';
+
+    const reduced = prefersReducedMotion();
+    const pxPerTick = reduced ? 0.35 : 1.1;
+    const tickMs = reduced ? 48 : 24;
+
+    let paused = false;
+    let resumeTimer;
+
+    function step() {
+        if (document.hidden || paused) return;
+        const lw = getLoopWidth();
+        if (lw < 2) return;
+        let next = viewport.scrollLeft + pxPerTick;
+        if (next >= lw) {
+            next -= lw;
+        }
+        viewport.scrollLeft = next;
+    }
+
+    window.setInterval(step, tickMs);
+
+    viewport.addEventListener('scroll', wrapScrollPosition, { passive: true });
+
+    viewport.addEventListener('mouseenter', () => {
+        paused = true;
+    });
+    viewport.addEventListener('mouseleave', () => {
+        paused = false;
+    });
+
+    viewport.addEventListener(
+        'touchstart',
+        () => {
+            paused = true;
+            clearTimeout(resumeTimer);
+        },
+        { passive: true }
+    );
+    viewport.addEventListener(
+        'touchend',
+        () => {
+            resumeTimer = setTimeout(() => {
+                paused = false;
+            }, 2800);
+        },
+        { passive: true }
+    );
+
+    viewport.addEventListener(
+        'wheel',
+        (e) => {
+            if (Math.abs(e.deltaX) < 1 && Math.abs(e.deltaY) < 1) return;
+            paused = true;
+            clearTimeout(resumeTimer);
+            resumeTimer = setTimeout(() => {
+                paused = false;
+            }, 2200);
+        },
+        { passive: true }
+    );
+
+    viewport.addEventListener('keydown', (e) => {
+        const stepPx = Math.min(280, viewport.clientWidth * 0.88);
+        if (e.key === 'ArrowLeft') {
+            e.preventDefault();
+            viewport.scrollLeft -= stepPx;
+            wrapScrollPosition();
+            paused = true;
+            clearTimeout(resumeTimer);
+            resumeTimer = setTimeout(() => {
+                paused = false;
+            }, 3500);
+        }
+        if (e.key === 'ArrowRight') {
+            e.preventDefault();
+            viewport.scrollLeft += stepPx;
+            wrapScrollPosition();
+            paused = true;
+            clearTimeout(resumeTimer);
+            resumeTimer = setTimeout(() => {
+                paused = false;
+            }, 3500);
+        }
+    });
+
+    window.addEventListener(
+        'resize',
+        () => {
+            const maxScroll = viewport.scrollWidth - viewport.clientWidth;
+            viewport.scrollLeft = Math.min(viewport.scrollLeft, Math.max(0, maxScroll));
+            wrapScrollPosition();
+        },
+        { passive: true }
+    );
+
+    const ro = new ResizeObserver(() => {
+        wrapScrollPosition();
+    });
+    ro.observe(track);
+    ro.observe(viewport);
+
+    if (document.fonts && document.fonts.ready) {
+        document.fonts.ready.then(() => {
+            wrapScrollPosition();
+        });
+    }
+
+    requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+            wrapScrollPosition();
+        });
+    });
+}
+
 function initStaggerDelays() {
     if (prefersReducedMotion()) return;
 
@@ -214,7 +408,7 @@ function initStaggerDelays() {
     document.querySelectorAll('a[href*="om-shah-resume.pdf"]').forEach(link => {
         link.addEventListener('click', () => {
             if (window.goatcounter && window.goatcounter.count) {
-                window.goatcounter.count({ path: 'resume-download', title: 'Resume Download', event: true });
+                window.goatcounter.count({ path: 'resume-download', title: 'Resume (PDF)', event: true });
             }
         });
     });

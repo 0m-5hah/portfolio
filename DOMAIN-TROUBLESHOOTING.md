@@ -139,7 +139,7 @@ nslookup www.omshahinfo.com 8.8.8.8
 
 ## 10. Site content / SEO (already in repo)
 
-Canonical and Open Graph URLs in **`index.html`**, **`project-demos.html`**, **`spam-model.html`** use **`https://omshahinfo.com/...`**. After the domain goes green, no extra HTML change is required for basic correctness.
+Canonical and Open Graph URLs in **`index.html`** and **`project-demos.html`** use **`https://omshahinfo.com/...`**. After the domain goes green, no extra HTML change is required for basic correctness.
 
 ---
 
