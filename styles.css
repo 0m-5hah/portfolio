@@ -2109,10 +2109,6 @@ body {
     align-items: center;
 }
 
-.demo-actions .btn-ghost {
-    margin-left: auto;
-}
-
 .demo-inbox {
     margin-top: 1.25rem;
     padding-top: 1rem;
@@ -3252,10 +3248,6 @@ body {
 
     .demo-layout {
         grid-template-columns: 1fr;
-    }
-
-    .demo-actions .btn-ghost {
-        margin-left: 0;
     }
 
     .project-card.featured {
