@@ -2,11 +2,11 @@ import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
-/** Inner display plane (video UVs). */
+/** Laptop: inner display plane (video UVs). */
 const DISPLAY_MESH = 'Laptop_DisplayPane';
-/** Bezel / glass: multi-material; only slots named like *screen* get the video. */
+/** Laptop: glass mesh; material name must include laptop14_screen. */
 const GLASS_MESH = 'laptop14_screen.001';
-const GLB_URL = new URL('./laptop_Demo/laptop_demo.glb', import.meta.url).href;
+const GLB_URL = new URL('./laptop_Demo/ipad1.glb', import.meta.url).href;
 const POSTER_URL = new URL('./laptop_Demo/laptop-screen-poster.jpg', import.meta.url).href;
 
 function makeScreenMaterial(texture) {
@@ -30,7 +30,14 @@ function disposeMaterial(m) {
   }
 }
 
-/** Drive video/poster onto both the inner plane and the outer glass emissive face. */
+function materialGetsVideo(m, meshName) {
+  const n = (m.name || '').toLowerCase();
+  if (n.includes('screen image')) return true;
+  if (meshName === GLASS_MESH && n.includes('laptop14_screen')) return true;
+  return false;
+}
+
+/** Video/poster: laptop display + glass, or iPad “Screen Image” slot on a multi-material mesh. */
 function applyScreenTextures(rootObj, texture) {
   rootObj.traverse((o) => {
     if (!o.isMesh) return;
@@ -41,17 +48,16 @@ function applyScreenTextures(rootObj, texture) {
       return;
     }
 
-    if (o.name === GLASS_MESH) {
-      const mats = Array.isArray(o.material) ? o.material : [o.material];
-      const next = mats.map((m) => {
-        const slot = (m.name || '').toLowerCase();
-        if (!slot.includes('screen')) return m;
-        if (m.map) m.map.dispose?.();
-        m.dispose?.();
-        return makeScreenMaterial(texture);
-      });
-      o.material = next.length === 1 ? next[0] : next;
-    }
+    const mats = Array.isArray(o.material) ? o.material : [o.material];
+    let changed = false;
+    const next = mats.map((m) => {
+      if (!materialGetsVideo(m, o.name)) return m;
+      if (m.map) m.map.dispose?.();
+      m.dispose?.();
+      changed = true;
+      return makeScreenMaterial(texture);
+    });
+    if (changed) o.material = next.length === 1 ? next[0] : next;
   });
 }
 
@@ -239,7 +245,7 @@ function initLaptopShowcase(root) {
     () => {
       if (statusEl) {
         statusEl.textContent =
-          'Could not load the 3D model. Check that laptop_Demo/laptop_demo.glb is deployed.';
+          'Could not load the 3D model. Check that laptop_Demo/ipad1.glb is deployed.';
         statusEl.hidden = false;
       }
     }
