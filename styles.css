@@ -140,38 +140,6 @@ body {
     background: var(--accent-primary);
 }
 
-.nav-live-demo {
-    display: inline-block;
-    color: var(--accent-secondary) !important;
-    font-weight: 600;
-    padding: 0.35rem 0.7rem !important;
-    border-radius: 8px;
-    background: rgba(0, 212, 255, 0.12);
-    border: 1px solid rgba(0, 212, 255, 0.55);
-    text-decoration: none;
-    cursor: pointer;
-    animation: navLiveDemoPulse 1.8s ease-in-out infinite;
-    will-change: transform, box-shadow;
-}
-
-.nav-live-demo::after {
-    display: none;
-}
-
-.nav-live-demo:hover {
-    animation-play-state: paused;
-    color: var(--accent-primary) !important;
-    border-color: var(--accent-primary);
-    background: rgba(0, 255, 136, 0.14);
-    box-shadow: 0 0 20px rgba(0, 255, 136, 0.25);
-}
-
-.nav-live-demo:focus-visible {
-    animation-play-state: paused;
-    outline: 2px solid var(--accent-secondary);
-    outline-offset: 3px;
-}
-
 .mobile-menu-btn {
     display: none;
     flex-direction: column;
@@ -754,7 +722,7 @@ body {
     margin-top: 1.25rem;
 }
 
-/* SMS card only: pulsing CTA (nav uses .nav-live-demo separately) */
+/* SMS project card: pulsing “Try Live Demo” only (demos stay discoverable per project) */
 .project-card--live-demo .project-demos-btn > .btn-primary {
     animation: btnLiveDemoCTAPulse 1.75s ease-in-out infinite;
     will-change: filter, box-shadow;
@@ -3348,10 +3316,6 @@ body {
         animation: none !important;
     }
 
-    .nav-live-demo {
-        animation: none !important;
-    }
-
     .project-card--live-demo .project-demos-btn > .btn-primary {
         animation: none !important;
         filter: none !important;
@@ -3392,25 +3356,6 @@ body {
     }
     50% {
         box-shadow: 0 0 0 3px rgba(94, 234, 212, 0.12);
-    }
-}
-
-@keyframes navLiveDemoPulse {
-    0%, 100% {
-        transform: scale(1);
-        border-color: rgba(0, 212, 255, 0.55);
-        background-color: rgba(0, 212, 255, 0.12);
-        box-shadow:
-            0 0 0 0 rgba(0, 255, 136, 0.35),
-            0 0 12px rgba(0, 212, 255, 0.2);
-    }
-    50% {
-        transform: scale(1.05);
-        border-color: rgba(0, 255, 136, 0.85);
-        background-color: rgba(0, 212, 255, 0.22);
-        box-shadow:
-            0 0 0 6px rgba(0, 255, 136, 0.2),
-            0 0 28px rgba(0, 212, 255, 0.45);
     }
 }
 
