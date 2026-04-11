@@ -5,6 +5,12 @@
  */
 const SMS_API_BADGE_PREVIEW = null;
 
+/**
+ * When true, `localhost` / `127.0.0.1` always show the down chip (no /health). Production hostnames are unaffected.
+ * Set false to test real API from a local server. Override any time with `?api_badge=live` (or checking/warmup).
+ */
+const SMS_API_BADGE_FORCE_DOWN_ON_LOCALHOST = true;
+
 const SMS_API_BADGE_SESSION_KEY = 'smsApiBadgePreview';
 
 const SMS_API_BADGE_VALID = new Set(['down', 'checking', 'live', 'warmup']);
@@ -55,6 +61,14 @@ function getApiBadgeSimulationMode() {
         }
     } catch (e) {
         /* ignore */
+    }
+    if (SMS_API_BADGE_FORCE_DOWN_ON_LOCALHOST) {
+        try {
+            const h = window.location.hostname;
+            if (h === 'localhost' || h === '127.0.0.1') return 'down';
+        } catch (e) {
+            /* ignore */
+        }
     }
     return null;
 }
