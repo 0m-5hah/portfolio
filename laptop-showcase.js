@@ -21,9 +21,8 @@ function applyMapToMesh(mesh, texture) {
   }
 }
 
-/** Fit entire model in view using bounding sphere (stable for tilted laptops) + padding. */
-function fitCameraToObject(camera, controls, object, margin = 2.25) {
-  const box = new THREE.Box3().setFromObject(object);
+/** Fit camera to an axis-aligned box (center + bounding sphere for distance). */
+function fitCameraToBox(camera, controls, box, margin = 2.35) {
   const center = box.getCenter(new THREE.Vector3());
   const size = box.getSize(new THREE.Vector3());
   const maxDim = Math.max(size.x, size.y, size.z, 1e-6);
@@ -47,6 +46,34 @@ function fitCameraToObject(camera, controls, object, margin = 2.25) {
   camera.position.set(center.x + dist * 0.55, center.y + dist * 0.38, center.z + dist * 0.62);
   camera.lookAt(center);
   controls.update();
+}
+
+function fitCameraToObject(camera, controls, object, margin) {
+  const box = new THREE.Box3().setFromObject(object);
+  fitCameraToBox(camera, controls, box, margin);
+}
+
+/**
+ * Rest-pose bounds miss animated lid/screen. Union AABB over the timeline so framing fits the full motion.
+ */
+function computeAnimatedBounds(rootObj, mixer, clips) {
+  const merged = new THREE.Box3();
+  const tmp = new THREE.Box3();
+  const maxDur = Math.max(...clips.map((c) => c.duration || 0), 0.001);
+  const steps = 40;
+
+  for (let i = 0; i <= steps; i++) {
+    const t = (i / steps) * maxDur;
+    mixer.setTime(t);
+    rootObj.updateMatrixWorld(true);
+    tmp.setFromObject(rootObj);
+    if (i === 0) merged.copy(tmp);
+    else merged.union(tmp);
+  }
+
+  mixer.setTime(0);
+  rootObj.updateMatrixWorld(true);
+  return merged;
 }
 
 /** @param {HTMLElement} root */
@@ -150,9 +177,16 @@ function initLaptopShowcase(root) {
       }
 
       framedObject = rootObj;
-      fitCameraToObject(camera, controls, rootObj);
+      resize();
+      let frameBox = new THREE.Box3().setFromObject(rootObj);
+      if (mixer && gltf.animations?.length) {
+        frameBox = computeAnimatedBounds(rootObj, mixer, gltf.animations);
+      }
+      fitCameraToBox(camera, controls, frameBox);
       requestAnimationFrame(() => {
-        if (framedObject) fitCameraToObject(camera, controls, framedObject);
+        if (!framedObject) return;
+        resize();
+        fitCameraToBox(camera, controls, frameBox);
       });
 
       if (screenMesh && reducedMotion) {
