@@ -786,88 +786,65 @@ body {
     grid-template-columns: 1fr 1.5fr;
 }
 
-/* Featured row that is only the Blender / Three.js laptop (not the Sentinel two-column layout). */
-.project-card.featured.project-card--laptop-standalone {
-    display: flex;
-    flex-direction: column;
-    grid-template-columns: unset;
-    padding: 0;
-    overflow: hidden;
+/* SMS + compact iPad: text left (~60%), 3D preview right (~40%). */
+.project-card.featured.project-card--showcase-flip {
+    grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
 }
 
-.project-laptop-standalone {
+.project-image--ipad-mini {
+    min-height: 0;
+    padding: 0.5rem 0.65rem;
+    box-sizing: border-box;
     display: flex;
     flex-direction: column;
+    justify-content: center;
+    align-items: stretch;
+    background: var(--bg-primary);
+}
+
+.project-ipad-mini-chrome {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
     width: 100%;
     min-height: 0;
 }
 
-.project-laptop-standalone-head {
-    padding: 1.75rem 1.75rem 1rem;
-    box-sizing: border-box;
-}
-
-.project-laptop-standalone-eyebrow {
+.project-ipad-mini-label {
     font-family: 'JetBrains Mono', monospace;
-    font-size: 0.7rem;
+    font-size: 0.62rem;
     font-weight: 600;
     text-transform: uppercase;
-    letter-spacing: 0.1em;
+    letter-spacing: 0.08em;
     color: var(--accent-secondary);
-    margin: 0 0 0.5rem;
-}
-
-.project-laptop-standalone-title {
-    font-size: 1.25rem;
-    font-weight: 600;
-    color: var(--text-primary);
-    margin: 0 0 0.65rem;
-    line-height: 1.3;
-}
-
-.project-laptop-standalone-lead {
-    font-size: 0.92rem;
-    line-height: 1.65;
-    color: var(--text-secondary);
     margin: 0;
-    max-width: 52rem;
+    padding: 0 0.15rem;
 }
 
-.project-laptop-standalone-link {
-    display: inline-block;
-    margin-top: 0.5rem;
-    color: var(--accent-primary);
-    text-decoration: none;
-    font-weight: 500;
+.project-ipad-mini-caption {
+    font-size: 0.68rem;
+    line-height: 1.4;
+    color: var(--text-muted);
+    margin: 0;
+    padding: 0 0.15rem 0.15rem;
 }
 
-.project-laptop-standalone-link:hover {
-    text-decoration: underline;
-}
-
-.project-laptop-standalone-viewport {
-    padding: 0 1.25rem 1.5rem;
-    box-sizing: border-box;
-    width: 100%;
-    min-height: 0;
-}
-
-.project-laptop-standalone-viewport [data-laptop-showcase] {
+.project-image--ipad-mini [data-laptop-showcase] {
     display: flex;
     flex-direction: column;
     width: 100%;
     min-height: 0;
 }
 
-.laptop-showcase-stage--standalone {
+.project-image--ipad-mini .laptop-showcase-stage--embed {
     width: 100%;
-    min-height: clamp(340px, 58vh, 480px);
-    height: min(62vh, 640px);
-    max-height: min(68vh, 720px);
-    border-radius: 12px;
+    min-height: 160px;
+    height: min(28vh, 280px);
+    max-height: min(30vh, 300px);
+    border-radius: 10px;
     margin: 0 auto;
     background: transparent;
-    border: none;
+    border: 1px solid rgba(255, 255, 255, 0.06);
     box-shadow: none;
 }
 
@@ -877,8 +854,12 @@ body {
         gap: 1.25rem 1.5rem;
     }
 
-    .project-card.featured {
+    .project-card.featured:not(.project-card--showcase-flip) {
         grid-column: span 3;
+    }
+
+    .project-card.featured.project-card--showcase-flip {
+        grid-column: span 2;
     }
 }
 
@@ -1181,45 +1162,14 @@ body {
     border-top: 1px solid var(--border-color);
 }
 
-/* Laptop 3D showcase (project-demos.html) */
-.laptop-showcase {
-    position: relative;
-    margin-top: 2.75rem;
-    padding-top: 2.25rem;
-    border-top: 1px solid var(--border-color);
-}
-
-.laptop-showcase-title {
-    font-size: 1.15rem;
-    font-weight: 600;
-    margin: 0 0 0.65rem;
-    color: var(--text-primary);
-}
-
-.laptop-showcase-lead {
-    font-size: 0.9rem;
-    line-height: 1.65;
-    color: var(--text-secondary);
-    margin: 0 0 1.1rem;
-    max-width: 40rem;
-}
-
-.laptop-showcase-code {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.82em;
-    color: var(--accent-secondary);
-}
-
+/* Three.js iPad preview (index portfolio card only) */
 .laptop-showcase-stage {
     position: relative;
     width: 100%;
-    min-height: clamp(260px, 48vh, 400px);
-    height: min(60vh, 560px);
-    max-height: min(60vh, 560px);
-    border-radius: 16px;
+    overflow: hidden;
+    border-radius: 12px;
     border: 1px solid transparent;
     background: transparent;
-    overflow: hidden;
     box-shadow: none;
 }
 
@@ -1248,13 +1198,6 @@ body {
 
 .laptop-showcase-status[hidden] {
     display: none;
-}
-
-.laptop-showcase-hint {
-    font-size: 0.78rem;
-    color: var(--text-muted);
-    margin: 0.65rem 0 0;
-    line-height: 1.5;
 }
 
 /* Non-zero layout so browsers decode frames for WebGL VideoTexture (clip-to-zero can skip uploads). */

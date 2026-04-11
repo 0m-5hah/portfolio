@@ -13,14 +13,6 @@
     <title>Project Demos | Om Shah</title>
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
     <link rel="stylesheet" href="styles.css">
-    <script type="importmap">
-    {
-        "imports": {
-            "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
-            "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"
-        }
-    }
-    </script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -364,26 +356,6 @@
                     </div>
                 </article>
 
-                <section class="laptop-showcase" id="laptop-3d-showcase" aria-labelledby="laptop-showcase-title">
-                    <h2 class="laptop-showcase-title" id="laptop-showcase-title">Blender iPad (3D)</h2>
-                    <p class="laptop-showcase-lead">
-                        GLB with screen video mapped onto the <span class="laptop-showcase-code">Screen Image</span> material. Drag to orbit, scroll to zoom.
-                    </p>
-                    <div data-laptop-showcase>
-                        <div data-laptop-stage class="laptop-showcase-stage" aria-label="Interactive 3D iPad">
-                            <canvas data-laptop-canvas class="laptop-showcase-canvas"></canvas>
-                            <p data-laptop-status class="laptop-showcase-status">Loading 3D model…</p>
-                        </div>
-                        <p class="laptop-showcase-hint">
-                            If the screen stays frozen, tap the scene—muted autoplay is allowed, but some browsers still want a tap before the texture updates.
-                        </p>
-                        <video data-laptop-video class="laptop-showcase-video" muted playsinline loop autoplay crossorigin="anonymous" preload="metadata" poster="laptop_Demo/laptop-screen-poster.jpg">
-                            <!-- Add WebM first when available for smaller files: <source src="laptop_Demo/laptop-screen.webm" type="video/webm"> -->
-                            <source src="laptop_Demo/laptop-screen.mp4" type="video/mp4">
-                        </video>
-                    </div>
-                </section>
-
                 <div id="demo-explainer" class="demo-explainer-after">
                     <div class="demo-hero-grid" aria-label="Overview">
                         <div class="demo-hero-card">
@@ -417,7 +389,6 @@
     </main>
 
     <script src="project-demos.js" defer></script>
-    <script type="module" src="laptop-showcase.js"></script>
     <!-- GoatCounter: same site as index; path/title isolate live demo in dashboard -->
     <script data-goatcounter="https://omshah.goatcounter.com/count"
             data-goatcounter-settings='{"path": "/demo/sms-bulk-classifier", "title": "SMS bulk-style classifier (live demo)"}'
