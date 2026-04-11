@@ -732,6 +732,22 @@ body {
     animation-play-state: paused;
 }
 
+/* SMS demo page: Analyze (same pulse as portfolio “Try Live Demo”) */
+#analyze-btn.btn-primary {
+    animation: btnLiveDemoCTAPulse 1s ease-in-out infinite;
+    will-change: filter, box-shadow;
+}
+
+#analyze-btn.btn-primary:hover:not(:disabled) {
+    animation-play-state: paused;
+}
+
+#analyze-btn.btn-primary:disabled {
+    animation: none;
+    filter: none;
+    will-change: auto;
+}
+
 .project-demos-btn--row {
     display: flex;
     flex-wrap: wrap;
@@ -3321,6 +3337,11 @@ body {
         filter: none !important;
     }
 
+    #analyze-btn.btn-primary {
+        animation: none !important;
+        filter: none !important;
+    }
+
     .cursor-glow {
         display: none !important;
     }
@@ -3359,7 +3380,7 @@ body {
     }
 }
 
-/* “Try Live Demo” on SMS card — glow + brightness (no transform so hover lift still works when paused) */
+/* Portfolio “Try Live Demo” + demo page “Analyze” — glow + brightness (hover pauses; no transform vs .btn-primary:hover) */
 @keyframes btnLiveDemoCTAPulse {
     0%, 100% {
         filter: brightness(1) drop-shadow(0 0 8px rgba(0, 255, 136, 0.45)) drop-shadow(0 4px 14px rgba(0, 212, 255, 0.4));
