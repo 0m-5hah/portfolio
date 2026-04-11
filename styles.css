@@ -724,7 +724,7 @@ body {
 
 /* SMS project card: pulsing “Try Live Demo” only (demos stay discoverable per project) */
 .project-card--live-demo .project-demos-btn > .btn-primary {
-    animation: btnLiveDemoCTAPulse 1.75s ease-in-out infinite;
+    animation: btnLiveDemoCTAPulse 1s ease-in-out infinite;
     will-change: filter, box-shadow;
 }
 
