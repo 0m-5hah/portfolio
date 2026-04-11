@@ -13,20 +13,29 @@ function applyMapToMesh(mesh, texture) {
   for (const m of mats) {
     if (!m || typeof m !== 'object') continue;
     m.map = texture;
+    // glTF export used black base + strong emissive for a "backlit" look; that hides baseColor map.
+    if ('color' in m && m.color?.isColor) m.color.setRGB(1, 1, 1);
+    if ('emissive' in m && m.emissive?.isColor) m.emissive.setRGB(0, 0, 0);
+    if ('emissiveIntensity' in m) m.emissiveIntensity = 0;
     m.needsUpdate = true;
   }
 }
 
-function fitCameraToObject(camera, controls, object, margin = 1.35) {
+function fitCameraToObject(camera, controls, object, margin = 1.48) {
   const box = new THREE.Box3().setFromObject(object);
   const center = box.getCenter(new THREE.Vector3());
   const size = box.getSize(new THREE.Vector3());
   controls.target.copy(center);
 
   const maxDim = Math.max(size.x, size.y, size.z, 1e-6);
-  const dist = maxDim * margin;
-  camera.near = maxDim / 200;
-  camera.far = maxDim * 200;
+  const vFovRad = THREE.MathUtils.degToRad(camera.fov);
+  const hTan = Math.tan(vFovRad / 2);
+  const distH = size.y / 2 / hTan;
+  const distW = size.x / 2 / (hTan * Math.max(camera.aspect, 0.01));
+  const dist = margin * Math.max(distH, distW, size.z * 0.75);
+
+  camera.near = Math.max(maxDim / 400, dist / 800);
+  camera.far = Math.max(maxDim * 80, dist * 40);
   camera.updateProjectionMatrix();
 
   camera.position.set(center.x + dist * 0.55, center.y + dist * 0.38, center.z + dist * 0.62);
@@ -51,6 +60,7 @@ function initLaptopShowcase(root) {
     powerPreference: 'high-performance',
   });
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.setClearColor(0x000000, 0);
 
   const scene = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(42, 1, 0.01, 500);
@@ -75,6 +85,8 @@ function initLaptopShowcase(root) {
   let mixer = null;
   let screenMesh = null;
   let visible = true;
+  /** @type {THREE.Object3D | null} */
+  let framedObject = null;
 
   function resize() {
     const w = container.clientWidth;
@@ -131,7 +143,11 @@ function initLaptopShowcase(root) {
         }
       }
 
+      framedObject = rootObj;
       fitCameraToObject(camera, controls, rootObj);
+      requestAnimationFrame(() => {
+        if (framedObject) fitCameraToObject(camera, controls, framedObject);
+      });
 
       if (screenMesh && reducedMotion) {
         new THREE.TextureLoader().load(POSTER_URL, (tex) => {

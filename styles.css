@@ -797,7 +797,7 @@ body {
     box-sizing: border-box;
     align-items: stretch;
     justify-content: stretch;
-    background: var(--bg-primary);
+    background: transparent;
 }
 
 .project-image--laptop-showcase [data-laptop-showcase] {
@@ -815,7 +815,9 @@ body {
     max-height: min(44vh, 400px);
     aspect-ratio: 16 / 10;
     margin: 0 auto;
-    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35);
+    background: transparent;
+    border: none;
+    box-shadow: none;
 }
 
 .project-showcase-hint {
@@ -1170,10 +1172,10 @@ body {
     aspect-ratio: 16 / 10;
     max-height: min(56vh, 520px);
     border-radius: 16px;
-    border: 1px solid var(--border-color);
-    background: radial-gradient(ellipse 80% 70% at 50% 55%, rgba(30, 35, 55, 0.95) 0%, rgba(5, 6, 12, 1) 100%);
+    border: 1px solid transparent;
+    background: transparent;
     overflow: hidden;
-    box-shadow: var(--shadow-lg);
+    box-shadow: none;
 }
 
 .laptop-showcase-canvas {
@@ -1194,7 +1196,7 @@ body {
     text-align: center;
     font-size: 0.88rem;
     color: var(--text-muted);
-    background: rgba(0, 0, 0, 0.35);
+    background: transparent;
     z-index: 1;
     pointer-events: none;
 }
