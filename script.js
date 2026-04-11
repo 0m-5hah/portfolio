@@ -426,14 +426,14 @@ function refreshSmsApiStatusBadge() {
                 setSmsApiStatusBadge(
                     el,
                     'ok',
-                    'Live API',
+                    'API status: live',
                     'Inference API responded healthy; the demo uses the real model on the server.'
                 );
             } else {
                 setSmsApiStatusBadge(
                     el,
                     'warn',
-                    'API starting',
+                    'API status: checking',
                     'Host is up but the model may still be loading on Hugging Face Spaces. The demo page will retry.'
                 );
             }
@@ -446,7 +446,7 @@ function refreshSmsApiStatusBadge() {
             setSmsApiStatusBadge(
                 el,
                 'offline',
-                'Offline demo',
+                'API status: down',
                 `Could not reach the inference API from your browser. The demo page still works with a keyword fallback.${fileHint}`
             );
         });

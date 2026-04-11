@@ -271,61 +271,6 @@ body {
     line-height: 1.8;
 }
 
-.hero-demo-spotlight {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 0.65rem 1rem;
-    max-width: 520px;
-    margin-bottom: 1.35rem;
-    padding: 0.85rem 1rem;
-    border-radius: 10px;
-    border: 1px solid rgba(0, 212, 255, 0.38);
-    background: linear-gradient(135deg, rgba(0, 212, 255, 0.08) 0%, rgba(0, 255, 136, 0.05) 100%);
-    text-decoration: none;
-    color: inherit;
-    transition: border-color var(--transition-normal), transform var(--transition-fast), box-shadow var(--transition-normal);
-}
-
-.hero-demo-spotlight:hover {
-    border-color: var(--accent-primary);
-    transform: translateY(-2px);
-    box-shadow: 0 14px 36px rgba(0, 212, 255, 0.14);
-}
-
-.hero-demo-spotlight:focus-visible {
-    outline: 2px solid var(--accent-secondary);
-    outline-offset: 3px;
-}
-
-.hero-demo-spotlight-badge {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.62rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    color: var(--bg-primary);
-    background: var(--gradient-accent);
-    padding: 0.28rem 0.5rem;
-    border-radius: 5px;
-    flex-shrink: 0;
-}
-
-.hero-demo-spotlight-text {
-    font-size: 0.92rem;
-    color: var(--text-secondary);
-    flex: 1;
-    min-width: 200px;
-    line-height: 1.55;
-}
-
-.hero-demo-spotlight-cta {
-    font-size: 0.88rem;
-    font-weight: 600;
-    color: var(--accent-secondary);
-    flex-shrink: 0;
-}
-
 .hero-cta {
     display: flex;
     gap: 1rem;
@@ -532,6 +477,25 @@ body {
     margin-bottom: 1.5rem;
     font-size: 1.05rem;
     line-height: 1.8;
+}
+
+.about-inline-link {
+    color: var(--accent-secondary);
+    font-weight: 500;
+    text-decoration: none;
+    border-bottom: 1px solid rgba(0, 212, 255, 0.45);
+    transition: color var(--transition-fast), border-color var(--transition-fast);
+}
+
+.about-inline-link:hover {
+    color: var(--accent-primary);
+    border-bottom-color: var(--accent-primary);
+}
+
+.about-inline-link:focus-visible {
+    outline: 2px solid var(--accent-secondary);
+    outline-offset: 2px;
+    border-radius: 2px;
 }
 
 .about-stats {
@@ -3446,8 +3410,7 @@ body {
 .hero-title { animation-delay: 0.2s; }
 .hero-role { animation-delay: 0.3s; }
 .hero-description { animation-delay: 0.4s; }
-.hero-demo-spotlight { animation-delay: 0.42s; }
-.hero-cta { animation-delay: 0.5s; }
+.hero-cta { animation-delay: 0.45s; }
 
 .terminal-window {
     animation: fadeInUp 0.8s ease 0.55s forwards;
