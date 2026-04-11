@@ -34,11 +34,12 @@ function fitCameraToObject(camera, controls, object, margin = 1.35) {
   controls.update();
 }
 
-function init() {
-  const canvas = document.getElementById('laptop-showcase-canvas');
-  const video = document.getElementById('laptop-showcase-video');
-  const container = document.getElementById('laptop-showcase-stage');
-  const statusEl = document.getElementById('laptop-showcase-status');
+/** @param {HTMLElement} root */
+function initLaptopShowcase(root) {
+  const container = root.querySelector('[data-laptop-stage]');
+  const canvas = root.querySelector('[data-laptop-canvas]');
+  const video = root.querySelector('[data-laptop-video]');
+  const statusEl = root.querySelector('[data-laptop-status]');
   const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   if (!canvas || !container) return;
@@ -113,24 +114,24 @@ function init() {
   loader.load(
     GLB_URL,
     (gltf) => {
-      const root = gltf.scene;
-      scene.add(root);
+      const rootObj = gltf.scene;
+      scene.add(rootObj);
 
-      screenMesh = root.getObjectByName(SCREEN_NODE);
+      screenMesh = rootObj.getObjectByName(SCREEN_NODE);
       if (!screenMesh || !screenMesh.isMesh) {
-        root.traverse((o) => {
+        rootObj.traverse((o) => {
           if (o.name === SCREEN_NODE && o.isMesh) screenMesh = o;
         });
       }
 
       if (gltf.animations?.length) {
-        mixer = new THREE.AnimationMixer(root);
+        mixer = new THREE.AnimationMixer(rootObj);
         for (const clip of gltf.animations) {
           mixer.clipAction(clip).play();
         }
       }
 
-      fitCameraToObject(camera, controls, root);
+      fitCameraToObject(camera, controls, rootObj);
 
       if (screenMesh && reducedMotion) {
         new THREE.TextureLoader().load(POSTER_URL, (tex) => {
@@ -154,7 +155,8 @@ function init() {
     undefined,
     () => {
       if (statusEl) {
-        statusEl.textContent = 'Could not load the 3D model. Check that laptop_Demo/laptop_demo.glb is deployed.';
+        statusEl.textContent =
+          'Could not load the 3D model. Check that laptop_Demo/laptop_demo.glb is deployed.';
         statusEl.hidden = false;
       }
     }
@@ -172,8 +174,14 @@ function init() {
   tick();
 }
 
+function initAll() {
+  document.querySelectorAll('[data-laptop-showcase]').forEach((root) => {
+    initLaptopShowcase(root);
+  });
+}
+
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', init, { once: true });
+  document.addEventListener('DOMContentLoaded', initAll, { once: true });
 } else {
-  init();
+  initAll();
 }

@@ -786,6 +786,45 @@ body {
     grid-template-columns: 1fr 1.5fr;
 }
 
+/* Wide featured card: copy left (~60%), 3D / media right (~40%) — mirrors Sentinel layout */
+.project-card.featured.project-card--showcase-flip {
+    grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+}
+
+.project-image--laptop-showcase {
+    min-height: 0;
+    padding: 0.65rem;
+    box-sizing: border-box;
+    align-items: stretch;
+    justify-content: stretch;
+    background: var(--bg-primary);
+}
+
+.project-image--laptop-showcase [data-laptop-showcase] {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+    width: 100%;
+}
+
+.project-image--laptop-showcase .laptop-showcase-stage--embed {
+    flex: 1;
+    width: 100%;
+    min-height: 220px;
+    max-height: min(44vh, 400px);
+    aspect-ratio: 16 / 10;
+    margin: 0 auto;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35);
+}
+
+.project-showcase-hint {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    margin: 0.85rem 0 0;
+    line-height: 1.45;
+}
+
 @media (min-width: 1280px) {
     .projects-grid {
         grid-template-columns: repeat(3, minmax(0, 1fr));

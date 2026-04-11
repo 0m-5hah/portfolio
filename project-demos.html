@@ -369,17 +369,19 @@
                     <p class="laptop-showcase-lead">
                         GLB with a separate screen video mapped onto the display mesh (<span class="laptop-showcase-code">Laptop_DisplayPane</span>). Drag to orbit, scroll to zoom.
                     </p>
-                    <div id="laptop-showcase-stage" class="laptop-showcase-stage" aria-label="Interactive 3D laptop">
-                        <canvas id="laptop-showcase-canvas" class="laptop-showcase-canvas"></canvas>
-                        <p id="laptop-showcase-status" class="laptop-showcase-status">Loading 3D model…</p>
+                    <div data-laptop-showcase>
+                        <div data-laptop-stage class="laptop-showcase-stage" aria-label="Interactive 3D laptop">
+                            <canvas data-laptop-canvas class="laptop-showcase-canvas"></canvas>
+                            <p data-laptop-status class="laptop-showcase-status">Loading 3D model…</p>
+                        </div>
+                        <p class="laptop-showcase-hint">
+                            If the screen stays frozen, tap the scene—muted autoplay is allowed, but some browsers still want a tap before the texture updates.
+                        </p>
+                        <video data-laptop-video class="laptop-showcase-video" muted playsinline loop autoplay crossorigin="anonymous" preload="metadata" poster="laptop_Demo/laptop-screen-poster.jpg">
+                            <!-- Add WebM first when available for smaller files: <source src="laptop_Demo/laptop-screen.webm" type="video/webm"> -->
+                            <source src="laptop_Demo/laptop-screen.mp4" type="video/mp4">
+                        </video>
                     </div>
-                    <p class="laptop-showcase-hint">
-                        If the screen stays frozen, tap the scene—muted autoplay is allowed, but some browsers still want a tap before the texture updates.
-                    </p>
-                    <video id="laptop-showcase-video" class="laptop-showcase-video" muted playsinline loop autoplay crossorigin="anonymous" preload="metadata" poster="laptop_Demo/laptop-screen-poster.jpg">
-                        <!-- Add WebM first when available for smaller files: <source src="laptop_Demo/laptop-screen.webm" type="video/webm"> -->
-                        <source src="laptop_Demo/laptop-screen.mp4" type="video/mp4">
-                    </video>
                 </section>
 
                 <div id="demo-explainer" class="demo-explainer-after">

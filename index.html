@@ -18,6 +18,14 @@
     <title>Om Shah | Cybersecurity &amp; Automation</title>
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
     <link rel="stylesheet" href="styles.css">
+    <script type="importmap">
+    {
+        "imports": {
+            "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
+            "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"
+        }
+    }
+    </script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -295,44 +303,6 @@
                         </div>
                     </article>
 
-                    <article class="project-card project-card--live-demo">
-                        <div class="project-content">
-                            <div class="project-header">
-                                <div class="project-header-main">
-                                    <span class="folder-icon">📁</span>
-                                    <span class="project-scope project-scope--coursework">Coursework</span>
-                                    <span id="sms-api-status-badge" class="project-scope project-scope--live project-scope--live--pending" role="status" aria-live="polite" title="Checking whether the Hugging Face inference API is reachable from your browser.">API status: checking</span>
-                                </div>
-                                <div class="project-links">
-                                    <a href="project-demos.html" class="project-link" title="Live demo">
-                                        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>
-                                    </a>
-                                    <a href="papers/SMSClassifier-Report_Om.pdf" class="project-link" target="_blank" rel="noopener noreferrer" title="Course report (PDF)" aria-label="SMS classifier course report PDF">
-                                        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
-                                    </a>
-                                </div>
-                            </div>
-                            <h3 class="project-title">SMS bulk-style detector (machine learning)</h3>
-                            <p class="project-description">
-                                Coursework: a neural network on SMS text that outputs <strong>P(bulk-style)</strong>
-                                (dataset spam/not-spam labels): how much the wording resembles bulk or automated
-                                messaging, not whether a message is dangerous. Deployed as a backend API with a
-                                live demo.
-                            </p>
-                            <ul class="project-tech">
-                                <li>Python</li>
-                                <li>TensorFlow</li>
-                                <li>GloVe</li>
-                            </ul>
-                            <div class="project-demos-btn">
-                                <a href="project-demos.html" class="btn btn-primary">
-                                    <span class="btn-icon">⚡</span>
-                                    Try Live Demo
-                                </a>
-                            </div>
-                        </div>
-                    </article>
-
                     <article class="project-card">
                         <div class="project-content">
                             <div class="project-header">
@@ -411,6 +381,56 @@
                                     <span class="btn-icon">▶</span>
                                     Watch on YouTube
                                 </a>
+                            </div>
+                        </div>
+                    </article>
+
+                    <article class="project-card featured project-card--showcase-flip project-card--live-demo">
+                        <div class="project-content">
+                            <div class="project-header">
+                                <div class="project-header-main">
+                                    <span class="folder-icon">📁</span>
+                                    <span class="project-scope project-scope--coursework">Coursework</span>
+                                    <span id="sms-api-status-badge" class="project-scope project-scope--live project-scope--live--pending" role="status" aria-live="polite" title="Checking whether the Hugging Face inference API is reachable from your browser.">API status: checking</span>
+                                </div>
+                                <div class="project-links">
+                                    <a href="project-demos.html" class="project-link" title="Live demo">
+                                        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>
+                                    </a>
+                                    <a href="papers/SMSClassifier-Report_Om.pdf" class="project-link" target="_blank" rel="noopener noreferrer" title="Course report (PDF)" aria-label="SMS classifier course report PDF">
+                                        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v-2zm-3-5V3.5L18.5 9H13z"/></svg>
+                                    </a>
+                                </div>
+                            </div>
+                            <h3 class="project-title">SMS bulk-style detector (machine learning)</h3>
+                            <p class="project-description">
+                                Coursework: a neural network on SMS text that outputs <strong>P(bulk-style)</strong>
+                                (dataset spam/not-spam labels): how much the wording resembles bulk or automated
+                                messaging, not whether a message is dangerous. Deployed as a backend API with a
+                                live demo. The 3D laptop on the right plays the same screen recording mapped onto the Blender export.
+                            </p>
+                            <ul class="project-tech">
+                                <li>Python</li>
+                                <li>TensorFlow</li>
+                                <li>GloVe</li>
+                            </ul>
+                            <div class="project-demos-btn project-demos-btn--row">
+                                <a href="project-demos.html" class="btn btn-primary">
+                                    <span class="btn-icon">⚡</span>
+                                    Try Live Demo
+                                </a>
+                            </div>
+                            <p class="project-showcase-hint">Drag the laptop to orbit; tap the model if the screen is still.</p>
+                        </div>
+                        <div class="project-image project-image--laptop-showcase" aria-hidden="true">
+                            <div data-laptop-showcase>
+                                <div data-laptop-stage class="laptop-showcase-stage laptop-showcase-stage--embed">
+                                    <canvas data-laptop-canvas class="laptop-showcase-canvas"></canvas>
+                                    <p data-laptop-status class="laptop-showcase-status">Loading 3D model…</p>
+                                </div>
+                                <video data-laptop-video class="laptop-showcase-video" muted playsinline loop autoplay crossorigin="anonymous" preload="metadata" poster="laptop_Demo/laptop-screen-poster.jpg">
+                                    <source src="laptop_Demo/laptop-screen.mp4" type="video/mp4">
+                                </video>
                             </div>
                         </div>
                     </article>
@@ -695,6 +715,7 @@
         <p class="copyright">© 2026 Om Shah. All rights reserved.</p>
     </footer>
 
+    <script type="module" src="laptop-showcase.js"></script>
     <script src="script.js"></script>
     <!-- GoatCounter analytics: replace YOUR-CODE with your goatcounter.com site code -->
     <script data-goatcounter="https://omshah.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
