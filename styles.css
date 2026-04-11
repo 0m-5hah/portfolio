@@ -833,8 +833,13 @@ body {
         gap: 1.25rem 1.5rem;
     }
 
-    .project-card.featured {
+    /* Sentinel (etc.): full row. SMS +3D: two columns so it sits beside a normal card (e.g. TLS). */
+    .project-card.featured:not(.project-card--showcase-flip) {
         grid-column: span 3;
+    }
+
+    .project-card.featured.project-card--showcase-flip {
+        grid-column: span 2;
     }
 }
 
