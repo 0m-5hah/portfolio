@@ -786,46 +786,89 @@ body {
     grid-template-columns: 1fr 1.5fr;
 }
 
-/* Wide featured card: copy left (~60%), 3D / media right (~40%) — mirrors Sentinel layout */
-.project-card.featured.project-card--showcase-flip {
-    grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+/* Featured row that is only the Blender / Three.js laptop (not the Sentinel two-column layout). */
+.project-card.featured.project-card--laptop-standalone {
+    display: flex;
+    flex-direction: column;
+    grid-template-columns: unset;
+    padding: 0;
+    overflow: hidden;
 }
 
-.project-image--laptop-showcase {
+.project-laptop-standalone {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
     min-height: 0;
-    padding: 0.5rem 0.65rem 0.35rem;
+}
+
+.project-laptop-standalone-head {
+    padding: 1.75rem 1.75rem 1rem;
     box-sizing: border-box;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-end;
-    align-items: stretch;
-    background: transparent;
 }
 
-.project-image--laptop-showcase [data-laptop-showcase] {
-    display: flex;
-    flex-direction: column;
-    flex: 0 1 auto;
+.project-laptop-standalone-eyebrow {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--accent-secondary);
+    margin: 0 0 0.5rem;
+}
+
+.project-laptop-standalone-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0 0 0.65rem;
+    line-height: 1.3;
+}
+
+.project-laptop-standalone-lead {
+    font-size: 0.92rem;
+    line-height: 1.65;
+    color: var(--text-secondary);
+    margin: 0;
+    max-width: 52rem;
+}
+
+.project-laptop-standalone-link {
+    display: inline-block;
+    margin-top: 0.5rem;
+    color: var(--accent-primary);
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.project-laptop-standalone-link:hover {
+    text-decoration: underline;
+}
+
+.project-laptop-standalone-viewport {
+    padding: 0 1.25rem 1.5rem;
+    box-sizing: border-box;
     width: 100%;
     min-height: 0;
 }
 
-.project-image--laptop-showcase .laptop-showcase-stage--embed {
+.project-laptop-standalone-viewport [data-laptop-showcase] {
+    display: flex;
+    flex-direction: column;
     width: 100%;
-    min-height: clamp(280px, 52vh, 380px);
-    height: min(58vh, 520px);
-    max-height: min(58vh, 520px);
+    min-height: 0;
+}
+
+.laptop-showcase-stage--standalone {
+    width: 100%;
+    min-height: clamp(340px, 58vh, 480px);
+    height: min(62vh, 640px);
+    max-height: min(68vh, 720px);
+    border-radius: 12px;
     margin: 0 auto;
     background: transparent;
     border: none;
     box-shadow: none;
-}
-
-.project-showcase-hint {
-    font-size: 0.78rem;
-    color: var(--text-muted);
-    margin: 0.85rem 0 0;
-    line-height: 1.45;
 }
 
 @media (min-width: 1280px) {
@@ -834,13 +877,8 @@ body {
         gap: 1.25rem 1.5rem;
     }
 
-    /* Sentinel (etc.): full row. SMS +3D: two columns so it sits beside a normal card (e.g. TLS). */
-    .project-card.featured:not(.project-card--showcase-flip) {
+    .project-card.featured {
         grid-column: span 3;
-    }
-
-    .project-card.featured.project-card--showcase-flip {
-        grid-column: span 2;
     }
 }
 
