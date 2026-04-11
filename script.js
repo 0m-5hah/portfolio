@@ -411,9 +411,57 @@ function setSmsApiStatusBadge(el, state, label, title) {
     if (title) el.setAttribute('title', title);
 }
 
+/** Preview UI only: add ?api_badge=down (or checking|live|warmup) to the URL; remove it for real /health checks. */
+function hasApiBadgeSimulation() {
+    try {
+        return new URLSearchParams(window.location.search).has('api_badge');
+    } catch (e) {
+        return false;
+    }
+}
+
+function applyApiBadgeSimulationIfAny(el) {
+    try {
+        const sim = new URLSearchParams(window.location.search).get('api_badge');
+        if (!sim) return false;
+        const hint = 'Preview only — drop ?api_badge= from the URL to restore live checks.';
+        if (sim === 'down') {
+            setSmsApiStatusBadge(
+                el,
+                'offline',
+                'API status: down',
+                `${hint} Simulates unreachable inference API.`
+            );
+            return true;
+        }
+        if (sim === 'checking') {
+            setSmsApiStatusBadge(el, 'pending', 'API status: checking', `${hint} Simulates initial / pending state.`);
+            return true;
+        }
+        if (sim === 'live') {
+            setSmsApiStatusBadge(el, 'ok', 'API status: live', `${hint} Simulates healthy API.`);
+            return true;
+        }
+        if (sim === 'warmup') {
+            setSmsApiStatusBadge(
+                el,
+                'warn',
+                'API status: checking',
+                `${hint} Simulates host up but model not loaded yet.`
+            );
+            return true;
+        }
+    } catch (e) {
+        /* ignore */
+    }
+    return false;
+}
+
 function refreshSmsApiStatusBadge() {
     const el = document.getElementById('sms-api-status-badge');
     if (!el) return;
+
+    if (applyApiBadgeSimulationIfAny(el)) return;
 
     const base = getSpamApiBase();
     fetch(`${base}/health`, { method: 'GET' })
@@ -457,6 +505,8 @@ function initSmsApiStatusBadge() {
     if (!el) return;
 
     refreshSmsApiStatusBadge();
+    if (hasApiBadgeSimulation()) return;
+
     window.setInterval(refreshSmsApiStatusBadge, 120000);
     document.addEventListener('visibilitychange', () => {
         if (document.visibilityState === 'visible') refreshSmsApiStatusBadge();
