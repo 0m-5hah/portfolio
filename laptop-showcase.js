@@ -22,7 +22,7 @@ function applyMapToMesh(mesh, texture) {
 }
 
 /** Fit camera to an axis-aligned box (center + bounding sphere for distance). */
-function fitCameraToBox(camera, controls, box, margin = 2.35) {
+function fitCameraToBox(camera, controls, box, margin = 1.78) {
   const center = box.getCenter(new THREE.Vector3());
   const size = box.getSize(new THREE.Vector3());
   const maxDim = Math.max(size.x, size.y, size.z, 1e-6);
@@ -31,7 +31,9 @@ function fitCameraToBox(camera, controls, box, margin = 2.35) {
   box.getBoundingSphere(sphere);
   const R = Math.max(sphere.radius, maxDim * 0.5, 1e-6);
 
-  controls.target.copy(center);
+  // Aim slightly above model center so the laptop sits lower in the viewport (reads “lower on screen”).
+  const target = center.clone().add(new THREE.Vector3(0, maxDim * 0.1, 0));
+  controls.target.copy(target);
 
   const vFovRad = THREE.MathUtils.degToRad(camera.fov);
   const hFovRad = 2 * Math.atan(Math.tan(vFovRad / 2) * Math.max(camera.aspect, 0.01));
@@ -44,7 +46,7 @@ function fitCameraToBox(camera, controls, box, margin = 2.35) {
   camera.updateProjectionMatrix();
 
   camera.position.set(center.x + dist * 0.55, center.y + dist * 0.38, center.z + dist * 0.62);
-  camera.lookAt(center);
+  camera.lookAt(target);
   controls.update();
 }
 
@@ -96,7 +98,7 @@ function initLaptopShowcase(root) {
   renderer.setClearColor(0x000000, 0);
 
   const scene = new THREE.Scene();
-  const camera = new THREE.PerspectiveCamera(50, 1, 0.01, 500);
+  const camera = new THREE.PerspectiveCamera(48, 1, 0.01, 500);
 
   const hemi = new THREE.HemisphereLight(0xf5f5ff, 0x222233, 1.05);
   scene.add(hemi);
