@@ -2,23 +2,57 @@ import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
-const SCREEN_NODE = 'Laptop_DisplayPane';
+/** Inner display plane (video UVs). */
+const DISPLAY_MESH = 'Laptop_DisplayPane';
+/** Bezel / glass: multi-material; only slots named like *screen* get the video. */
+const GLASS_MESH = 'laptop14_screen.001';
 const GLB_URL = new URL('./laptop_Demo/laptop_demo.glb', import.meta.url).href;
 const POSTER_URL = new URL('./laptop_Demo/laptop-screen-poster.jpg', import.meta.url).href;
 
-function applyMapToMesh(mesh, texture) {
+function makeScreenMaterial(texture) {
   texture.flipY = false;
   texture.colorSpace = THREE.SRGBColorSpace;
-  const mats = Array.isArray(mesh.material) ? mesh.material : [mesh.material];
-  for (const m of mats) {
-    if (!m || typeof m !== 'object') continue;
-    m.map = texture;
-    // glTF export used black base + strong emissive for a "backlit" look; that hides baseColor map.
-    if ('color' in m && m.color?.isColor) m.color.setRGB(1, 1, 1);
-    if ('emissive' in m && m.emissive?.isColor) m.emissive.setRGB(0, 0, 0);
-    if ('emissiveIntensity' in m) m.emissiveIntensity = 0;
-    m.needsUpdate = true;
+  texture.minFilter = THREE.LinearFilter;
+  texture.magFilter = THREE.LinearFilter;
+  return new THREE.MeshBasicMaterial({
+    map: texture,
+    toneMapped: false,
+    side: THREE.DoubleSide,
+  });
+}
+
+function disposeMaterial(m) {
+  if (!m) return;
+  const list = Array.isArray(m) ? m : [m];
+  for (const x of list) {
+    if (x.map) x.map.dispose?.();
+    x.dispose?.();
   }
+}
+
+/** Drive video/poster onto both the inner plane and the outer glass emissive face. */
+function applyScreenTextures(rootObj, texture) {
+  rootObj.traverse((o) => {
+    if (!o.isMesh) return;
+
+    if (o.name === DISPLAY_MESH) {
+      disposeMaterial(o.material);
+      o.material = makeScreenMaterial(texture);
+      return;
+    }
+
+    if (o.name === GLASS_MESH) {
+      const mats = Array.isArray(o.material) ? o.material : [o.material];
+      const next = mats.map((m) => {
+        const slot = (m.name || '').toLowerCase();
+        if (!slot.includes('screen')) return m;
+        if (m.map) m.map.dispose?.();
+        m.dispose?.();
+        return makeScreenMaterial(texture);
+      });
+      o.material = next.length === 1 ? next[0] : next;
+    }
+  });
 }
 
 /** Fit camera to an axis-aligned box (center + bounding sphere for distance). */
@@ -118,7 +152,6 @@ function initLaptopShowcase(root) {
 
   const clock = new THREE.Clock();
   let mixer = null;
-  let screenMesh = null;
   let visible = true;
   /** @type {THREE.Object3D | null} */
   let framedObject = null;
@@ -164,13 +197,6 @@ function initLaptopShowcase(root) {
       const rootObj = gltf.scene;
       scene.add(rootObj);
 
-      screenMesh = rootObj.getObjectByName(SCREEN_NODE);
-      if (!screenMesh || !screenMesh.isMesh) {
-        rootObj.traverse((o) => {
-          if (o.name === SCREEN_NODE && o.isMesh) screenMesh = o;
-        });
-      }
-
       if (gltf.animations?.length) {
         mixer = new THREE.AnimationMixer(rootObj);
         for (const clip of gltf.animations) {
@@ -191,20 +217,19 @@ function initLaptopShowcase(root) {
         fitCameraToBox(camera, controls, frameBox);
       });
 
-      if (screenMesh && reducedMotion) {
+      if (reducedMotion) {
         new THREE.TextureLoader().load(POSTER_URL, (tex) => {
-          applyMapToMesh(screenMesh, tex);
+          applyScreenTextures(rootObj, tex);
         });
-      } else if (screenMesh && video) {
+      } else if (video) {
         const tex = new THREE.VideoTexture(video);
-        applyMapToMesh(screenMesh, tex);
-        video.addEventListener(
-          'loadeddata',
-          () => {
-            tryPlayVideo();
-          },
-          { once: true }
-        );
+        applyScreenTextures(rootObj, tex);
+        const kick = () => {
+          tex.needsUpdate = true;
+          tryPlayVideo();
+        };
+        video.addEventListener('loadeddata', kick, { once: true });
+        video.addEventListener('canplay', kick, { once: true });
         tryPlayVideo();
       }
 

@@ -1219,18 +1219,18 @@ body {
     line-height: 1.5;
 }
 
+/* Non-zero layout so browsers decode frames for WebGL VideoTexture (clip-to-zero can skip uploads). */
 .laptop-showcase-video {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    padding: 0;
-    margin: -1px;
-    overflow: hidden;
-    clip: rect(0, 0, 0, 0);
-    white-space: nowrap;
-    border: 0;
-    opacity: 0;
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 160px;
+    height: 90px;
+    opacity: 0.01;
     pointer-events: none;
+    z-index: -1;
+    border: 0;
+    object-fit: fill;
 }
 
 .demo-static-offline {
