@@ -7,6 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initTerminalTyping();
     initStaggerDelays();
     initDemoCtaAnalytics();
+    initSmsApiStatusBadge();
     initPapersCarouselWhenReady();
 });
 
@@ -388,6 +389,77 @@ function initPapersCarousel(viewport) {
         requestAnimationFrame(() => {
             wrapScrollPosition();
         });
+    });
+}
+
+/** Same default and overrides as `getApiBase()` in project-demos.js (`?api=`, localStorage `spamApiBase`). */
+function getSpamApiBase() {
+    try {
+        const q = new URLSearchParams(window.location.search).get('api');
+        if (q) return q.replace(/\/$/, '');
+        const ls = localStorage.getItem('spamApiBase');
+        if (ls) return ls.replace(/\/$/, '');
+    } catch (e) {
+        /* ignore */
+    }
+    return 'https://omsshah-spam-classifier-api.hf.space';
+}
+
+function setSmsApiStatusBadge(el, state, label, title) {
+    el.textContent = label;
+    el.className = `project-scope project-scope--live project-scope--live--${state}`;
+    if (title) el.setAttribute('title', title);
+}
+
+function refreshSmsApiStatusBadge() {
+    const el = document.getElementById('sms-api-status-badge');
+    if (!el) return;
+
+    const base = getSpamApiBase();
+    fetch(`${base}/health`, { method: 'GET' })
+        .then((r) => {
+            if (!r.ok) throw new Error(String(r.status));
+            return r.json();
+        })
+        .then((j) => {
+            if (j && j.ok && j.model_loaded) {
+                setSmsApiStatusBadge(
+                    el,
+                    'ok',
+                    'Live API',
+                    'Inference API responded healthy; the demo uses the real model on the server.'
+                );
+            } else {
+                setSmsApiStatusBadge(
+                    el,
+                    'warn',
+                    'API starting',
+                    'Host is up but the model may still be loading on Hugging Face Spaces. The demo page will retry.'
+                );
+            }
+        })
+        .catch(() => {
+            const fileHint =
+                window.location.protocol === 'file:'
+                    ? ' Open the site over https:// for a real check; file:// often blocks cross-origin requests.'
+                    : '';
+            setSmsApiStatusBadge(
+                el,
+                'offline',
+                'Offline demo',
+                `Could not reach the inference API from your browser. The demo page still works with a keyword fallback.${fileHint}`
+            );
+        });
+}
+
+function initSmsApiStatusBadge() {
+    const el = document.getElementById('sms-api-status-badge');
+    if (!el) return;
+
+    refreshSmsApiStatusBadge();
+    window.setInterval(refreshSmsApiStatusBadge, 120000);
+    document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible') refreshSmsApiStatusBadge();
     });
 }
 
