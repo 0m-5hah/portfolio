@@ -6,6 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initNavbarScroll();
     initTerminalTyping();
     initStaggerDelays();
+    initDemoCtaAnalytics();
     initPapersCarouselWhenReady();
 });
 
@@ -386,6 +387,23 @@ function initPapersCarousel(viewport) {
     requestAnimationFrame(() => {
         requestAnimationFrame(() => {
             wrapScrollPosition();
+        });
+    });
+}
+
+function initDemoCtaAnalytics() {
+    const path = window.location.pathname || '';
+    if (path.endsWith('project-demos.html')) return;
+
+    document.querySelectorAll('a[href="project-demos.html"]').forEach((link) => {
+        link.addEventListener('click', () => {
+            if (window.goatcounter && window.goatcounter.count) {
+                window.goatcounter.count({
+                    path: 'cta/open-live-demo',
+                    title: 'Open live demo (from portfolio)',
+                    event: true,
+                });
+            }
         });
     });
 }
