@@ -21,21 +21,27 @@ function applyMapToMesh(mesh, texture) {
   }
 }
 
-function fitCameraToObject(camera, controls, object, margin = 1.48) {
+/** Fit entire model in view using bounding sphere (stable for tilted laptops) + padding. */
+function fitCameraToObject(camera, controls, object, margin = 2.25) {
   const box = new THREE.Box3().setFromObject(object);
   const center = box.getCenter(new THREE.Vector3());
   const size = box.getSize(new THREE.Vector3());
+  const maxDim = Math.max(size.x, size.y, size.z, 1e-6);
+
+  const sphere = new THREE.Sphere();
+  box.getBoundingSphere(sphere);
+  const R = Math.max(sphere.radius, maxDim * 0.5, 1e-6);
+
   controls.target.copy(center);
 
-  const maxDim = Math.max(size.x, size.y, size.z, 1e-6);
   const vFovRad = THREE.MathUtils.degToRad(camera.fov);
-  const hTan = Math.tan(vFovRad / 2);
-  const distH = size.y / 2 / hTan;
-  const distW = size.x / 2 / (hTan * Math.max(camera.aspect, 0.01));
-  const dist = margin * Math.max(distH, distW, size.z * 0.75);
+  const hFovRad = 2 * Math.atan(Math.tan(vFovRad / 2) * Math.max(camera.aspect, 0.01));
+  const distV = R / Math.tan(vFovRad / 2);
+  const distH = R / Math.tan(hFovRad / 2);
+  const dist = margin * Math.max(distV, distH);
 
-  camera.near = Math.max(maxDim / 400, dist / 800);
-  camera.far = Math.max(maxDim * 80, dist * 40);
+  camera.near = Math.max(maxDim / 400, dist / 1000);
+  camera.far = Math.max(maxDim * 100, dist * 50);
   camera.updateProjectionMatrix();
 
   camera.position.set(center.x + dist * 0.55, center.y + dist * 0.38, center.z + dist * 0.62);
@@ -63,7 +69,7 @@ function initLaptopShowcase(root) {
   renderer.setClearColor(0x000000, 0);
 
   const scene = new THREE.Scene();
-  const camera = new THREE.PerspectiveCamera(42, 1, 0.01, 500);
+  const camera = new THREE.PerspectiveCamera(50, 1, 0.01, 500);
 
   const hemi = new THREE.HemisphereLight(0xf5f5ff, 0x222233, 1.05);
   scene.add(hemi);
@@ -77,8 +83,8 @@ function initLaptopShowcase(root) {
   const controls = new OrbitControls(camera, canvas);
   controls.enableDamping = true;
   controls.dampingFactor = 0.06;
-  controls.minDistance = 0.8;
-  controls.maxDistance = 12;
+  controls.minDistance = 0.6;
+  controls.maxDistance = 24;
   controls.enablePan = false;
 
   const clock = new THREE.Clock();
