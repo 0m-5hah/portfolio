@@ -1,3 +1,10 @@
+/**
+ * Preview the SMS “API status” chip without calling /health. Normally keep `null`.
+ * Set to `'down'`, `'checking'`, `'live'`, or `'warmup'`, save, refresh index.html — then set back to `null` before deploy.
+ * (Same effect as URL `?api_badge=down` without editing the address bar.)
+ */
+const SMS_API_BADGE_PREVIEW = null;
+
 document.addEventListener('DOMContentLoaded', () => {
     initCursorGlow();
     initMobileMenu();
@@ -411,8 +418,9 @@ function setSmsApiStatusBadge(el, state, label, title) {
     if (title) el.setAttribute('title', title);
 }
 
-/** Preview UI only: add ?api_badge=down (or checking|live|warmup) to the URL; remove it for real /health checks. */
+/** True when we skip real /health (code constant or ?api_badge=). */
 function hasApiBadgeSimulation() {
+    if (SMS_API_BADGE_PREVIEW != null && String(SMS_API_BADGE_PREVIEW) !== '') return true;
     try {
         return new URLSearchParams(window.location.search).has('api_badge');
     } catch (e) {
@@ -421,38 +429,38 @@ function hasApiBadgeSimulation() {
 }
 
 function applyApiBadgeSimulationIfAny(el) {
-    try {
-        const sim = new URLSearchParams(window.location.search).get('api_badge');
-        if (!sim) return false;
-        const hint = 'Preview only — drop ?api_badge= from the URL to restore live checks.';
-        if (sim === 'down') {
-            setSmsApiStatusBadge(
-                el,
-                'offline',
-                'API status: down',
-                `${hint} Simulates unreachable inference API.`
-            );
-            return true;
+    let sim = SMS_API_BADGE_PREVIEW != null && String(SMS_API_BADGE_PREVIEW) !== '' ? String(SMS_API_BADGE_PREVIEW) : null;
+    if (sim) sim = sim.toLowerCase();
+    if (!sim) {
+        try {
+            const q = new URLSearchParams(window.location.search).get('api_badge');
+            sim = q ? q.toLowerCase() : null;
+        } catch (e) {
+            sim = null;
         }
-        if (sim === 'checking') {
-            setSmsApiStatusBadge(el, 'pending', 'API status: checking', `${hint} Simulates initial / pending state.`);
-            return true;
-        }
-        if (sim === 'live') {
-            setSmsApiStatusBadge(el, 'ok', 'API status: live', `${hint} Simulates healthy API.`);
-            return true;
-        }
-        if (sim === 'warmup') {
-            setSmsApiStatusBadge(
-                el,
-                'warn',
-                'API status: checking',
-                `${hint} Simulates host up but model not loaded yet.`
-            );
-            return true;
-        }
-    } catch (e) {
-        /* ignore */
+    }
+    if (!sim) return false;
+
+    const hint =
+        SMS_API_BADGE_PREVIEW != null && String(SMS_API_BADGE_PREVIEW) !== ''
+            ? 'Preview only — set SMS_API_BADGE_PREVIEW to null at the top of script.js'
+            : 'Preview only — remove ?api_badge= from the URL';
+
+    if (sim === 'down') {
+        setSmsApiStatusBadge(el, 'offline', 'API status: down', `${hint}. Unreachable API (same styling as a real failure).`);
+        return true;
+    }
+    if (sim === 'checking') {
+        setSmsApiStatusBadge(el, 'pending', 'API status: checking', `${hint}.`);
+        return true;
+    }
+    if (sim === 'live') {
+        setSmsApiStatusBadge(el, 'ok', 'API status: live', `${hint}.`);
+        return true;
+    }
+    if (sim === 'warmup') {
+        setSmsApiStatusBadge(el, 'warn', 'API status: checking', `${hint}. Host up, model not ready.`);
+        return true;
     }
     return false;
 }
