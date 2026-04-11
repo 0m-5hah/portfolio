@@ -1,9 +1,63 @@
 /**
- * Preview the SMS “API status” chip without calling /health. Normally keep `null`.
- * Set to `'down'`, `'checking'`, `'live'`, or `'warmup'`, save, refresh index.html — then set back to `null` before deploy.
- * (Same effect as URL `?api_badge=down` without editing the address bar.)
+ * Preview the SMS API status chip without calling /health. Normally keep `null`.
+ * Or open `?api_badge=down` once — it is saved for this tab (sessionStorage) so plain reloads keep the preview.
+ * Clear with `?api_badge=off` or `sessionStorage.removeItem('smsApiBadgePreview')` in DevTools.
  */
 const SMS_API_BADGE_PREVIEW = null;
+
+const SMS_API_BADGE_SESSION_KEY = 'smsApiBadgePreview';
+
+const SMS_API_BADGE_VALID = new Set(['down', 'checking', 'live', 'warmup']);
+
+function normalizeApiBadgeMode(v) {
+    if (v == null || v === '') return null;
+    const m = String(v).toLowerCase();
+    if (m === 'off') return null;
+    return SMS_API_BADGE_VALID.has(m) ? m : null;
+}
+
+function syncApiBadgePreviewFromUrl() {
+    try {
+        const params = new URLSearchParams(window.location.search);
+        if (!params.has('api_badge')) return;
+        const raw = params.get('api_badge');
+        if (raw === null || raw === '' || raw.toLowerCase() === 'off') {
+            sessionStorage.removeItem(SMS_API_BADGE_SESSION_KEY);
+            return;
+        }
+        const n = normalizeApiBadgeMode(raw);
+        if (n) sessionStorage.setItem(SMS_API_BADGE_SESSION_KEY, n);
+    } catch (e) {
+        /* ignore */
+    }
+}
+
+function getApiBadgeSimulationMode() {
+    if (SMS_API_BADGE_PREVIEW != null && String(SMS_API_BADGE_PREVIEW) !== '') {
+        const n = normalizeApiBadgeMode(SMS_API_BADGE_PREVIEW);
+        if (n) return n;
+    }
+    try {
+        const q = new URLSearchParams(window.location.search).get('api_badge');
+        if (q != null && q !== '') {
+            const n = normalizeApiBadgeMode(q);
+            if (n) return n;
+        }
+    } catch (e) {
+        /* ignore */
+    }
+    try {
+        const s = sessionStorage.getItem(SMS_API_BADGE_SESSION_KEY);
+        if (s) {
+            const n = normalizeApiBadgeMode(s);
+            if (n) return n;
+            sessionStorage.removeItem(SMS_API_BADGE_SESSION_KEY);
+        }
+    } catch (e) {
+        /* ignore */
+    }
+    return null;
+}
 
 document.addEventListener('DOMContentLoaded', () => {
     initCursorGlow();
@@ -418,33 +472,15 @@ function setSmsApiStatusBadge(el, state, label, title) {
     if (title) el.setAttribute('title', title);
 }
 
-/** True when we skip real /health (code constant or ?api_badge=). */
-function hasApiBadgeSimulation() {
-    if (SMS_API_BADGE_PREVIEW != null && String(SMS_API_BADGE_PREVIEW) !== '') return true;
-    try {
-        return new URLSearchParams(window.location.search).has('api_badge');
-    } catch (e) {
-        return false;
-    }
-}
-
 function applyApiBadgeSimulationIfAny(el) {
-    let sim = SMS_API_BADGE_PREVIEW != null && String(SMS_API_BADGE_PREVIEW) !== '' ? String(SMS_API_BADGE_PREVIEW) : null;
-    if (sim) sim = sim.toLowerCase();
-    if (!sim) {
-        try {
-            const q = new URLSearchParams(window.location.search).get('api_badge');
-            sim = q ? q.toLowerCase() : null;
-        } catch (e) {
-            sim = null;
-        }
-    }
+    const sim = getApiBadgeSimulationMode();
     if (!sim) return false;
 
-    const hint =
-        SMS_API_BADGE_PREVIEW != null && String(SMS_API_BADGE_PREVIEW) !== ''
-            ? 'Preview only — set SMS_API_BADGE_PREVIEW to null at the top of script.js'
-            : 'Preview only — remove ?api_badge= from the URL';
+    const fromCode =
+        SMS_API_BADGE_PREVIEW != null && String(SMS_API_BADGE_PREVIEW) !== '';
+    const hint = fromCode
+        ? 'Preview only — set SMS_API_BADGE_PREVIEW to null at the top of script.js'
+        : 'Preview only — open ?api_badge=off or clear sessionStorage key smsApiBadgePreview';
 
     if (sim === 'down') {
         setSmsApiStatusBadge(el, 'offline', 'API status: down', `${hint}. Unreachable API (same styling as a real failure).`);
@@ -512,8 +548,9 @@ function initSmsApiStatusBadge() {
     const el = document.getElementById('sms-api-status-badge');
     if (!el) return;
 
+    syncApiBadgePreviewFromUrl();
     refreshSmsApiStatusBadge();
-    if (hasApiBadgeSimulation()) return;
+    if (getApiBadgeSimulationMode() != null) return;
 
     window.setInterval(refreshSmsApiStatusBadge, 120000);
     document.addEventListener('visibilitychange', () => {

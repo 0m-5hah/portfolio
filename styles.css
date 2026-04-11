@@ -905,10 +905,6 @@ body {
     color: #5eead4;
     background: rgba(94, 234, 212, 0.12);
     border-color: rgba(94, 234, 212, 0.45);
-    /* Sentence case for dynamic "API status: …" (parent .project-scope is all-caps) */
-    text-transform: none;
-    letter-spacing: 0.04em;
-    font-weight: 500;
 }
 
 .project-scope--live.project-scope--live--ok {
