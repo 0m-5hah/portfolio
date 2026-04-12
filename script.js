@@ -77,36 +77,118 @@ function prefersReducedMotion() {
     return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 }
 
+/** Pill draw curve (same breakpoints as former scroll-loop-pill keyframes); duration = CYCLE_MS. */
+function pillStrokeDashOffsetAtCycleT(t) {
+    const p = t * 100;
+    if (p <= 0) return 1;
+    if (p <= 17.5) return 1 + (0.75 - 1) * (p / 17.5);
+    if (p <= 32.5) return 0.75 + (0.25 - 0.75) * ((p - 17.5) / (32.5 - 17.5));
+    if (p <= 50) return 0.25 + (0 - 0.25) * ((p - 32.5) / (50 - 32.5));
+    if (p <= 92) return 0;
+    return 0 + (1 - 0) * ((p - 92) / (100 - 92));
+}
+
+function pillVisibleFractionAtCycleT(t) {
+    return 1 - pillStrokeDashOffsetAtCycleT(t);
+}
+
+/** Smallest t in [0, 0.5] where the pill stroke has reached distance `junctionFraction` along the path (0–1). */
+function findSquiggleStartT(junctionFraction) {
+    const target = Math.min(1, Math.max(0, junctionFraction));
+    if (pillVisibleFractionAtCycleT(0) >= target) return 0;
+    let lo = 0;
+    let hi = 0.5;
+    for (let i = 0; i < 48; i++) {
+        const mid = (lo + hi) / 2;
+        if (pillVisibleFractionAtCycleT(mid) >= target) hi = mid;
+        else lo = mid;
+    }
+    return hi;
+}
+
+/**
+ * Split pill: visible length v * (Lp+Ls) fills prefix first, then suffix (fork at end of prefix).
+ * Same mapping works when v decreases (erase): suffix empties before prefix.
+ */
+function applySplitPillGrow(prefixEl, suffixEl, Lp, Ls, v) {
+    const total = Lp + Ls;
+    const vis = Math.max(0, Math.min(1, v)) * total;
+    if (vis <= 0) {
+        prefixEl.style.strokeDasharray = `${Lp}px`;
+        prefixEl.style.strokeDashoffset = `${Lp}px`;
+        suffixEl.style.strokeDasharray = `${Ls}px`;
+        suffixEl.style.strokeDashoffset = `${Ls}px`;
+        return;
+    }
+    if (vis <= Lp) {
+        prefixEl.style.strokeDasharray = `${Lp}px`;
+        prefixEl.style.strokeDashoffset = `${Lp - vis}px`;
+        suffixEl.style.strokeDasharray = `${Ls}px`;
+        suffixEl.style.strokeDashoffset = `${Ls}px`;
+    } else {
+        prefixEl.style.strokeDasharray = `${Lp}px`;
+        prefixEl.style.strokeDashoffset = '0px';
+        suffixEl.style.strokeDasharray = `${Ls}px`;
+        suffixEl.style.strokeDashoffset = `${Ls - (vis - Lp)}px`;
+    }
+}
+
 /** Squiggle + stem are separate paths so only the stem bounces (avoids pill-top dash/glow artefact). */
 function initScrollIndicatorInterior() {
     const pathSq = document.querySelector('.scroll-line--squiggle');
     const pathStem = document.querySelector('.scroll-line--stem');
+    const pillPrefix = document.querySelector('.scroll-line--pill-prefix');
+    const pillSuffix = document.querySelector('.scroll-line--pill-suffix');
     const bounceGroup = document.querySelector('#scroll-arrow-bounce');
     if (
         !pathSq ||
         !pathStem ||
+        !pillPrefix ||
+        !pillSuffix ||
         typeof pathSq.getTotalLength !== 'function' ||
-        typeof pathStem.getTotalLength !== 'function'
+        typeof pathStem.getTotalLength !== 'function' ||
+        typeof pillPrefix.getTotalLength !== 'function' ||
+        typeof pillSuffix.getTotalLength !== 'function'
     ) {
         return;
     }
 
     const Lq = pathSq.getTotalLength();
     const Ls = pathStem.getTotalLength();
+    const Lp = pillPrefix.getTotalLength();
+    const Lsuf = pillSuffix.getTotalLength();
 
     if (prefersReducedMotion()) {
         pathSq.style.strokeDasharray = 'none';
         pathSq.style.strokeDashoffset = '0';
         pathStem.style.strokeDasharray = 'none';
         pathStem.style.strokeDashoffset = '0';
+        pillPrefix.style.strokeDasharray = 'none';
+        pillPrefix.style.strokeDashoffset = '0';
+        pillSuffix.style.strokeDasharray = 'none';
+        pillSuffix.style.strokeDashoffset = '0';
         if (bounceGroup) bounceGroup.removeAttribute('transform');
         return;
     }
 
-    const CYCLE_MS = 5000;
-    const MORPH_END = 0.62;
-    const HIDE_END = 0.74; /* squiggle undraw: faster than before (~0.12 of cycle) */
-    const BOUNCE_END = 0.93; /* longer bounce window (~0.19 of cycle) */
+    const CYCLE_MS = 4000;
+    const pillTotal = Lp + Lsuf;
+    const junctionFraction = pillTotal > 0 ? Lp / pillTotal : 0.45;
+    const tJ = findSquiggleStartT(junctionFraction);
+
+    /* Relative phase weights (sum 0.75); scaled into [tJ, 1] so interior fits after pill reaches the top */
+    const W_SQUIGGLE = 0.27;
+    const W_MORPH = 0.1;
+    const W_HIDE = 0.12;
+    const W_BOUNCE = 0.19;
+    const W_WIPE = 0.07;
+    const sumW = W_SQUIGGLE + W_MORPH + W_HIDE + W_BOUNCE + W_WIPE;
+    const span = 1 - tJ;
+    let acc = tJ;
+    const squiggleEnd = acc + (W_SQUIGGLE / sumW) * span;
+    const morphEnd = acc + ((W_SQUIGGLE + W_MORPH) / sumW) * span;
+    const hideEnd = acc + ((W_SQUIGGLE + W_MORPH + W_HIDE) / sumW) * span;
+    const bounceEnd = acc + ((W_SQUIGGLE + W_MORPH + W_HIDE + W_BOUNCE) / sumW) * span;
 
     function applyHidden(el, len) {
         el.style.strokeDasharray = `${len}px`;
@@ -132,10 +214,16 @@ function initScrollIndicatorInterior() {
         const now = document.timeline ? document.timeline.currentTime : performance.now();
         const t = (now % CYCLE_MS) / CYCLE_MS;
 
+        const pillVisible = pillVisibleFractionAtCycleT(t);
+        applySplitPillGrow(pillPrefix, pillSuffix, Lp, Lsuf, pillVisible);
+        /* Only gate during the pill draw segment (keyframes 0–50%); after that the outline is full until erase. */
+        const pillStillDrawing = t < 0.5;
+        const pillReady = pillVisible >= junctionFraction - 0.008;
+        const waitForPill = t < tJ || (pillStillDrawing && !pillReady);
+
         if (bounceGroup) {
-            if (t >= HIDE_END && t < BOUNCE_END) {
-                const phase = (t - HIDE_END) / (BOUNCE_END - HIDE_END);
-                /* Fewer cycles in the longer window = slower, floatier jumps */
+            if (t >= hideEnd && t < bounceEnd) {
+                const phase = (t - hideEnd) / (bounceEnd - hideEnd);
                 const theta = phase * Math.PI * 2 * 1.65;
                 const raw = Math.sin(theta);
                 const eased = raw * raw * raw * 0.35 + raw * 0.65;
@@ -146,28 +234,28 @@ function initScrollIndicatorInterior() {
             }
         }
 
-        if (t < 0.25) {
+        if (waitForPill) {
             applyHidden(pathSq, Lq);
             applyHidden(pathStem, Ls);
-        } else if (t < 0.52) {
-            const p = (t - 0.25) / (0.52 - 0.25);
+        } else if (t < squiggleEnd) {
+            const p = (t - tJ) / (squiggleEnd - tJ);
             applyGrow(pathSq, Lq, p * Lq);
             applyHidden(pathStem, Ls);
-        } else if (t < MORPH_END) {
+        } else if (t < morphEnd) {
             applyGrow(pathSq, Lq, Lq);
-            const u = (t - 0.52) / (MORPH_END - 0.52);
+            const u = (t - squiggleEnd) / (morphEnd - squiggleEnd);
             applyGrow(pathStem, Ls, u * Ls);
-        } else if (t < HIDE_END) {
-            const u = (t - MORPH_END) / (HIDE_END - MORPH_END);
+        } else if (t < hideEnd) {
+            const u = (t - morphEnd) / (hideEnd - morphEnd);
             const a = u * Lq;
             applySegment(pathSq, Lq, a, Lq);
             applyGrow(pathStem, Ls, Ls);
-        } else if (t < BOUNCE_END) {
+        } else if (t < bounceEnd) {
             applyHidden(pathSq, Lq);
             applyGrow(pathStem, Ls, Ls);
         } else {
             applyHidden(pathSq, Lq);
-            const p = (t - BOUNCE_END) / (1 - BOUNCE_END);
+            const p = (t - bounceEnd) / (1 - bounceEnd);
             const end = Ls - p * Ls;
             applySegment(pathStem, Ls, 0, end);
         }
@@ -654,7 +742,7 @@ function refreshSmsApiStatusBadge() {
                     el,
                     'ok',
                     'API status: live',
-                    'Inference API responded healthy; the demo uses the real model on the server.'
+                    'Inference API responded healthy.'
                 );
             } else {
                 setSmsApiStatusBadge(

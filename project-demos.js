@@ -123,8 +123,6 @@
             const inferenceWrap = document.getElementById('demo-inference-trace');
             const inferencePre = document.getElementById('demo-inference-pre');
             const inferenceFlags = document.getElementById('demo-inference-flags');
-            const demoSummary = document.getElementById('demo-summary');
-            const demoSummaryText = document.getElementById('demo-summary-text');
             const demoConfidenceHint = document.getElementById('demo-confidence-hint');
             const demoLatencyLine = document.getElementById('demo-latency-line');
             var inferenceTick = null;
@@ -194,21 +192,6 @@
                 result.interpretation = synthesizeInterpretation(adjusted, thr);
                 result.label = adjusted >= thr ? 'Spam' : 'Not spam';
                 result.displayLabel = mapApiLabelToDisplay(result.label);
-                var pct = (adjusted * 100).toFixed(1);
-                var band = result.interpretation.band;
-                var bandLabel = band === 'clear_spam' ? 'bulk-like' : band === 'clear_ham' ? 'personal-like' : 'borderline';
-                var interpretLabel =
-                    band === 'clear_spam'
-                        ? 'bulk-style pattern'
-                        : band === 'clear_ham'
-                          ? 'personal-style pattern'
-                          : 'borderline';
-                var cutLabel = result.displayLabel;
-                result.summaryText =
-                    'Estimated ~' + pct + '% P(bulk-style) from the dataset (single scalar, not a guarantee). ' +
-                    'Interpretation: ' + interpretLabel + ' (score in the ' + bandLabel + ' band). ' +
-                    '50% cutoff maps to Bulk-style vs Personal-style (current: ' + cutLabel + '). ' +
-                    'This reflects automation-like wording in training data, not danger or malicious intent.';
             }
 
             function parsePredictResponse(data) {
@@ -257,7 +240,6 @@
                     probability: p,
                     trace: data.trace || null,
                     apiError: false,
-                    summaryText: data.summary,
                     thresholdHint: data.confidence_hint,
                     signals: sigs,
                     highlightSpans: spans
@@ -473,8 +455,6 @@
                     trace: null,
                     apiError: false,
                     offlineFallback: true,
-                    summaryText:
-                        'Offline keyword estimate (API unreachable). P(bulk-style) is a rough heuristic for demo only, not the trained neural network.',
                     thresholdHint: 'Offline estimate only',
                     signals: [
                         {
@@ -524,12 +504,10 @@
 
                 if (deliveryish) {
                     out.push(
-                        'Lines about parcels or failed delivery are common in real phishing. This model scores how much the text looks like bulk marketing SMS in the training set, not whether it is safe. A short neutral sentence without a link, brand name, or payment line often scores as personal-style anyway.'
+                        'Delivery-themed text can look “phishy” but this model scores bulk-style wording from training data, not safety.'
                     );
                     if (!hasUrl) {
-                        out.push(
-                            'Many scam texts add a fake tracking link or a fee. This message has no URL in the text, which is one reason the numeric score can stay low even when the topic feels suspicious.'
-                        );
+                        out.push('No URL in the text often keeps the score lower than full phishing templates.');
                     }
                 }
 
@@ -665,8 +643,6 @@
                 if (inferenceWrap) inferenceWrap.hidden = true;
                 if (inferencePre) inferencePre.textContent = '';
                 if (inferenceFlags) inferenceFlags.innerHTML = '';
-                if (demoSummary) demoSummary.hidden = true;
-                if (demoSummaryText) demoSummaryText.textContent = '';
                 if (demoConfidenceHint) {
                     demoConfidenceHint.hidden = true;
                     demoConfidenceHint.textContent = '';
@@ -691,7 +667,6 @@
                 confidenceFill.style.width = '0%';
                 confidenceFill.classList.remove('is-spam', 'is-ham', 'is-uncertain');
                 signalsList.innerHTML = '';
-                if (demoSummary) demoSummary.hidden = true;
                 if (demoConfidenceHint) demoConfidenceHint.hidden = true;
                 var _whyEl = document.getElementById('demo-why-section');
                 if (_whyEl) _whyEl.hidden = true;
@@ -863,7 +838,7 @@
                         var staticOff = document.getElementById('demo-static-offline');
                         if (j && j.ok && j.model_loaded) {
                             banner.className = 'demo-api-banner demo-api-banner--ok';
-                            textEl.textContent = 'Live API — real model on server.';
+                            textEl.textContent = 'Live API.';
                             setApiBannerDetail(detailEl, API_STATUS_DETAIL_LIVE);
                             if (staticOff) staticOff.hidden = true;
                         } else {
@@ -953,7 +928,6 @@
                     confidenceText.textContent = '-';
                     confidenceFill.style.width = '0%';
                     confidenceFill.classList.remove('is-spam', 'is-ham', 'is-uncertain');
-                    if (demoSummary) demoSummary.hidden = true;
                     if (demoConfidenceHint) demoConfidenceHint.hidden = true;
                     if (demoLatencyLine) {
                         demoLatencyLine.hidden = true;
@@ -979,27 +953,22 @@
                     } else {
                         confidenceFill.classList.add('is-uncertain');
                     }
-                    if (demoSummary && demoSummaryText) {
-                        demoSummaryText.textContent = result.summaryText || '';
-                        demoSummary.hidden = !result.summaryText;
-                    }
                     if (demoConfidenceHint) {
                         demoConfidenceHint.hidden = true;
                         demoConfidenceHint.textContent = '';
                     }
                     if (demoLatencyLine && result.trace && result.trace.inference_ms != null) {
                         demoLatencyLine.textContent =
-                            'Forward pass ~' +
+                            '~' +
                             result.trace.inference_ms +
-                            ' ms. Occlusion highlights add more passes.';
+                            ' ms forward; highlights need extra passes.';
                         demoLatencyLine.hidden = false;
                     } else if (demoLatencyLine) {
                         demoLatencyLine.hidden = true;
                         demoLatencyLine.textContent = '';
                     }
                     if (result.offlineFallback && demoConfidenceHint) {
-                        demoConfidenceHint.textContent =
-                            'Offline keyword estimate, not the live neural model.';
+                        demoConfidenceHint.textContent = 'Offline keyword estimate (not the CNN).';
                         demoConfidenceHint.hidden = false;
                     }
                 }

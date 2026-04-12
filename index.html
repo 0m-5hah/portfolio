@@ -9,11 +9,11 @@
     <meta property="og:description" content="UTS cybersecurity student with hands-on experience in network scanning, Python automation, and web application testing. Building tools that streamline workflows and strengthen security posture.">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://omshahinfo.com/">
-    <meta property="og:image" content="https://omshahinfo.com/og-image.svg">
+    <meta property="og:image" content="https://omshahinfo.com/og-image.svg?v=20260412">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="Om Shah | Cybersecurity &amp; Automation">
     <meta name="twitter:description" content="UTS cybersecurity student with hands-on experience in network scanning, Python automation, and web application testing.">
-    <meta name="twitter:image" content="https://omshahinfo.com/og-image.svg">
+    <meta name="twitter:image" content="https://omshahinfo.com/og-image.svg?v=20260412">
     <link rel="canonical" href="https://omshahinfo.com/">
     <title>Om Shah | Cybersecurity &amp; Automation</title>
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
@@ -104,20 +104,24 @@
                 <div class="scroll-indicator-svg" aria-hidden="true">
                     <svg viewBox="0 0 180 116" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <defs>
-                            <!-- Top→bottom: electric lead → mint → violet tail (neon reference) -->
-                            <linearGradient id="scroll-stroke-gradient" x1="50%" y1="0%" x2="50%" y2="100%">
+                            <!-- userSpaceOnUse: same color at a given Y for all paths (squiggle + stem read as one stroke) -->
+                            <linearGradient id="scroll-stroke-gradient" gradientUnits="userSpaceOnUse"
+                                x1="90" y1="8" x2="90" y2="108">
                                 <stop offset="0%" stop-color="#38bdf8" />
-                                <stop offset="35%" stop-color="#34d399" />
-                                <stop offset="72%" stop-color="#a78bfa" />
+                                <stop offset="32%" stop-color="#34d399" />
+                                <stop offset="58%" stop-color="#7c6aed" />
+                                <stop offset="78%" stop-color="#a78bfa" />
                                 <stop offset="100%" stop-color="#e9d5ff" />
                             </linearGradient>
                         </defs>
-                        <!-- One pill outline (single slow→fast→slow); was two paths which doubled the rhythm -->
-                        <path class="scroll-line scroll-line--pill" pathLength="1" stroke="url(#scroll-stroke-gradient)"
-                            d="M 90 108 A 28 28 0 0 1 62 80 L 62 36 A 28 28 0 0 1 90 8 A 28 28 0 0 1 118 36 L 118 80 A 28 28 0 0 1 90 108" />
-                        <!-- Squiggle outside bounce group so dash/glow at the pill top is not translated with the arrow -->
+                        <!-- Pill splits at (90,8): prefix traces bottom→left→top; suffix finishes the ring; squiggle/arrow is the fork -->
+                        <path class="scroll-line scroll-line--pill-prefix" stroke="url(#scroll-stroke-gradient)"
+                            d="M 90 108 A 28 28 0 0 1 62 80 L 62 36 A 28 28 0 0 1 90 8" />
+                        <path class="scroll-line scroll-line--pill-suffix" stroke="url(#scroll-stroke-gradient)"
+                            d="M 90 8 A 28 28 0 0 1 118 36 L 118 80 A 28 28 0 0 1 90 108" />
+                        <!-- Cubic tail: C1 at (90,34), eases to vertical at (90,58) to meet stem (same Y = same gradient sample) -->
                         <path class="scroll-line--interior scroll-line--squiggle" stroke="url(#scroll-stroke-gradient)"
-                            d="M 90 8 L 90 11 Q 82 22.5 90 34 Q 98 46 90 58" />
+                            d="M 90 8 L 90 11 Q 82 22.5 90 34 C 95.33 41.67 90 53 90 58" />
                         <g id="scroll-arrow-bounce" class="scroll-arrow-bounce">
                             <!-- Stem length = 25 (= 1/4 pill height); meets squiggle at (90,58) -->
                             <path class="scroll-line--interior scroll-line--stem" stroke="url(#scroll-stroke-gradient)"
@@ -845,13 +849,7 @@
                                 <p class="contact-text">
                                     Open to cybersecurity and automation roles. Summary of experience, roles, and projects:
                                     <a href="om-shah-resume.pdf?v=20260409" target="_blank" rel="noopener">resume (PDF)</a>.
-                                </p>
-                                <p class="contact-direct">
-                                    <a href="mailto:omsshah05@gmail.com">omsshah05@gmail.com</a>
-                                    <span class="contact-sep" aria-hidden="true">·</span>
-                                    <a href="tel:+61401227996">+61 401 227 996</a>
-                                    <span class="contact-sep" aria-hidden="true">·</span>
-                                    Sydney, Australia
+                                    Based in Sydney, Australia.
                                 </p>
                             </div>
                             <span class="skill-snippet-close" aria-hidden="true">---</span>
@@ -881,7 +879,6 @@
 
     <script type="module" src="phone-showcase-loader.js"></script>
     <script src="script.js"></script>
-    <!-- GoatCounter analytics: replace YOUR-CODE with your goatcounter.com site code -->
     <script data-goatcounter="https://omshah.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
 </body>
 </html>

@@ -33,8 +33,6 @@
 html {
     scroll-behavior: smooth;
     scroll-padding-top: 5.5rem;
-    /* ~80% scale site-wide (like browser zoom). Chromium / Safari / Firefox 126+. */
-    zoom: 0.8;
 }
 
 body {
@@ -493,9 +491,10 @@ body.nav-past-hero .mobile-menu-btn {
     stroke-dashoffset: 1;
 }
 
-/* Full pill = one path; draw0–50% of loop: slow / fast / slow once (35%·30%·35% of draw time) */
-.scroll-line--pill {
-    animation: scroll-loop-pill 5s linear infinite;
+/* Pill split into prefix + suffix; dash reveal driven in JS (see pillStrokeDashOffsetAtCycleT in script.js). */
+.scroll-line--pill-prefix,
+.scroll-line--pill-suffix {
+    fill: none;
 }
 
 /* Interior scroll line: dash window driven in script.js (continuous squiggle → arrow) */
@@ -506,35 +505,25 @@ body.nav-past-hero .mobile-menu-btn {
     fill: none;
 }
 
+/* Flat end on squiggle meets one round cap on stem — avoids double round-cap bulge at the joint */
+.scroll-line--squiggle {
+    stroke-linecap: butt;
+}
+
 .scroll-arrow-bounce {
     transform-box: fill-box;
     transform-origin: 50% 88%;
 }
 
-@keyframes scroll-loop-pill {
-    0% {
-        stroke-dashoffset: 1;
-    }
-    17.5% {
-        stroke-dashoffset: 0.75;
-    }
-    32.5% {
-        stroke-dashoffset: 0.25;
-    }
-    50% {
-        stroke-dashoffset: 0;
-    }
-    92% {
-        stroke-dashoffset: 0;
-    }
-    100% {
-        stroke-dashoffset: 1;
-    }
-}
-
 @media (prefers-reduced-motion: reduce) {
     .scroll-line {
         animation: none !important;
+        stroke-dashoffset: 0 !important;
+    }
+
+    .scroll-line--pill-prefix,
+    .scroll-line--pill-suffix {
+        stroke-dasharray: none !important;
         stroke-dashoffset: 0 !important;
     }
 
@@ -1245,8 +1234,11 @@ body.nav-past-hero .mobile-menu-btn {
     overflow: visible;
 }
 
-/* Match GitHub main: wider projects band so the grid matches the original card footprint. */
-.projects .container {
+/* Wide content band: same max-width across Projects, Papers, Education & Skills. */
+.projects .container,
+.papers .container,
+.certifications .container,
+.skills .container {
     max-width: min(1520px, 100%);
 }
 
@@ -1941,25 +1933,43 @@ body.nav-past-hero .mobile-menu-btn {
     margin-right: 0;
 }
 
-.demo-hero .section-title.demo-page-title {
-    margin-bottom: 1.1rem;
+.demo-hero-surface {
+    padding: 1.35rem 1.5rem 1.6rem;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-left: 2px solid rgba(56, 189, 248, 0.48);
+    background:
+        radial-gradient(ellipse 90% 80% at 0% 0%, rgba(56, 189, 248, 0.06) 0%, transparent 45%),
+        linear-gradient(165deg, rgba(22, 27, 34, 0.92) 0%, rgba(14, 17, 22, 0.98) 100%);
+    box-shadow:
+        0 1px 0 rgba(255, 255, 255, 0.04) inset,
+        0 14px 36px rgba(0, 0, 0, 0.24);
 }
 
-.demo-eyebrow {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.8rem;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--accent-secondary);
+.demo-hero-top {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    flex-wrap: wrap;
     margin-bottom: 0.75rem;
 }
 
-.demo-page-title-text {
-    color: var(--text-primary);
-    font-size: clamp(1.75rem, 4vw, 2.35rem);
+.demo-hero-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: rgba(167, 139, 250, 0.92);
+}
+
+.demo-hero-title {
+    margin: 0 0 0.95rem;
+    font-size: clamp(1.85rem, 4.5vw, 2.45rem);
     font-weight: 700;
-    letter-spacing: -0.035em;
-    line-height: 1.15;
+    letter-spacing: -0.04em;
+    line-height: 1.12;
+    color: var(--text-primary);
 }
 
 .demo-lead {
@@ -3287,8 +3297,12 @@ details.demo-credibility > summary::-webkit-details-marker {
         text-align: left;
     }
 
-    .page-demo .demo-page-title-text {
-        font-size: clamp(1.4rem, 6.5vw, 1.85rem);
+    .page-demo .demo-hero-title {
+        font-size: clamp(1.45rem, 6.5vw, 1.95rem);
+    }
+
+    .page-demo .demo-hero-surface {
+        padding: 1.15rem 1.15rem 1.35rem;
     }
 
     .page-demo .demo-lead {
@@ -3563,29 +3577,6 @@ details.demo-credibility > summary::-webkit-details-marker {
 
 .verdict-badge[data-verdict="uncertain"] .verdict-text {
     color: #ffd080;
-}
-
-.demo-summary {
-    padding: 0.9rem 1rem;
-    border-radius: 10px;
-    border: 1px solid var(--border-color);
-    background: rgba(0, 212, 255, 0.06);
-}
-
-.demo-summary-heading {
-    margin: 0 0 0.45rem;
-    font-size: 0.75rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color: var(--text-muted);
-}
-
-.demo-summary-text {
-    margin: 0;
-    font-size: 0.95rem;
-    line-height: 1.65;
-    color: var(--text-secondary);
 }
 
 .demo-confidence-hint {
@@ -4054,6 +4045,9 @@ details.demo-credibility > summary::-webkit-details-marker {
     position: relative;
     width: 100%;
     min-width: 0;
+    /* Card width uses 100cqw — measure from this wrapper, not the scroll viewport (avoids 0-width bugs). */
+    container-type: inline-size;
+    container-name: papers-carousel;
 }
 
 .papers-carousel-viewport {
@@ -4099,14 +4093,21 @@ details.demo-credibility > summary::-webkit-details-marker {
     min-height: 100%;
 }
 
-/* Avoid cqw on this scroll viewport: container width can resolve to 0, making min(26rem, calc(100cqw - 2rem)) negative and collapsing cards. */
+/* One card ≈ full content column (same visual width as Experience / one project column). */
 .papers-carousel-viewport .paper-card {
     flex: 0 0 auto;
-    width: min(26rem, calc(100vw - 4rem));
-    max-width: 26rem;
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
+    width: min(92rem, calc(100vw - 4rem));
+    max-width: min(92rem, calc(100vw - 4rem));
+}
+
+@supports (width: 100cqw) {
+    .papers-carousel-viewport .paper-card {
+        width: 100cqw;
+        max-width: 100cqw;
+    }
 }
 
 .papers-carousel-viewport .paper-card .paper-snippet {
@@ -4337,30 +4338,6 @@ details.demo-credibility > summary::-webkit-details-marker {
 .contact-text a:hover {
     color: var(--accent-primary);
     border-bottom-color: var(--accent-primary);
-}
-
-.contact-direct {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.82rem;
-    color: var(--text-secondary);
-    margin: 0;
-    line-height: 1.65;
-}
-
-.contact-direct a {
-    color: var(--text-primary);
-    text-decoration: none;
-    border-bottom: 1px solid rgba(0, 255, 136, 0.22);
-}
-
-.contact-direct a:hover {
-    color: var(--accent-primary);
-    border-bottom-color: var(--accent-primary);
-}
-
-.contact-sep {
-    margin: 0 0.35rem;
-    color: var(--text-muted);
 }
 
 .contact-actions {

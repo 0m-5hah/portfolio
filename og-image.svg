@@ -1,65 +1,39 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-labelledby="og-title og-desc">
+  <title id="og-title">Om Shah — Cybersecurity and automation</title>
+  <desc id="og-desc">Social preview card for omshahinfo.com</desc>
   <defs>
-    <linearGradient id="nameGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-      <stop offset="0%" style="stop-color:#00ff88"/>
-      <stop offset="100%" style="stop-color:#00d4ff"/>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0a0a0f"/>
+      <stop offset="55%" stop-color="#0d1218"/>
+      <stop offset="100%" stop-color="#12121a"/>
     </linearGradient>
-    <radialGradient id="glow1" cx="20%" cy="25%" r="45%">
-      <stop offset="0%" style="stop-color:#00ff88;stop-opacity:0.12"/>
-      <stop offset="100%" style="stop-color:#00ff88;stop-opacity:0"/>
+    <linearGradient id="accent" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#00ff88"/>
+      <stop offset="50%" stop-color="#00d4ff"/>
+      <stop offset="100%" stop-color="#8b5cf6"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="85%" cy="15%" r="45%">
+      <stop offset="0%" stop-color="#00ff88" stop-opacity="0.12"/>
+      <stop offset="100%" stop-color="#0a0a0f" stop-opacity="0"/>
     </radialGradient>
-    <radialGradient id="glow2" cx="80%" cy="75%" r="40%">
-      <stop offset="0%" style="stop-color:#00d4ff;stop-opacity:0.09"/>
-      <stop offset="100%" style="stop-color:#00d4ff;stop-opacity:0"/>
+    <radialGradient id="glow2" cx="10%" cy="90%" r="40%">
+      <stop offset="0%" stop-color="#8b5cf6" stop-opacity="0.1"/>
+      <stop offset="100%" stop-color="#0a0a0f" stop-opacity="0"/>
     </radialGradient>
+    <pattern id="grid" width="32" height="32" patternUnits="userSpaceOnUse">
+      <path d="M 32 0 L 0 0 0 32" fill="none" stroke="rgba(255,255,255,0.04)" stroke-width="1"/>
+    </pattern>
   </defs>
-
-  <!-- Background -->
-  <rect width="1200" height="630" fill="#0a0a0f"/>
-  <rect width="1200" height="630" fill="url(#glow1)"/>
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <rect width="1200" height="630" fill="url(#glow)"/>
   <rect width="1200" height="630" fill="url(#glow2)"/>
-
-  <!-- Top border accent -->
-  <rect x="0" y="0" width="1200" height="3" fill="url(#nameGrad)"/>
-
-  <!-- Nav brand -->
-  <text x="60" y="68" font-family="monospace" font-size="18" fill="#00ff88" font-weight="700">&gt;_ security</text>
-  <text x="183" y="68" font-family="monospace" font-size="18" fill="#00d4ff" font-weight="700">.portfolio</text>
-
-  <!-- Main content -->
-  <text x="60" y="175" font-family="monospace" font-size="15" fill="#00ff88" letter-spacing="1">Hello, I'm</text>
-
-  <text x="58" y="270" font-family="Arial, sans-serif" font-size="88" font-weight="700" fill="url(#nameGrad)">Om Shah</text>
-
-  <text x="62" y="335" font-family="Arial, sans-serif" font-size="28" font-weight="600" fill="#a1a1aa">Cybersecurity Student &amp; Automation Engineer</text>
-
-  <!-- Divider line -->
-  <line x1="60" y1="368" x2="480" y2="368" stroke="#00ff88" stroke-width="1.5" stroke-opacity="0.35"/>
-
-  <!-- Description -->
-  <text x="62" y="408" font-family="Arial, sans-serif" font-size="19" fill="#71717a">UTS · Network scanning · Python automation · Web app testing</text>
-
-  <!-- Terminal window (right side) -->
-  <rect x="720" y="130" width="420" height="240" rx="10" fill="#12121a" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>
-  <!-- Terminal header -->
-  <rect x="720" y="130" width="420" height="36" rx="10" fill="#1a1a25"/>
-  <rect x="720" y="148" width="420" height="18" fill="#1a1a25"/>
-  <circle cx="748" cy="148" r="6" fill="#ff5f56"/>
-  <circle cx="770" cy="148" r="6" fill="#ffbd2e"/>
-  <circle cx="792" cy="148" r="6" fill="#27ca40"/>
-  <text x="940" y="153" font-family="monospace" font-size="11" fill="#52525b" text-anchor="middle">om@uts:~</text>
-  <!-- Terminal lines -->
-  <text x="744" y="198" font-family="monospace" font-size="13" fill="#00ff88">$</text>
-  <text x="760" y="198" font-family="monospace" font-size="13" fill="#e4e4e7">whoami</text>
-  <text x="744" y="220" font-family="monospace" font-size="13" fill="#a1a1aa">om_shah</text>
-  <text x="744" y="248" font-family="monospace" font-size="13" fill="#00ff88">$</text>
-  <text x="760" y="248" font-family="monospace" font-size="13" fill="#e4e4e7">cat skills.txt</text>
-  <text x="744" y="270" font-family="monospace" font-size="12" fill="#a1a1aa">[+] Network Scanning</text>
-  <text x="744" y="288" font-family="monospace" font-size="12" fill="#a1a1aa">[+] Python Automation</text>
-  <text x="744" y="306" font-family="monospace" font-size="12" fill="#a1a1aa">[+] Vulnerability Assessment</text>
-  <text x="744" y="332" font-family="monospace" font-size="13" fill="#00ff88">$</text>
-  <text x="760" y="332" font-family="monospace" font-size="13" fill="#e4e4e7">Š</text>
-
-  <!-- Bottom tag line -->
-  <text x="60" y="570" font-family="Arial, sans-serif" font-size="16" fill="#3f3f46">omsshah05@gmail.com · Sydney, Australia · 2026</text>
+  <rect width="1200" height="630" fill="url(#grid)"/>
+  <rect x="72" y="72" width="1056" height="486" rx="8" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>
+  <rect x="72" y="72" width="4" height="486" fill="url(#accent)" rx="2"/>
+  <text x="120" y="220" font-family="ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif" font-size="72" font-weight="700" fill="#e4e4e7" letter-spacing="-0.02em">Om Shah</text>
+  <text x="120" y="300" font-family="ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif" font-size="32" font-weight="500" fill="#a1a1aa">Cybersecurity &amp; automation</text>
+  <text x="120" y="380" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="22" fill="#00ff88">&gt;_</text>
+  <text x="168" y="380" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="22" fill="#71717a">security</text>
+  <text x="288" y="380" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="22" fill="#00ff88">.portfolio</text>
+  <text x="120" y="470" font-family="ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif" font-size="20" fill="#52525b">UTS · Sydney</text>
 </svg>
