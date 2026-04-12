@@ -800,13 +800,99 @@ body {
     opacity: 0.88;
 }
 
+.project-card--phone-showcase {
+    border-color: rgba(94, 234, 212, 0.25);
+    overflow: visible;
+}
+
+.project-card--phone-showcase:hover {
+    border-color: rgba(94, 234, 212, 0.5);
+}
+
+.project-content--phone-showcase {
+    padding: 1.25rem 1.25rem 1.5rem;
+    align-items: center;
+    flex: 1;
+    min-height: 0;
+}
+
+/*
+ * ≥1400px: phone spans the whole projects grid (under the cards) with the inner block anchored top-right.
+ * 981px–1399px: same grid as cards — two columns so SMS and phone sit side by side; other cards reflow.
+ */
+@media (min-width: 1400px) {
+    .projects-phone-row .projects-grid--with-phone > article {
+        position: relative;
+        z-index: 1;
+    }
+
+    .project-phone-showcase-slot.project-card {
+        grid-column: 1 / -1;
+        grid-row: 1 / -1;
+        z-index: 0;
+        margin: 0;
+        padding: 0;
+        background: transparent;
+        border: none;
+        box-shadow: none;
+        pointer-events: none;
+        overflow: visible;
+    }
+
+    .project-phone-showcase-slot.project-card:hover {
+        transform: none;
+        border: none;
+        box-shadow: none;
+    }
+
+    .project-phone-showcase-slot .project-content--phone-showcase {
+        padding: 0;
+        height: 100%;
+        align-items: stretch;
+    }
+
+    .project-phone-showcase-slot .phone-showcase-standalone {
+        pointer-events: auto;
+    }
+}
+
+@media (min-width: 981px) and (max-width: 1399px) {
+    .projects-phone-row .projects-grid--with-phone {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .projects-phone-row .projects-grid--with-phone > .project-card.featured {
+        grid-column: span 2;
+    }
+
+    .project-phone-showcase-slot .phone-showcase-standalone {
+        position: relative !important;
+        top: auto !important;
+        right: auto !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        margin: 0 auto !important;
+        transform: none !important;
+        padding-bottom: clamp(2rem, 6vmin, 3.5rem);
+    }
+
+    .project-phone-showcase-slot .phone-showcase-viewport {
+        max-height: min(40vh, 360px) !important;
+    }
+
+    .project-phone-showcase-slot .phone-showcase-standalone::after {
+        max-width: 18rem;
+        opacity: 0.75;
+    }
+}
+
 /* Hide decorative 3D phone on small viewports so project cards stay usable (see phone-showcase.js same breakpoint). */
 @media (max-width: 980px) {
     .projects-phone-row > .projects-grid--with-phone {
         z-index: auto;
     }
 
-    .phone-showcase-standalone {
+    .project-phone-showcase-slot {
         display: none !important;
     }
 }
@@ -822,40 +908,6 @@ body {
     border: none;
     border-radius: 0;
     background: transparent;
-}
-
-/*
- * Caption first in DOM (above the phone). margin-bottom = gap before viewport (--phone-live-hint-gap-below).
- * Viewport z-index is above the caption so the 3D phone still paints over overlapping text if you nudge negatively.
- */
-.phone-showcase-live-hint {
-    position: relative;
-    z-index: 1;
-    margin: 0 0 var(--phone-live-hint-gap-below, 0.55rem);
-    padding: 0 0.25rem;
-    max-width: 100%;
-    text-align: var(--phone-live-hint-text-align, center);
-    transform: translate(
-        var(--phone-live-hint-nudge-x, 0rem),
-        var(--phone-live-hint-nudge-y, 0rem)
-    );
-    perspective: var(--phone-live-hint-perspective, min(2600px, 150vw));
-    font-size: 0.6875rem;
-    font-weight: 600;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: rgba(94, 234, 212, 0.78);
-    text-shadow: 0 0 18px rgba(45, 212, 191, 0.22);
-    pointer-events: none;
-    user-select: none;
-}
-
-/* Inner wrapper: rotateX/Y updated from JS to match Three.js tiltPivot (hover tilt). */
-.phone-showcase-live-hint-gyro {
-    display: inline-block;
-    transform-origin: 50% 50%;
-    transform-style: preserve-3d;
-    will-change: transform;
 }
 
 .phone-showcase-poster {

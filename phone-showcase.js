@@ -1,9 +1,6 @@
 /**
  * 3D phone + screen video — tune **phone-showcase-config.json** (plain-English keys).
- * This file loads JSON, applies “whereItShowsOnThePage” + “liveDemoCaptionAbovePhone” to `.projects-phone-row`
- * CSS variables, then runs Three.js.
- * Caption keys: prefer the short names in `phone-showcase-config.json` under `liveDemoCaptionAbovePhone`
- * (`shiftCaptionLeftRight`, `fineTuneTiltPitchDegrees`, …); older long names still work as fallbacks.
+ * This file loads JSON, applies “whereItShowsOnThePage” to `.projects-phone-row` CSS variables, then runs Three.js.
  */
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
@@ -50,17 +47,6 @@ const DEFAULT_PHONE_CONFIG = {
   maxPixelRatio: 3,
   screenSource: 'video',
   screenImageUrl: 'laptop_Demo/phone-screen-poster.jpg',
-  /**
-   * Extra degrees applied after matching the GLB’s orientation in camera space (caption follows the real 3D tilt).
-   * Legacy JSON keys captionRestTilt* still map here as offsets.
-   */
-  captionTilt: {
-    offsetXDeg: 0,
-    offsetYDeg: 0,
-    offsetZDeg: 0,
-    /** 1 = match computed glass plane; &gt;1 exaggerates tilt (usually not needed). */
-    nonHoverTiltBoost: 1,
-  },
   pageLayout: {
     width: '220px',
     nudgeX: '0rem',
@@ -73,11 +59,6 @@ const DEFAULT_PHONE_CONFIG = {
     phoneZIndex: '',
     videoDecodeWidth: '1080px',
     videoDecodeHeight: '2340px',
-    liveHintNudgeX: '',
-    liveHintNudgeY: '',
-    liveHintGapBelow: '',
-    liveHintTextAlign: '',
-    liveHintPerspective: '',
   },
 };
 
@@ -87,7 +68,6 @@ let phoneCfg = {
   screenShrinkPercent: { ...DEFAULT_PHONE_CONFIG.screenShrinkPercent },
   screenVideoMovePercent: { ...DEFAULT_PHONE_CONFIG.screenVideoMovePercent },
   pageLayout: { ...DEFAULT_PHONE_CONFIG.pageLayout },
-  captionTilt: { ...DEFAULT_PHONE_CONFIG.captionTilt },
 };
 
 /**
@@ -145,11 +125,6 @@ const PAGE_LAYOUT_TO_CSS = {
   phoneZIndex: '--phone-showcase-z-index',
   videoDecodeWidth: '--phone-video-decode-w',
   videoDecodeHeight: '--phone-video-decode-h',
-  liveHintNudgeX: '--phone-live-hint-nudge-x',
-  liveHintNudgeY: '--phone-live-hint-nudge-y',
-  liveHintGapBelow: '--phone-live-hint-gap-below',
-  liveHintTextAlign: '--phone-live-hint-text-align',
-  liveHintPerspective: '--phone-live-hint-perspective',
 };
 
 /** @param {Record<string, unknown>} fit */
@@ -283,19 +258,6 @@ function clampTextureWindow(sx, sy, tx, ty) {
   return { tx: txClamped, ty: tyClamped };
 }
 
-/** @param {unknown} val @param {number} def */
-function parseCaptionTiltDegrees(val, def) {
-  const n = Number(val);
-  return Number.isFinite(n) ? n : def;
-}
-
-/** @param {unknown} val @param {number} def */
-function parseCaptionNonHoverBoost(val, def) {
-  const n = Number(val);
-  if (!Number.isFinite(n)) return def;
-  return THREE.MathUtils.clamp(n, 0.5, 2.5);
-}
-
 /**
  * JSON: recordingOnScreen shrink / showMoreOfTheRecordingPercent / moves + biggerPhoneModel / biggerPhoneInPicture.
  * Older keys (pageLayout, modelUrl, …) still accepted.
@@ -314,23 +276,6 @@ function mergePhoneConfig(raw) {
 
   const pickStr = (lay, old, def) => String(pageIn[lay] ?? pageIn[old] ?? def);
 
-  const hintIn =
-    (raw.liveDemoCaptionAbovePhone &&
-      typeof raw.liveDemoCaptionAbovePhone === 'object' &&
-      raw.liveDemoCaptionAbovePhone) ||
-    {};
-  const hintPick = (plain, camel, def) =>
-    String(hintIn[plain] ?? hintIn[camel] ?? def ?? '');
-
-  /** First non-empty string among hintIn keys, else base default. */
-  const pickCaptionLayout = (baseDef, ...keys) => {
-    for (const k of keys) {
-      const v = hintIn[k];
-      if (v !== undefined && v !== null && v !== '') return String(v);
-    }
-    return String(baseDef ?? '');
-  };
-
   const pageLayout = {
     width: pickStr('howWideThePhoneColumnIs', 'width', base.pageLayout.width),
     nudgeX: pickStr('movePhoneLeftOrRight', 'nudgeX', base.pageLayout.nudgeX),
@@ -347,67 +292,6 @@ function mergePhoneConfig(raw) {
     phoneZIndex: pickStr('putPhoneAboveCardsZIndex', 'phoneZIndex', base.pageLayout.phoneZIndex ?? ''),
     videoDecodeWidth: pickStr('matchYourVideoFileWidth', 'videoDecodeWidth', base.pageLayout.videoDecodeWidth),
     videoDecodeHeight: pickStr('matchYourVideoFileHeight', 'videoDecodeHeight', base.pageLayout.videoDecodeHeight),
-    liveHintNudgeX: pickCaptionLayout(
-      base.pageLayout.liveHintNudgeX,
-      'shiftCaptionLeftRight',
-      'nudgeCaptionLeftOrRight',
-      'liveHintNudgeX'
-    ),
-    liveHintNudgeY: pickCaptionLayout(
-      base.pageLayout.liveHintNudgeY,
-      'shiftCaptionUpDown',
-      'nudgeCaptionUpOrDown',
-      'liveHintNudgeY'
-    ),
-    liveHintGapBelow: pickCaptionLayout(
-      base.pageLayout.liveHintGapBelow,
-      'spaceBelowCaptionBeforePhone',
-      'gapBetweenCaptionAndPhone',
-      'liveHintGapBelow'
-    ),
-    liveHintTextAlign: pickCaptionLayout(
-      base.pageLayout.liveHintTextAlign,
-      'captionTextAlign',
-      'alignCaption',
-      'liveHintTextAlign'
-    ),
-    liveHintPerspective: pickCaptionLayout(
-      base.pageLayout.liveHintPerspective,
-      'captionPerspectivePx',
-      'perspectivePixelsOnCaptionFor3dTilt',
-      'liveHintPerspective'
-    ),
-  };
-
-  const captionTilt = {
-    offsetXDeg: parseCaptionTiltDegrees(
-      hintIn.fineTuneTiltPitchDegrees ??
-        hintIn.captionEulerOffsetXDegrees ??
-        hintIn.captionRestTiltXDegrees ??
-        hintIn.captionIdleTiltXDegrees,
-      base.captionTilt.offsetXDeg
-    ),
-    offsetYDeg: parseCaptionTiltDegrees(
-      hintIn.fineTuneTiltYawDegrees ??
-        hintIn.captionEulerOffsetYDegrees ??
-        hintIn.captionRestTiltYDegrees ??
-        hintIn.captionIdleTiltYDegrees,
-      base.captionTilt.offsetYDeg
-    ),
-    offsetZDeg: parseCaptionTiltDegrees(
-      hintIn.fineTuneTiltRollDegrees ??
-        hintIn.captionEulerOffsetZDegrees ??
-        hintIn.captionRestTiltZDegrees ??
-        hintIn.captionIdleTiltZDegrees ??
-        hintIn.howTiltedTheCaptionIsWhenNotHoveringZDegrees,
-      base.captionTilt.offsetZDeg
-    ),
-    nonHoverTiltBoost: parseCaptionNonHoverBoost(
-      hintIn.idleTiltStrength ??
-        hintIn.howMuchStrongerCaptionTiltWhenNotHovering ??
-        hintIn.captionNonHoverTiltBoost,
-      base.captionTilt.nonHoverTiltBoost
-    ),
   };
 
   const play =
@@ -468,7 +352,6 @@ function mergePhoneConfig(raw) {
     screenSource: play === 'image' || play === 'still' ? 'image' : 'video',
     screenImageUrl: String(raw.stillImageFile ?? raw.screenImageUrl ?? base.screenImageUrl),
     pageLayout,
-    captionTilt,
   };
 }
 
@@ -910,8 +793,6 @@ export async function initPhoneShowcase(container, els) {
     };
   }
 
-  const hintGyroEl = container.parentElement?.querySelector('.phone-showcase-live-hint-gyro');
-
   const clock = new THREE.Clock();
   let cycleT = 0;
   let inTail = false;
@@ -927,10 +808,6 @@ export async function initPhoneShowcase(container, els) {
       tiltPivot.rotation.x += (tiltTargetX - tiltPivot.rotation.x) * tiltSmooth;
       tiltPivot.rotation.y += (tiltTargetY - tiltPivot.rotation.y) * tiltSmooth;
       tiltPivot.rotation.z = 0;
-    }
-
-    if (hintGyroEl) {
-      hintGyroEl.style.transform = '';
     }
 
     if (hasGltfAnimation && screenTextureIsVideo && animDuration > 0 && Number.isFinite(vDur) && vDur > 0) {
@@ -976,7 +853,6 @@ export async function initPhoneShowcase(container, els) {
     removePhonePointerListeners();
     if (removeHoverTilt) removeHoverTilt();
     if (mixer) mixer.stopAllAction();
-    if (hintGyroEl) hintGyroEl.style.transform = '';
     renderer.dispose();
     if (tex) tex.dispose();
   };
