@@ -1,5 +1,5 @@
 {
-  "_readme": "Hard-refresh. Phone is absolute behind cards on wide viewports only; at max-width 980px it is hidden and WebGL is not started. Position: howFarPhoneIsFromTheRightEdge, movePhoneLeftOrRight, movePhoneUpOrDown, putPhoneAboveCardsZIndex, spaceBetweenCardsAndPhone.",
+  "_readme": "Hard-refresh after edits. Phone hides below 980px width. See liveDemoCaptionAbovePhone._instructions for the LIVE DEMO label.",
 
   "phoneModelFile": "laptop_Demo/blenderphone.glb",
   "blenderNameOfScreenMaterial": "Screen on.002",
@@ -20,7 +20,7 @@
 
   "canvasSharpnessCap": 3,
   "howMuchThePhoneTurnsTowardYouOnHoverInDegrees": -45,
-  "howMuchThePhoneTiltsOnHoverInDegrees": 15,
+  "howMuchThePhoneTiltsOnHoverInDegrees": 1,
 
   "playVideoOrStillImage": "video",
   "stillImageFile": "laptop_Demo/phone-screen-poster.jpg",
@@ -36,5 +36,21 @@
     "maxPhoneWidthOnSmallScreens": "min(100%, 96vw)",
     "matchYourVideoFileWidth": "1080px",
     "matchYourVideoFileHeight": "2340px"
+  },
+
+  "liveDemoCaptionAbovePhone": {
+    "_instructions": "The LIVE DEMO line is kept straight (same look as the old hover state). Use shiftCaptionLeftRight / shiftCaptionUpDown / spaceBelowCaptionBeforePhone / captionTextAlign for placement. captionPerspectivePx still affects the hint’s 3D context if you add CSS rotation later. fineTuneTilt* and idleTiltStrength are reserved for when you reintroduce tilt in phone-showcase.js; they are not applied right now.",
+
+    "shiftCaptionLeftRight": "-5rem",
+    "shiftCaptionUpDown": "16rem",
+    "spaceBelowCaptionBeforePhone": "0.55rem",
+    "captionTextAlign": "center",
+
+    "fineTuneTiltPitchDegrees": 270,
+    "fineTuneTiltYawDegrees": 90,
+    "fineTuneTiltRollDegrees": 270,
+    "idleTiltStrength": 1,
+
+    "captionPerspectivePx": "2600px"
   }
 }

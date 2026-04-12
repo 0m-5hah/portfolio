@@ -762,6 +762,42 @@ body {
     background: transparent;
     pointer-events: auto;
     z-index: var(--phone-showcase-z-index, 0);
+    overflow: visible;
+    /* Room under the canvas so the glow can sit in real layout space (not only under a higher z-index layer). */
+    padding-bottom: clamp(3.4rem, 9vmin, 5.65rem);
+}
+
+/*
+ * Ground glow under the 3D phone — same green as .cursor-glow. Static (no tilt sync); z-index above canvas.
+ */
+.phone-showcase-standalone::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    bottom: clamp(0.15rem, 1vmin, 0.5rem);
+    width: 100%;
+    max-width: 24rem;
+    height: 10.125rem;
+    z-index: 0;
+    transform: translateX(-50%) translateY(-52%) scaleY(0.46);
+    transform-origin: 50% 40%;
+    border-radius: 50%;
+    background:
+        radial-gradient(
+            ellipse 80% 68% at 50% 18%,
+            rgba(0, 255, 136, 0.48) 0%,
+            rgba(0, 255, 136, 0.15) 44%,
+            transparent 64%
+        ),
+        radial-gradient(
+            ellipse 100% 58% at 50% 70%,
+            rgba(0, 255, 136, 0.14) 0%,
+            rgba(0, 255, 136, 0.04) 50%,
+            transparent 72%
+        );
+    filter: blur(42px);
+    pointer-events: none;
+    opacity: 0.88;
 }
 
 /* Hide decorative 3D phone on small viewports so project cards stay usable (see phone-showcase.js same breakpoint). */
@@ -777,6 +813,7 @@ body {
 
 .phone-showcase-viewport {
     position: relative;
+    z-index: 3;
     width: 100%;
     aspect-ratio: var(--phone-showcase-aspect);
     max-height: var(--phone-showcase-max-h);
@@ -785,6 +822,40 @@ body {
     border: none;
     border-radius: 0;
     background: transparent;
+}
+
+/*
+ * Caption first in DOM (above the phone). margin-bottom = gap before viewport (--phone-live-hint-gap-below).
+ * Viewport z-index is above the caption so the 3D phone still paints over overlapping text if you nudge negatively.
+ */
+.phone-showcase-live-hint {
+    position: relative;
+    z-index: 1;
+    margin: 0 0 var(--phone-live-hint-gap-below, 0.55rem);
+    padding: 0 0.25rem;
+    max-width: 100%;
+    text-align: var(--phone-live-hint-text-align, center);
+    transform: translate(
+        var(--phone-live-hint-nudge-x, 0rem),
+        var(--phone-live-hint-nudge-y, 0rem)
+    );
+    perspective: var(--phone-live-hint-perspective, min(2600px, 150vw));
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: rgba(94, 234, 212, 0.78);
+    text-shadow: 0 0 18px rgba(45, 212, 191, 0.22);
+    pointer-events: none;
+    user-select: none;
+}
+
+/* Inner wrapper: rotateX/Y updated from JS to match Three.js tiltPivot (hover tilt). */
+.phone-showcase-live-hint-gyro {
+    display: inline-block;
+    transform-origin: 50% 50%;
+    transform-style: preserve-3d;
+    will-change: transform;
 }
 
 .phone-showcase-poster {
