@@ -4045,9 +4045,6 @@ details.demo-credibility > summary::-webkit-details-marker {
     position: relative;
     width: 100%;
     min-width: 0;
-    /* Card width uses 100cqw — measure from this wrapper, not the scroll viewport (avoids 0-width bugs). */
-    container-type: inline-size;
-    container-name: papers-carousel;
 }
 
 .papers-carousel-viewport {
@@ -4093,21 +4090,14 @@ details.demo-credibility > summary::-webkit-details-marker {
     min-height: 100%;
 }
 
-/* One card ≈ full content column (same visual width as Experience / one project column). */
+/* Narrow cards; carousel viewport still spans the full papers container width. */
 .papers-carousel-viewport .paper-card {
     flex: 0 0 auto;
+    width: min(26rem, calc(100vw - 4rem));
+    max-width: 26rem;
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
-    width: min(92rem, calc(100vw - 4rem));
-    max-width: min(92rem, calc(100vw - 4rem));
-}
-
-@supports (width: 100cqw) {
-    .papers-carousel-viewport .paper-card {
-        width: 100cqw;
-        max-width: 100cqw;
-    }
 }
 
 .papers-carousel-viewport .paper-card .paper-snippet {
