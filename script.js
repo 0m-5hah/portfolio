@@ -1,6 +1,6 @@
 /**
  * Preview the SMS API status chip without calling /health. Normally keep `null`.
- * Or open `?api_badge=down` once — it is saved for this tab (sessionStorage) so plain reloads keep the preview.
+ * Or open `?api_badge=down` once; it is saved for this tab (sessionStorage) so plain reloads keep the preview.
  * Clear with `?api_badge=off` or `sessionStorage.removeItem('smsApiBadgePreview')` in DevTools.
  */
 const SMS_API_BADGE_PREVIEW = null;
@@ -59,6 +59,156 @@ function getApiBadgeSimulationMode() {
     return null;
 }
 
+/** GoatCounter custom path (event: true). Safe if count.js is still loading. */
+function trackGoatEvent(path, title) {
+    try {
+        if (window.goatcounter && typeof window.goatcounter.count === 'function') {
+            window.goatcounter.count({ path, title, event: true });
+        }
+    } catch (e) {
+        /* ignore */
+    }
+}
+
+function initPortfolioEngagementTracking() {
+    initFunnelSectionViews();
+    initScrollDepthMilestones();
+    initTimeOnPageMilestones();
+    initOutboundAndPdfTracking();
+    initDemoExitLinksTracking();
+}
+
+function initFunnelSectionViews() {
+    if (!document.body || !document.body.classList.contains('home-page')) return;
+
+    const ids = ['about', 'experience', 'projects', 'papers', 'skills', 'contact'];
+    const obs = new IntersectionObserver(
+        (entries) => {
+            entries.forEach((entry) => {
+                if (!entry.isIntersecting) return;
+                const id = entry.target.id;
+                if (!id) return;
+                obs.unobserve(entry.target);
+                trackGoatEvent(`funnel/section/${id}`, `Section: ${id}`);
+            });
+        },
+        { root: null, rootMargin: '0px 0px -12% 0px', threshold: 0 }
+    );
+
+    ids.forEach((id) => {
+        const el = document.getElementById(id);
+        if (el) obs.observe(el);
+    });
+}
+
+function initScrollDepthMilestones() {
+    const marks = [25, 50, 75, 100];
+    const fired = new Set();
+
+    function tick() {
+        const el = document.documentElement;
+        const maxScroll = el.scrollHeight - window.innerHeight;
+        if (maxScroll <= 1) {
+            if (!fired.has(100)) {
+                fired.add(100);
+                trackGoatEvent('funnel/scroll/100', 'Scroll depth 100% (short page)');
+            }
+            return;
+        }
+        const pct = Math.min(100, Math.round((window.scrollY / maxScroll) * 100));
+        marks.forEach((m) => {
+            if (pct >= m && !fired.has(m)) {
+                fired.add(m);
+                trackGoatEvent(`funnel/scroll/${m}`, `Scroll depth ${m}%`);
+            }
+        });
+    }
+
+    let raf = 0;
+    window.addEventListener(
+        'scroll',
+        () => {
+            if (raf) return;
+            raf = requestAnimationFrame(() => {
+                raf = 0;
+                tick();
+            });
+        },
+        { passive: true }
+    );
+    tick();
+}
+
+function initTimeOnPageMilestones() {
+    const schedule = (seconds, path, title) =>
+        window.setTimeout(() => {
+            trackGoatEvent(path, title);
+        }, seconds * 1000);
+
+    schedule(30, 'funnel/time/30s', '30s on page');
+    schedule(60, 'funnel/time/60s', '60s on page');
+    schedule(120, 'funnel/time/120s', '2m on page');
+}
+
+function initOutboundAndPdfTracking() {
+    document.addEventListener(
+        'click',
+        (e) => {
+            const a = e.target && e.target.closest ? e.target.closest('a[href]') : null;
+            if (!a) return;
+            const href = a.getAttribute('href');
+            if (!href || href.startsWith('#')) return;
+            if (href.trim().toLowerCase().startsWith('javascript:')) return;
+
+            if (href.startsWith('mailto:')) {
+                trackGoatEvent('event/outbound/mailto', 'mailto link');
+                return;
+            }
+            if (href.startsWith('tel:')) {
+                trackGoatEvent('event/outbound/tel', 'tel link');
+                return;
+            }
+
+            let u;
+            try {
+                u = new URL(a.href, window.location.href);
+            } catch (err) {
+                return;
+            }
+
+            if (u.origin === window.location.origin) {
+                if (u.pathname.endsWith('.pdf')) {
+                    if (u.pathname.includes('om-shah-resume.pdf')) return;
+                    const slug = u.pathname.replace(/^\//, '').replace(/\//g, '--') || 'pdf';
+                    trackGoatEvent(`event/pdf/${slug}`, `PDF ${u.pathname}`);
+                }
+                return;
+            }
+
+            const host = u.hostname.replace(/^www\./i, '') || 'external';
+            trackGoatEvent(`event/outbound/${host}`, `Outbound ${host}`);
+        },
+        true
+    );
+}
+
+function initDemoExitLinksTracking() {
+    const path = window.location.pathname || '';
+    if (!/project-demos\.html/i.test(path)) return;
+
+    document.querySelectorAll('a[href*="index.html"]').forEach((a) => {
+        a.addEventListener('click', () => {
+            const raw = a.getAttribute('href') || '';
+            let dest = 'home';
+            const hashIdx = raw.indexOf('#');
+            if (hashIdx !== -1 && hashIdx < raw.length - 1) {
+                dest = raw.slice(hashIdx + 1).replace(/[^a-z0-9_-]/gi, '') || 'home';
+            }
+            trackGoatEvent(`funnel/demo/exit/${dest}`, `Demo exit toward ${dest}`);
+        });
+    });
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     initCursorGlow();
     initMobileMenu();
@@ -71,6 +221,8 @@ document.addEventListener('DOMContentLoaded', () => {
     initSmsApiStatusBadge();
     initPapersCarouselWhenReady();
     initScrollIndicatorInterior();
+    initProjectsFilter();
+    initPortfolioEngagementTracking();
 });
 
 function prefersReducedMotion() {
@@ -265,6 +417,87 @@ function initScrollIndicatorInterior() {
     requestAnimationFrame(tick);
 }
 
+function initProjectsFilter() {
+    const root = document.getElementById('projects-filter');
+    const grid = document.querySelector('.projects-grid--with-phone');
+    const phoneRow = document.querySelector('#projects .projects-phone-row');
+    if (!root || !grid) return;
+
+    const cards = grid.querySelectorAll('.project-card[data-project-tags]');
+    const buttons = root.querySelectorAll('.projects-filter-btn[data-project-filter]');
+    if (!cards.length || !buttons.length) return;
+
+    function parseTags(el) {
+        return (el.getAttribute('data-project-tags') || '')
+            .trim()
+            .split(/\s+/)
+            .filter(Boolean);
+    }
+
+    function isPhoneShowcaseSlot(card) {
+        return card.classList.contains('project-phone-showcase-slot');
+    }
+
+    function countVisibleForFilter(filterKey) {
+        let n = 0;
+        cards.forEach((card) => {
+            if (isPhoneShowcaseSlot(card)) return;
+            const tags = parseTags(card);
+            if (filterKey === 'all' || tags.includes(filterKey)) n += 1;
+        });
+        return n;
+    }
+
+    function syncCounts() {
+        buttons.forEach((btn) => {
+            const key = btn.getAttribute('data-project-filter');
+            const sup = btn.querySelector('.projects-filter-count');
+            if (!sup || !key) return;
+            sup.textContent = String(countVisibleForFilter(key));
+        });
+    }
+
+    function applyFilter(filterKey) {
+        cards.forEach((card) => {
+            /* Decorative 3D phone: only with All or ML (SMS demo); hide for Security / Automation. */
+            if (isPhoneShowcaseSlot(card)) {
+                const showPhone = filterKey === 'all' || filterKey === 'ml';
+                card.classList.toggle('project-card--filter-hidden', !showPhone);
+                card.setAttribute('aria-hidden', showPhone ? 'false' : 'true');
+                if (showPhone) card.classList.add('animate-in');
+                return;
+            }
+            const tags = parseTags(card);
+            const show = filterKey === 'all' || tags.includes(filterKey);
+            card.classList.toggle('project-card--filter-hidden', !show);
+            card.setAttribute('aria-hidden', show ? 'false' : 'true');
+            if (show) card.classList.add('animate-in');
+        });
+        buttons.forEach((btn) => {
+            const key = btn.getAttribute('data-project-filter');
+            const active = key === filterKey;
+            btn.classList.toggle('is-active', active);
+            btn.setAttribute('aria-pressed', active ? 'true' : 'false');
+        });
+
+        phoneRow?.classList.toggle('projects-phone-row--filter-ml', filterKey === 'ml');
+    }
+
+    buttons.forEach((btn) => {
+        btn.addEventListener('click', () => {
+            const key = btn.getAttribute('data-project-filter');
+            if (!key) return;
+            if (key !== 'all') {
+                trackGoatEvent(`event/projects-filter/${key}`, `Projects filter: ${key}`);
+            }
+            applyFilter(key);
+        });
+    });
+
+    syncCounts();
+    applyFilter('all');
+}
+
 /** Must match `zoom` on `html` in styles.css when present; mouse coords stay viewport-based while fixed layout is zoom-scaled. */
 function getRootZoomFactor() {
     const z = parseFloat(getComputedStyle(document.documentElement).zoom);
@@ -343,7 +576,7 @@ function initSmoothScroll() {
 
 function initScrollAnimations() {
     const animateElements = document.querySelectorAll(
-        '.skill-category, .project-card, .cert-cell, .papers-carousel-outer, .certifications, .about-content, .contact-content, .experience-item'
+        '.skill-category, .project-card:not(.project-phone-showcase-slot), .cert-cell, .papers-carousel-outer, .certifications, .about-content, .contact-content, .experience-item'
     );
 
     if (prefersReducedMotion()) {
@@ -676,17 +909,11 @@ function initPapersCarousel(viewport) {
     });
 }
 
-/** Same default and overrides as `getApiBase()` in project-demos.js (`?api=`, localStorage `spamApiBase`). */
+/** Uses shared allowlist from spam-api-base.js (must load before this file on pages that include it). */
 function getSpamApiBase() {
-    try {
-        const q = new URLSearchParams(window.location.search).get('api');
-        if (q) return q.replace(/\/$/, '');
-        const ls = localStorage.getItem('spamApiBase');
-        if (ls) return ls.replace(/\/$/, '');
-    } catch (e) {
-        /* ignore */
-    }
-    return 'https://omsshah-spam-classifier-api.hf.space';
+    return typeof getSpamClassifierApiBase === 'function'
+        ? getSpamClassifierApiBase()
+        : 'https://omsshah-spam-classifier-api.hf.space';
 }
 
 function setSmsApiStatusBadge(el, state, label, title) {
@@ -702,8 +929,8 @@ function applyApiBadgeSimulationIfAny(el) {
     const fromCode =
         SMS_API_BADGE_PREVIEW != null && String(SMS_API_BADGE_PREVIEW) !== '';
     const hint = fromCode
-        ? 'Preview only — set SMS_API_BADGE_PREVIEW to null at the top of script.js'
-        : 'Preview only — open ?api_badge=off or clear sessionStorage key smsApiBadgePreview';
+        ? 'Preview only: set SMS_API_BADGE_PREVIEW to null at the top of script.js'
+        : 'Preview only: open ?api_badge=off or clear sessionStorage key smsApiBadgePreview';
 
     if (sim === 'down') {
         setSmsApiStatusBadge(el, 'offline', 'API status: down', `${hint}. Unreachable API (same styling as a real failure).`);
@@ -787,13 +1014,7 @@ function initDemoCtaAnalytics() {
 
     document.querySelectorAll('a[href="project-demos.html"]').forEach((link) => {
         link.addEventListener('click', () => {
-            if (window.goatcounter && window.goatcounter.count) {
-                window.goatcounter.count({
-                    path: 'cta/open-live-demo',
-                    title: 'Open live demo (from portfolio)',
-                    event: true,
-                });
-            }
+            trackGoatEvent('cta/open-live-demo', 'Open live demo (from portfolio)');
         });
     });
 }
@@ -801,7 +1022,7 @@ function initDemoCtaAnalytics() {
 function initStaggerDelays() {
     if (prefersReducedMotion()) return;
 
-    document.querySelectorAll('.project-card').forEach((card, index) => {
+    document.querySelectorAll('.project-card:not(.project-phone-showcase-slot)').forEach((card, index) => {
         card.style.transitionDelay = `${index * 0.1}s`;
     });
 
@@ -815,9 +1036,7 @@ function initStaggerDelays() {
 
     document.querySelectorAll('a[href*="om-shah-resume.pdf"]').forEach(link => {
         link.addEventListener('click', () => {
-            if (window.goatcounter && window.goatcounter.count) {
-                window.goatcounter.count({ path: 'resume-download', title: 'Resume (PDF)', event: true });
-            }
+            trackGoatEvent('resume-download', 'Resume (PDF)');
         });
     });
 }

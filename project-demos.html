@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <meta name="description" content="SMS bulk-style classifier demo: P(bulk-style) from a CNN on SMS labels, FastAPI backend API, offline fallback when unreachable.">
     <meta name="theme-color" content="#0a0a0f">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; script-src 'self' https://gc.zgo.at https://cdn.jsdelivr.net 'sha256-8DASxYlu8Q4tDx36qEywr0VAqsQQhmKiFWyL9QlV2uc=' 'sha256-UK9O+rbB3KhDsGQrE55qyNAJCpV7WHc47zV2U5f4bE4='; style-src 'self' https://fonts.googleapis.com 'unsafe-inline'; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https:; media-src 'self' blob:; connect-src 'self' blob: https://omsshah-spam-classifier-api.hf.space https://*.hf.space https://omshah.goatcounter.com https://gc.zgo.at http://127.0.0.1:3000 http://127.0.0.1:4173 http://127.0.0.1:5000 http://127.0.0.1:5173 http://127.0.0.1:8000 http://127.0.0.1:8080 http://127.0.0.1:8765 http://localhost:3000 http://localhost:4173 http://localhost:5000 http://localhost:5173 http://localhost:8000 http://localhost:8080 http://localhost:8765">
     <link rel="canonical" href="https://omshahinfo.com/project-demos.html">
     <meta property="og:title" content="security.portfolio/live_demo · SMS classifier | Om Shah">
     <meta property="og:description" content="SMS bulk-style classifier demo: P(bulk-style) from a CNN on SMS labels, FastAPI backend API, offline fallback when unreachable.">
@@ -163,12 +164,31 @@
             }
         }
 
+        .spam-api-gate-banner {
+            margin: 0 0 1rem;
+            padding: 0.75rem 1rem;
+            border-radius: 10px;
+            font-size: 0.82rem;
+            line-height: 1.45;
+            font-family: 'Inter', sans-serif;
+        }
+        .spam-api-gate-banner[data-gate="custom"] {
+            background: rgba(56, 189, 248, 0.09);
+            border: 1px solid rgba(56, 189, 248, 0.35);
+            color: #e4e4e7;
+        }
+        .spam-api-gate-banner[data-gate="rejected"] {
+            background: rgba(251, 191, 36, 0.08);
+            border: 1px solid rgba(251, 191, 36, 0.4);
+            color: #fafafa;
+        }
+
     </style>
 </head>
 <body class="page-demo">
     <div class="cursor-glow" aria-hidden="true"></div>
     <nav class="navbar" aria-label="Main navigation">
-        <a href="index.html" class="nav-brand" title="security.portfolio — home">
+        <a href="index.html" class="nav-brand" title="security.portfolio - home">
             <span class="terminal-prompt">&gt;_</span>
             <span class="brand-text">security<span class="accent">.portfolio</span><span class="brand-path" aria-hidden="true">/live_demo</span></span>
         </a>
@@ -217,7 +237,7 @@
                             <span class="demo-misconception-num">02</span>
                             <h3 class="demo-misconception-heading">A high score is not a danger rating</h3>
                             <p class="demo-misconception-body">
-                                High P(bulk-style) is not a danger score. Low P is not proof of safety—use judgement on links and payments.
+                                High P(bulk-style) is not a danger score. Low P is not proof of safety; use judgement on links and payments.
                             </p>
                         </div>
                     </div>
@@ -235,9 +255,11 @@
                     </summary>
                     <div id="demo-credibility-panel" class="demo-credibility-panel">
                         <p class="demo-credibility-title">Representative error</p>
-                        <p class="demo-credibility-text">Legitimate reminder with “Reply STOP to unsubscribe” scored 95.7% spam—opt-out wording is a strong spam cue in training, so real senders can false-positive without sender context.</p>
+                        <p class="demo-credibility-text">Legitimate reminder with “Reply STOP to unsubscribe” scored 95.7% spam; opt-out wording is a strong spam cue in training, so real senders can false-positive without sender context.</p>
                     </div>
                 </details>
+
+                <div id="spam-api-gate-banner" class="spam-api-gate-banner" hidden role="status"></div>
 
                 <div id="spam-api-banner" class="demo-api-banner demo-api-banner--pending" role="status">
                     <span class="demo-api-banner-dot" aria-hidden="true"></span>
@@ -314,7 +336,7 @@
                         <aside class="demo-panel demo-panel-output demo-output-column" aria-live="polite">
                             <div class="demo-output-header">
                                 <h2 class="demo-output-title">Analysis</h2>
-                                <p class="demo-output-sub" id="demo-output-sub">P(bulk-style) and highlights reflect training patterns—not safety or intent.</p>
+                                <p class="demo-output-sub" id="demo-output-sub">P(bulk-style) and highlights reflect training patterns, not safety or intent.</p>
                                 <p class="demo-output-disclaimer">Demo model only.</p>
                             </div>
 
@@ -386,18 +408,21 @@
                 <div id="demo-explainer" class="demo-explainer-after demo-explainer-compact">
                     <p class="demo-explainer-compact-text">
                         Full write-up: <a href="papers/SMSClassifier-Report_Om.pdf" target="_blank" rel="noopener noreferrer">course report (PDF)</a>.
-                        <span class="demo-explainer-muted">Coursework demo. <strong>P(bulk-style)</strong> measures wording similarity to bulk SMS in training—not scams or safety.</span>
+                        <span class="demo-explainer-muted">Coursework demo. <strong>P(bulk-style)</strong> measures wording similarity to bulk SMS in training, not scams or safety.</span>
                     </p>
                 </div>
             </div>
         </section>
     </main>
 
+    <script src="spam-api-base.js" defer></script>
     <script src="script.js" defer></script>
     <script src="project-demos.js" defer></script>
     <!-- GoatCounter: same site as index; path/title isolate live demo in dashboard -->
     <script data-goatcounter="https://omshah.goatcounter.com/count"
             data-goatcounter-settings='{"path": "/demo/sms-bulk-classifier", "title": "SMS bulk-style classifier (live demo)"}'
-            async src="https://gc.zgo.at/count.js"></script>
+            async src="https://gc.zgo.at/count.js"
+            integrity="sha384-2UjvVpptg4JlEVgJI2PdscrjOjPcil/4F1ZvIMJ81CShQnEDSlPI+l4PfogvTLYi"
+            crossorigin="anonymous"></script>
 </body>
 </html>

@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Om Shah: UTS Bachelor of Cybersecurity (2026), Automation Engineer at Migrate Zone. Python automation, network security tooling (Sentinel capstone), workflow engineering. Sydney.">
     <meta name="theme-color" content="#0a0a0f">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; script-src 'self' https://gc.zgo.at https://cdn.jsdelivr.net 'sha256-8DASxYlu8Q4tDx36qEywr0VAqsQQhmKiFWyL9QlV2uc=' 'sha256-UK9O+rbB3KhDsGQrE55qyNAJCpV7WHc47zV2U5f4bE4='; style-src 'self' https://fonts.googleapis.com 'unsafe-inline'; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https:; media-src 'self' blob:; connect-src 'self' blob: https://omsshah-spam-classifier-api.hf.space https://*.hf.space https://omshah.goatcounter.com https://gc.zgo.at http://127.0.0.1:3000 http://127.0.0.1:4173 http://127.0.0.1:5000 http://127.0.0.1:5173 http://127.0.0.1:8000 http://127.0.0.1:8080 http://127.0.0.1:8765 http://localhost:3000 http://localhost:4173 http://localhost:5000 http://localhost:5173 http://localhost:8000 http://localhost:8080 http://localhost:8765">
     <meta property="og:title" content="Om Shah | Cybersecurity &amp; Automation">
     <meta property="og:description" content="UTS cybersecurity student with hands-on experience in network scanning, Python automation, and web application testing. Building tools that streamline workflows and strengthen security posture.">
     <meta property="og:type" content="website">
@@ -24,20 +25,14 @@
     <title>Om Shah | Cybersecurity &amp; Automation</title>
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
     <link rel="stylesheet" href="styles.css">
-    <script type="importmap">
-    {
-        "imports": {
-            "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
-            "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
-        }
-    }
-    </script>
+    <!-- Import map: Three.js addons import bare "three"; hash must match script-src above (edit both if this JSON changes). -->
+    <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
 <body class="home-page">
-    <!-- Other top-level pages: copy nav brand from project-demos.html — add <span class="brand-path">/slug</span> after .portfolio -->
+    <!-- Other top-level pages: copy nav brand from project-demos.html; add <span class="brand-path">/slug</span> after .portfolio -->
     <div class="cursor-glow"></div>
     
         <nav class="navbar" aria-label="Main navigation">
@@ -283,10 +278,30 @@
                     <span class="section-number">03.</span>
                     Featured Projects
                 </h2>
+                <div class="projects-filter" id="projects-filter" role="group" aria-label="Filter projects by type of work">
+                    <span class="projects-filter-label" id="projects-filter-label">Filter by</span>
+                    <div class="projects-filter-chips" role="toolbar" aria-labelledby="projects-filter-label">
+                        <button type="button" class="projects-filter-btn is-active" data-project-filter="all" aria-pressed="true">
+                            All<sup class="projects-filter-count">0</sup>
+                        </button>
+                        <span class="projects-filter-sep" aria-hidden="true">/</span>
+                        <button type="button" class="projects-filter-btn" data-project-filter="security" aria-pressed="false">
+                            Security<sup class="projects-filter-count">0</sup>
+                        </button>
+                        <span class="projects-filter-sep" aria-hidden="true">/</span>
+                        <button type="button" class="projects-filter-btn" data-project-filter="ml" aria-pressed="false">
+                            ML<sup class="projects-filter-count">0</sup>
+                        </button>
+                        <span class="projects-filter-sep" aria-hidden="true">/</span>
+                        <button type="button" class="projects-filter-btn" data-project-filter="automation" aria-pressed="false">
+                            Automation<sup class="projects-filter-count">0</sup>
+                        </button>
+                    </div>
+                </div>
                 <!-- 3D phone: large desktop only (≥1400px); see phone-showcase-loader.js -->
                 <div class="projects-phone-row">
                 <div class="projects-grid projects-grid--with-phone">
-                    <article class="project-card featured project-card--accent-d">
+                    <article class="project-card featured project-card--accent-d" data-project-tags="security">
                         <div class="project-image">
                             <div class="project-placeholder">
                                 <span class="skill-matrix-icon project-placeholder-matrix-icon" aria-hidden="true">
@@ -338,7 +353,7 @@
                         </div>
                     </article>
 
-                    <article class="project-card project-card--accent-a">
+                    <article class="project-card project-card--accent-a" data-project-tags="automation">
                         <div class="project-content">
                             <div class="project-header">
                                 <div class="project-header-main">
@@ -368,7 +383,7 @@
                     </article>
 
 
-                    <article class="project-card project-card--accent-b">
+                    <article class="project-card project-card--accent-b" data-project-tags="automation">
                         <div class="project-content">
                             <div class="project-header">
                                 <div class="project-header-main">
@@ -393,7 +408,7 @@
                         </div>
                     </article>
 
-                    <article class="project-card project-card--live-demo project-card--accent-c">
+                    <article class="project-card project-card--live-demo project-card--accent-c" data-project-tags="ml">
                         <div class="project-content">
                             <div class="project-header">
                                 <div class="project-header-main">
@@ -433,7 +448,7 @@
                         </div>
                     </article>
 
-                    <div class="project-card project-card--phone-showcase project-phone-showcase-slot">
+                    <div class="project-card project-card--phone-showcase project-phone-showcase-slot" data-project-tags="ml">
                         <div class="project-content project-content--phone-showcase">
                             <div class="phone-showcase-standalone">
                                 <div id="phone-showcase-root" class="phone-showcase-viewport">
@@ -451,7 +466,7 @@
                         </div>
                     </div>
 
-                    <article class="project-card project-card--accent-a">
+                    <article class="project-card project-card--accent-a" data-project-tags="automation">
                         <div class="project-content">
                             <div class="project-header">
                                 <div class="project-header-main">
@@ -476,7 +491,7 @@
                         </div>
                     </article>
 
-                    <article class="project-card project-card--accent-b">
+                    <article class="project-card project-card--accent-b" data-project-tags="security">
                         <div class="project-content">
                             <div class="project-header">
                                 <div class="project-header-main">
@@ -883,8 +898,9 @@
         <p class="copyright">© 2026 Om Shah. All rights reserved.</p>
     </footer>
 
+    <script src="spam-api-base.js"></script>
     <script type="module" src="phone-showcase-loader.js"></script>
     <script src="script.js"></script>
-    <script data-goatcounter="https://omshah.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+    <script data-goatcounter="https://omshah.goatcounter.com/count" async src="https://gc.zgo.at/count.js" integrity="sha384-2UjvVpptg4JlEVgJI2PdscrjOjPcil/4F1ZvIMJ81CShQnEDSlPI+l4PfogvTLYi" crossorigin="anonymous"></script>
 </body>
 </html>

@@ -1,5 +1,5 @@
 {
-  "_readme": "Hard-refresh after edits. 3D phone only loads at viewport width ≥1400px (large desktop).",
+  "_readme": "Hard-refresh after edits. 3D phone only loads at viewport width ≥1400px (large desktop). For howFarPhoneIsFromTheRightEdge, this becomes CSS right: use about -2rem (slight past-edge overlap). Large negatives move the phone off-screen.",
 
   "phoneModelFile": "laptop_Demo/blenderphone.glb",
   "blenderNameOfScreenMaterial": "Screen on.002",
@@ -27,10 +27,10 @@
 
   "whereItShowsOnThePage": {
     "howWideThePhoneColumnIs": "min(900px, 96vw)",
-    "howFarPhoneIsFromTheRightEdge": "-47rem",
+    "howFarPhoneIsFromTheRightEdge": "-45rem",
     "movePhoneLeftOrRight": "0rem",
     "movePhoneUpOrDown": "0rem",
-    "spaceBetweenCardsAndPhone": "1.25rem",
+    "spaceBetweenCardsAndPhone": "20.25rem",
     "phoneBoxProportions": "1080 / 2340",
     "maxHeightOfPhoneBox": "min(90vh, 1500px)",
     "maxPhoneWidthOnSmallScreens": "min(100%, 96vw)",

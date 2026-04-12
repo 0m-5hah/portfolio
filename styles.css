@@ -12,7 +12,7 @@
     --border-color: rgba(255, 255, 255, 0.08);
     --card-bg: rgba(255, 255, 255, 0.02);
     --shadow-lg: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-    /* Matrix accents — vivid hues; card colour is mostly neutral (see corner radials). */
+    /* Matrix accents; vivid hues; card colour is mostly neutral (see corner radials). */
     /* Accent-a: pink family, pulled back so it doesn’t dominate next to About. */
     --matrix-a: #b84f86;
     --matrix-b: #38bdf8;
@@ -505,7 +505,7 @@ body.nav-past-hero .mobile-menu-btn {
     fill: none;
 }
 
-/* Flat end on squiggle meets one round cap on stem — avoids double round-cap bulge at the joint */
+/* Flat end on squiggle meets one round cap on stem; avoids double round-cap bulge at the joint */
 .scroll-line--squiggle {
     stroke-linecap: butt;
 }
@@ -1242,6 +1242,93 @@ body.nav-past-hero .mobile-menu-btn {
     max-width: min(1520px, 100%);
 }
 
+.projects-filter {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.65rem 1rem;
+    margin: 0 0 2rem;
+    padding: 0.85rem 0 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.projects-filter-label {
+    font-size: 0.8rem;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    flex-shrink: 0;
+}
+
+.projects-filter-chips {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.35rem 0.5rem;
+    min-width: 0;
+}
+
+.projects-filter-sep {
+    color: rgba(255, 255, 255, 0.22);
+    font-size: 0.95rem;
+    font-weight: 300;
+    user-select: none;
+    padding: 0 0.1rem;
+}
+
+.projects-filter-btn {
+    font-family: inherit;
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+    background: none;
+    border: none;
+    padding: 0.2rem 0.15rem;
+    margin: 0;
+    cursor: pointer;
+    border-radius: 4px;
+    transition:
+        color var(--transition-fast),
+        text-shadow var(--transition-fast),
+        box-shadow var(--transition-fast);
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.15rem;
+}
+
+.projects-filter-btn:hover {
+    color: var(--text-primary);
+}
+
+.projects-filter-btn:focus-visible {
+    outline: 2px solid var(--accent-secondary);
+    outline-offset: 3px;
+}
+
+.projects-filter-btn.is-active {
+    color: var(--accent-primary);
+    text-shadow: 0 0 24px rgba(0, 255, 136, 0.35);
+}
+
+.projects-filter-count {
+    position: relative;
+    top: -0.35em;
+    font-size: 0.62em;
+    font-weight: 600;
+    opacity: 0.92;
+    margin-left: 0.08em;
+    line-height: 1;
+}
+
+.projects-filter-btn:not(.is-active) .projects-filter-count {
+    opacity: 0.75;
+}
+
+.project-card.project-card--filter-hidden {
+    display: none !important;
+}
+
 .projects-grid {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -1266,6 +1353,12 @@ body.nav-past-hero .mobile-menu-btn {
     --phone-showcase-mobile-max-w: min(100%, 96vw);
     --phone-video-decode-w: 1080px;
     --phone-video-decode-h: 2340px;
+    /* Extra top offset when ML filter is active (script toggles .projects-phone-row--filter-ml). */
+    --phone-showcase-ml-nudge-y: 0rem;
+}
+
+.projects-phone-row.projects-phone-row--filter-ml {
+    --phone-showcase-ml-nudge-y: -25rem;
 }
 
 /* Cards stay full width and above the decorative phone (z-index). */
@@ -1278,7 +1371,9 @@ body.nav-past-hero .mobile-menu-btn {
 
 .phone-showcase-standalone {
     position: absolute;
-    top: var(--phone-showcase-nudge-y);
+    top: calc(
+        var(--phone-showcase-nudge-y, 0rem) + var(--phone-showcase-ml-nudge-y, 0rem)
+    );
     right: var(--phone-showcase-anchor-right);
     width: var(--phone-showcase-width);
     max-width: 100%;
@@ -1293,7 +1388,7 @@ body.nav-past-hero .mobile-menu-btn {
 }
 
 /*
- * Ground glow under the 3D phone — same green as .cursor-glow. Static (no tilt sync); z-index above canvas.
+ * Ground glow under the 3D phone; same green as .cursor-glow. Static (no tilt sync); z-index above canvas.
  */
 .phone-showcase-standalone::after {
     content: '';
@@ -1358,6 +1453,14 @@ body.nav-past-hero .mobile-menu-btn {
 @media (min-width: 1400px) {
     .project-phone-showcase-slot {
         display: block;
+    }
+
+    /*
+     * ML filter only: don’t stretch cards to the phone’s track height so the live-demo
+     * card top matches the measured phone offset (see script.js).
+     */
+    .projects-phone-row.projects-phone-row--filter-ml .projects-grid--with-phone > .project-card {
+        align-self: start;
     }
 
     .projects-phone-row .projects-grid--with-phone > article {
@@ -1880,7 +1983,7 @@ body.nav-past-hero .mobile-menu-btn {
 }
 
 /*
- * project-demos.html — viewports ≤720px: compact tool-first layout for phones / OBS.
+ * project-demos.html, viewports ≤720px: compact tool-first layout for phones / OBS.
  * Wide layouts unchanged (see .demo-layout min-width: 1025px).
  */
 @media (max-width: 720px) {
@@ -3281,7 +3384,7 @@ details.demo-credibility > summary::-webkit-details-marker {
     color: #f59e0b;
 }
 
-/* Demo page — phones & narrow DevTools (OBS screen capture) */
+/* Demo page: phones & narrow DevTools (OBS screen capture) */
 @media (max-width: 640px) {
     .page-demo .demo-main {
         padding: 5.25rem max(1rem, env(safe-area-inset-left)) max(2.5rem, env(safe-area-inset-bottom))
@@ -4597,7 +4700,7 @@ details.demo-credibility > summary::-webkit-details-marker {
     }
 }
 
-/* Portfolio “Try Live Demo” + demo page “Analyze” — glow + brightness (hover pauses; no transform vs .btn-primary:hover) */
+/* Portfolio “Try Live Demo” + demo page “Analyze”: glow + brightness (hover pauses; no transform vs .btn-primary:hover) */
 @keyframes btnLiveDemoCTAPulse {
     0%, 100% {
         filter: brightness(1) drop-shadow(0 0 8px rgba(0, 255, 136, 0.45)) drop-shadow(0 4px 14px rgba(0, 212, 255, 0.4));

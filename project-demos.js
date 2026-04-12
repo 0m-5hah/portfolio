@@ -20,13 +20,41 @@
         }
 
         function getApiBase() {
+            return typeof getSpamClassifierApiBase === 'function'
+                ? getSpamClassifierApiBase()
+                : 'https://omsshah-spam-classifier-api.hf.space';
+        }
+
+        function initSpamApiGateBanner() {
+            var el = document.getElementById('spam-api-gate-banner');
+            if (!el || typeof getSpamClassifierApiGateState !== 'function') return;
+            var st = getSpamClassifierApiGateState();
+            if (st.mode === 'default') {
+                el.hidden = true;
+                el.textContent = '';
+                el.removeAttribute('data-gate');
+                return;
+            }
+            el.hidden = false;
+            if (st.mode === 'rejected') {
+                el.setAttribute('data-gate', 'rejected');
+                el.textContent =
+                    'A disallowed custom API was ignored (only HTTPS *.hf.space and HTTP on localhost / 127.0.0.1 are permitted). Using the default hosted API.';
+                return;
+            }
+            el.setAttribute('data-gate', 'custom');
+            var origin = st.displayUrl;
             try {
-                var q = new URLSearchParams(window.location.search).get('api');
-                if (q) return q.replace(/\/$/, '');
-                var ls = localStorage.getItem('spamApiBase');
-                if (ls) return ls.replace(/\/$/, '');
-            } catch (e) {}
-            return 'https://omsshah-spam-classifier-api.hf.space';
+                origin = new URL(st.displayUrl).origin;
+            } catch (e) {
+                /* keep displayUrl */
+            }
+            el.textContent =
+                'Custom inference host (' +
+                st.source +
+                '): ' +
+                origin +
+                '. Messages you analyze are POSTed only to this origin.';
         }
 
         function loadClientConfig() {
@@ -50,6 +78,7 @@
         }
 
         document.addEventListener('DOMContentLoaded', function () {
+            initSpamApiGateBanner();
             loadClientConfig().finally(function () {
             /* Mobile nav: handled by script.js (shared with index.html). */
 
@@ -859,7 +888,7 @@
                                 ? ' Try opening the page over http:// instead of file://.'
                                 : '';
                         textEl.textContent =
-                            'API offline — keyword fallback below.' + extra;
+                            'API offline; keyword fallback below.' + extra;
                         setApiBannerDetail(
                             detailEl,
                             'When the API returns, inference uses the same server pipeline. Offline mode is keyword-only.'
@@ -1084,7 +1113,14 @@
                         buildSignalRow('No input', 'Enter a message in the text area, then select Analyze.')
                     );
                     showResults(true);
+                    if (typeof trackGoatEvent === 'function') {
+                        trackGoatEvent('event/demo/analyze-empty', 'SMS demo: analyze with no text');
+                    }
                     return;
+                }
+
+                if (typeof trackGoatEvent === 'function') {
+                    trackGoatEvent('funnel/demo/analyze', 'SMS demo: analyze submitted');
                 }
 
                 analyzeBtn.disabled = true;
@@ -1149,6 +1185,9 @@
                         batchResults.hidden = true;
                         batchResults.innerHTML = '';
                         return;
+                    }
+                    if (typeof trackGoatEvent === 'function') {
+                        trackGoatEvent('funnel/demo/batch-run', 'SMS demo: batch ' + lines.length + ' lines');
                     }
                     batchRun.disabled = true;
                     batchStatus.textContent = '';
@@ -1350,8 +1389,8 @@
         // Resume PDF link tracking for GoatCounter
         document.querySelectorAll('a[href*="om-shah-resume.pdf"]').forEach(function (link) {
             link.addEventListener('click', function () {
-                if (window.goatcounter && window.goatcounter.count) {
-                    window.goatcounter.count({ path: 'resume-download', title: 'Resume (PDF)', event: true });
+                if (typeof trackGoatEvent === 'function') {
+                    trackGoatEvent('resume-download', 'Resume (PDF)');
                 }
             });
         });

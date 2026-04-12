@@ -1,6 +1,7 @@
 /**
- * 3D phone + screen video — tune **phone-showcase-config.json** (plain-English keys).
+ * 3D phone + screen video; tune **phone-showcase-config.json** (plain-English keys).
  * This file loads JSON, applies “whereItShowsOnThePage” to `.projects-phone-row` CSS variables, then runs Three.js.
+ * Bare "three" / "three/addons/" require the import map in index.html (CSP hash); addon modules from the CDN also import "three".
  */
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
@@ -8,7 +9,7 @@ import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 
 const CONFIG_JSON = new URL('phone-showcase-config.json', import.meta.url);
 
-/** Keep in sync with styles.css — no 3D phone (and no WebGL) below min-width 1400px for .project-phone-showcase-slot. */
+/** Keep in sync with styles.css; no 3D phone (and no WebGL) below min-width 1400px for .project-phone-showcase-slot. */
 const PHONE_SHOWCASE_MAX_WIDTH_PX = 1399;
 
 /** Fallback if fetch fails or fields are missing */
@@ -29,7 +30,7 @@ const DEFAULT_PHONE_CONFIG = {
   /**
    * When true (default), letterbox/pillarbox the video to match the **physical glass** aspect from
    * phoneBoxProportions (viewportAspect), falling back to UV island span if unset. GLB UVs are often ~square
-   * while the glass is portrait — using UV-only aspect causes a tall skinny strip with huge side bars.
+   * while the glass is portrait; using UV-only aspect causes a tall skinny strip with huge side bars.
    * Set false to stretch the video to the UV island (may look wrong).
    */
   fitRecordingAspectToGlass: true,
@@ -649,7 +650,7 @@ export async function initPhoneShowcase(container, els) {
   const gltf = await loader.loadAsync(cfg.modelUrl);
   /** Pivot for hover tilt; camera stays on scene so the view stays put while the phone rotates. */
   const tiltPivot = new THREE.Group();
-  /** Yaw first, then pitch — reads as “turn to face, then slight nod”. */
+  /** Yaw first, then pitch; reads as “turn to face, then slight nod”. */
   tiltPivot.rotation.order = 'YXZ';
   scene.add(tiltPivot);
   const model = gltf.scene;
