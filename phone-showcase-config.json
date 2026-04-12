@@ -1,0 +1,40 @@
+{
+  "_readme": "Hard-refresh. Phone is absolute behind cards on wide viewports only; at max-width 980px it is hidden and WebGL is not started. Position: howFarPhoneIsFromTheRightEdge, movePhoneLeftOrRight, movePhoneUpOrDown, putPhoneAboveCardsZIndex, spaceBetweenCardsAndPhone.",
+
+  "phoneModelFile": "laptop_Demo/blenderphone.glb",
+  "blenderNameOfScreenMaterial": "Screen on.002",
+  "blenderNameOfCamera": "Camera",
+
+  "recordingOnScreen": {
+    "fitRecordingAspectToGlass": true,
+    "shrinkFromTop": 0,
+    "shrinkFromBottom": 0,
+    "shrinkFromLeft": 0,
+    "shrinkFromRight": 0,
+    "showMoreOfTheRecordingPercent": 0,
+    "moveVideoLeft": 0,
+    "moveVideoRight": 0,
+    "moveVideoLower": 0,
+    "moveVideoHigher": 0
+  },
+
+  "canvasSharpnessCap": 3,
+  "howMuchThePhoneTurnsTowardYouOnHoverInDegrees": -45,
+  "howMuchThePhoneTiltsOnHoverInDegrees": 15,
+
+  "playVideoOrStillImage": "video",
+  "stillImageFile": "laptop_Demo/phone-screen-poster.jpg",
+
+  "whereItShowsOnThePage": {
+    "howWideThePhoneColumnIs": "min(900px, 96vw)",
+    "howFarPhoneIsFromTheRightEdge": "-47rem",
+    "movePhoneLeftOrRight": "0rem",
+    "movePhoneUpOrDown": "0rem",
+    "spaceBetweenCardsAndPhone": "1.25rem",
+    "phoneBoxProportions": "1080 / 2340",
+    "maxHeightOfPhoneBox": "min(90vh, 1500px)",
+    "maxPhoneWidthOnSmallScreens": "min(100%, 96vw)",
+    "matchYourVideoFileWidth": "1080px",
+    "matchYourVideoFileHeight": "2340px"
+  }
+}

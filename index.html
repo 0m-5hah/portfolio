@@ -21,8 +21,8 @@
     <script type="importmap">
     {
         "imports": {
-            "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
-            "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"
+            "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+            "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
         }
     }
     </script>
@@ -31,6 +31,7 @@
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
+    <!-- Other top-level pages: copy nav brand from project-demos.html — add <span class="brand-path">/slug</span> after .portfolio -->
     <div class="cursor-glow"></div>
     
         <nav class="navbar" aria-label="Main navigation">
@@ -225,7 +226,9 @@
                     <span class="section-number">03.</span>
                     Featured Projects
                 </h2>
-                <div class="projects-grid">
+                <!-- 3D phone: full-width cards, then phone in a box below (right-aligned) -->
+                <div class="projects-phone-row">
+                <div class="projects-grid projects-grid--with-phone">
                     <article class="project-card featured">
                         <div class="project-image">
                             <div class="project-placeholder">
@@ -300,6 +303,45 @@
                                 <li>OCR</li>
                                 <li>JSON</li>
                             </ul>
+                        </div>
+                    </article>
+
+
+                    <article class="project-card project-card--live-demo">
+                        <div class="project-content">
+                            <div class="project-header">
+                                <div class="project-header-main">
+                                    <span class="folder-icon">📁</span>
+                                    <span class="project-scope project-scope--coursework">Coursework</span>
+                                    <span id="sms-api-status-badge" class="project-scope project-scope--live project-scope--live--pending" role="status" aria-live="polite" title="Checking whether the Hugging Face inference API is reachable from your browser.">API status: checking</span>
+                                </div>
+                                <div class="project-links">
+                                    <a href="project-demos.html" class="project-link" title="Live demo">
+                                        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>
+                                    </a>
+                                    <a href="papers/SMSClassifier-Report_Om.pdf" class="project-link" target="_blank" rel="noopener noreferrer" title="Course report (PDF)" aria-label="SMS classifier course report PDF">
+                                        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
+                                    </a>
+                                </div>
+                            </div>
+                            <h3 class="project-title">SMS bulk-style detector (machine learning)</h3>
+                            <p class="project-description">
+                                Coursework: a neural network on SMS text that outputs <strong>P(bulk-style)</strong>
+                                (dataset spam/not-spam labels): how much the wording resembles bulk or automated
+                                messaging, not whether a message is dangerous. Deployed as a backend API with a
+                                live demo.
+                            </p>
+                            <ul class="project-tech">
+                                <li>Python</li>
+                                <li>TensorFlow</li>
+                                <li>GloVe</li>
+                            </ul>
+                            <div class="project-demos-btn">
+                                <a href="project-demos.html" class="btn btn-primary">
+                                    <span class="btn-icon">⚡</span>
+                                    Try Live Demo
+                                </a>
+                            </div>
                         </div>
                     </article>
 
@@ -384,61 +426,21 @@
                             </div>
                         </div>
                     </article>
-
-                    <article class="project-card featured project-card--showcase-flip project-card--live-demo">
-                        <div class="project-content">
-                            <div class="project-header">
-                                <div class="project-header-main">
-                                    <span class="folder-icon">📁</span>
-                                    <span class="project-scope project-scope--coursework">Coursework</span>
-                                    <span id="sms-api-status-badge" class="project-scope project-scope--live project-scope--live--pending" role="status" aria-live="polite" title="Checking whether the Hugging Face inference API is reachable from your browser.">API status: checking</span>
-                                </div>
-                                <div class="project-links">
-                                    <a href="project-demos.html" class="project-link" title="Live demo">
-                                        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>
-                                    </a>
-                                    <a href="papers/SMSClassifier-Report_Om.pdf" class="project-link" target="_blank" rel="noopener noreferrer" title="Course report (PDF)" aria-label="SMS classifier course report PDF">
-                                        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v-2zm-3-5V3.5L18.5 9H13z"/></svg>
-                                    </a>
-                                </div>
-                            </div>
-                            <h3 class="project-title">SMS bulk-style detector (machine learning)</h3>
-                            <p class="project-description">
-                                Coursework: a neural network on SMS text that outputs <strong>P(bulk-style)</strong>
-                                (dataset spam/not-spam labels): how much the wording resembles bulk or automated
-                                messaging, not whether a message is dangerous. Deployed as a backend API with a
-                                live demo. The iPad on the right is a Blender GLB with the same screen recording; the classifier runs on the live demo page.
-                            </p>
-                            <ul class="project-tech">
-                                <li>Python</li>
-                                <li>TensorFlow</li>
-                                <li>GloVe</li>
-                            </ul>
-                            <div class="project-demos-btn">
-                                <a href="project-demos.html" class="btn btn-primary">
-                                    <span class="btn-icon">⚡</span>
-                                    Try Live Demo
-                                </a>
-                            </div>
+                </div>
+                    <div class="phone-showcase-standalone">
+                        <div id="phone-showcase-root" class="phone-showcase-viewport">
+                            <canvas id="phone-showcase-canvas" class="phone-showcase-canvas" aria-label="3D phone with SMS demo on screen"></canvas>
                         </div>
-                        <div class="project-image project-image--ipad-mini" aria-hidden="true">
-                            <div class="project-ipad-mini-chrome">
-                                <p class="project-ipad-mini-label">Blender iPad</p>
-                                <div data-laptop-showcase>
-                                    <div data-laptop-stage class="laptop-showcase-stage laptop-showcase-stage--embed" aria-label="3D iPad preview">
-                                        <canvas data-laptop-canvas class="laptop-showcase-canvas"></canvas>
-                                        <p data-laptop-status class="laptop-showcase-status">Loading 3D model…</p>
-                                    </div>
-                                    <video data-laptop-video class="laptop-showcase-video" muted playsinline loop autoplay crossorigin="anonymous" preload="metadata" poster="laptop_Demo/laptop-screen-poster.jpg">
-                                        <source src="laptop_Demo/laptop-screen.mp4" type="video/mp4">
-                                    </video>
-                                </div>
-                                <p class="project-ipad-mini-caption">Recording on screen · drag to orbit · tap if frozen</p>
-                            </div>
-                        </div>
-                    </article>
-
-</div>
+                        <video
+                            id="phone-screen-video"
+                            class="phone-showcase-video"
+                            muted
+                            playsinline
+                            preload="auto">
+                            <source src="laptop_Demo/phonevideodemo%20(online-video-cutter.com).mp4" type="video/mp4">
+                        </video>
+                    </div>
+                </div>
 
                 <div class="projects-coming-soon" id="coming-soon-projects">
                     <h3 class="projects-coming-soon-heading">Coming soon</h3>
@@ -719,7 +721,7 @@
         <p class="copyright">© 2026 Om Shah. All rights reserved.</p>
     </footer>
 
-    <script type="module" src="laptop-showcase.js"></script>
+    <script type="module" src="phone-showcase.js"></script>
     <script src="script.js"></script>
     <!-- GoatCounter analytics: replace YOUR-CODE with your goatcounter.com site code -->
     <script data-goatcounter="https://omshah.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
