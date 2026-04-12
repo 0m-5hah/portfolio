@@ -8,8 +8,8 @@ import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 
 const CONFIG_JSON = new URL('phone-showcase-config.json', import.meta.url);
 
-/** Keep in sync with styles.css — no 3D phone (and no WebGL) at or below this width. */
-const PHONE_SHOWCASE_MAX_WIDTH_PX = 980;
+/** Keep in sync with styles.css — no 3D phone (and no WebGL) below min-width 1400px for .project-phone-showcase-slot. */
+const PHONE_SHOWCASE_MAX_WIDTH_PX = 1399;
 
 /** Fallback if fetch fails or fields are missing */
 const DEFAULT_PHONE_CONFIG = {
@@ -878,6 +878,8 @@ async function boot() {
   const narrowMq = window.matchMedia(`(max-width: ${PHONE_SHOWCASE_MAX_WIDTH_PX}px)`);
   if (narrowMq.matches) {
     video.preload = 'none';
+  } else {
+    video.preload = 'auto';
   }
 
   let showcaseStarted = false;

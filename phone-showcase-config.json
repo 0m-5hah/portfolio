@@ -1,5 +1,5 @@
 {
-  "_readme": "Hard-refresh after edits. Phone hides below 980px width.",
+  "_readme": "Hard-refresh after edits. 3D phone only loads at viewport width ≥1400px (large desktop).",
 
   "phoneModelFile": "laptop_Demo/blenderphone.glb",
   "blenderNameOfScreenMaterial": "Screen on.002",

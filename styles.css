@@ -26,6 +26,8 @@
 html {
     scroll-behavior: smooth;
     scroll-padding-top: 5.5rem;
+    /* ~80% scale site-wide (like browser zoom). Chromium / Safari / Firefox 126+. */
+    zoom: 0.8;
 }
 
 body {
@@ -729,7 +731,7 @@ body {
     isolation: isolate;
     display: block;
     /*
-     * Full-width cards; phone is position:absolute (behind cards) — see phone-showcase-config.json.
+     * Large-desktop-only 3D phone (≥1400px); see phone-showcase-config.json and phone-showcase-loader.js.
      */
     --phone-showcase-width: min(900px, 96vw);
     --phone-showcase-nudge-x: 0rem;
@@ -817,10 +819,24 @@ body {
 }
 
 /*
- * ≥1400px: phone spans the whole projects grid (under the cards) with the inner block anchored top-right.
- * 981px–1399px: same grid as cards — two columns so SMS and phone sit side by side; other cards reflow.
+ * 3D phone only on large desktop (≥1400px): overlay under the grid, anchored top-right.
+ * Below that width the slot is display:none and phone-showcase-loader.js skips loading Three.js/video init.
  */
+.project-phone-showcase-slot {
+    display: none;
+}
+
+@media (max-width: 1399px) {
+    .projects-phone-row > .projects-grid--with-phone {
+        z-index: auto;
+    }
+}
+
 @media (min-width: 1400px) {
+    .project-phone-showcase-slot {
+        display: block;
+    }
+
     .projects-phone-row .projects-grid--with-phone > article {
         position: relative;
         z-index: 1;
@@ -853,47 +869,6 @@ body {
 
     .project-phone-showcase-slot .phone-showcase-standalone {
         pointer-events: auto;
-    }
-}
-
-@media (min-width: 981px) and (max-width: 1399px) {
-    .projects-phone-row .projects-grid--with-phone {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-
-    .projects-phone-row .projects-grid--with-phone > .project-card.featured {
-        grid-column: span 2;
-    }
-
-    .project-phone-showcase-slot .phone-showcase-standalone {
-        position: relative !important;
-        top: auto !important;
-        right: auto !important;
-        width: 100% !important;
-        max-width: 100% !important;
-        margin: 0 auto !important;
-        transform: none !important;
-        padding-bottom: clamp(2rem, 6vmin, 3.5rem);
-    }
-
-    .project-phone-showcase-slot .phone-showcase-viewport {
-        max-height: min(40vh, 360px) !important;
-    }
-
-    .project-phone-showcase-slot .phone-showcase-standalone::after {
-        max-width: 18rem;
-        opacity: 0.75;
-    }
-}
-
-/* Hide decorative 3D phone on small viewports so project cards stay usable (see phone-showcase.js same breakpoint). */
-@media (max-width: 980px) {
-    .projects-phone-row > .projects-grid--with-phone {
-        z-index: auto;
-    }
-
-    .project-phone-showcase-slot {
-        display: none !important;
     }
 }
 
@@ -1013,10 +988,8 @@ body {
     box-shadow: 0 20px 48px rgba(94, 234, 212, 0.12);
 }
 
-.project-card.featured {
+details.project-card.featured {
     grid-column: span 2;
-    display: grid;
-    grid-template-columns: 1fr 1.5fr;
 }
 
 @media (min-width: 1280px) {
@@ -1025,8 +998,151 @@ body {
         gap: 1.25rem 1.5rem;
     }
 
-    .project-card.featured {
+    details.project-card.featured {
         grid-column: span 3;
+    }
+}
+
+/* ---- Project cards as <details>: collapsed on phones, full card on ≥769px (see initProjectCardAccordions) ---- */
+.project-card__summary {
+    list-style: none;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 0.75rem;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.project-card__summary::-webkit-details-marker { display: none; }
+.project-card__summary::marker { content: ''; }
+
+.project-card__summary-main {
+    flex: 1;
+    min-width: 0;
+    text-align: left;
+}
+
+.project-card__summary-main .project-title {
+    margin-bottom: 0;
+}
+
+.project-card__summary-main .project-header {
+    margin-bottom: 0.75rem;
+}
+
+.project-card__expandable {
+    border-top: 1px solid transparent;
+}
+
+@media (max-width: 768px) {
+    .project-card__expandable {
+        border-top-color: var(--border-color);
+        padding-top: 0.5rem;
+    }
+
+    .project-card__summary::after {
+        content: '';
+        flex-shrink: 0;
+        width: 0.65rem;
+        height: 0.65rem;
+        margin-top: 0.45rem;
+        border-right: 2px solid var(--text-muted);
+        border-bottom: 2px solid var(--text-muted);
+        transform: rotate(45deg);
+        transition: transform var(--transition-fast);
+    }
+
+    details.project-card[open] > .project-card__summary::after {
+        transform: rotate(225deg);
+        margin-top: 0.55rem;
+    }
+
+    details.project-card.featured > .project-card__summary {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    details.project-card.featured .project-image {
+        min-height: 160px;
+    }
+
+    details.project-card.featured .project-card__summary-main {
+        padding: 0.75rem 1.25rem 1rem;
+    }
+
+    details.project-card.featured .project-card__expandable {
+        padding: 0 1.25rem 1.25rem;
+    }
+
+    details.project-card:not(.featured) .project-card__summary-main {
+        padding: 1.25rem 1.25rem 1rem;
+    }
+
+    details.project-card:not(.featured) .project-card__expandable {
+        padding: 0 1.25rem 1.25rem;
+    }
+}
+
+@media (min-width: 769px) {
+    .project-card__summary::after {
+        display: none;
+    }
+
+    .project-card__summary {
+        cursor: default;
+    }
+
+    details.project-card.featured {
+        display: grid;
+        grid-template-columns: 1fr 1.5fr;
+    }
+
+    details.project-card.featured > .project-card__summary {
+        display: contents;
+    }
+
+    details.project-card.featured .project-image {
+        grid-column: 1;
+        grid-row: 1 / span 2;
+    }
+
+    details.project-card.featured .project-card__summary-main {
+        grid-column: 2;
+        grid-row: 1;
+        align-self: start;
+        padding: 2rem 2rem 0.75rem;
+    }
+
+    details.project-card.featured .project-card__expandable {
+        grid-column: 2;
+        grid-row: 2;
+        padding: 0 2rem 2rem;
+        border-top: none;
+        padding-top: 0;
+    }
+
+    details.project-card:not(.featured) .project-card__summary-main {
+        padding: 2rem 2rem 0.75rem;
+    }
+
+    details.project-card:not(.featured) .project-card__expandable {
+        padding: 0 2rem 2rem;
+    }
+
+    details.project-card:not(.featured) .project-card__expandable .project-description {
+        margin-top: 0;
+    }
+}
+
+@media (min-width: 769px) {
+    details.project-card:focus-within {
+        outline: none;
+    }
+
+    .project-card__summary:focus-visible {
+        outline: 2px solid var(--accent-secondary);
+        outline-offset: 2px;
     }
 }
 
@@ -3721,9 +3837,8 @@ body {
         grid-template-columns: 1fr;
     }
 
-    .project-card.featured {
+    details.project-card.featured {
         grid-column: span 1;
-        grid-template-columns: 1fr;
     }
 
     .cert-grid {
