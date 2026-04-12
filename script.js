@@ -70,10 +70,118 @@ document.addEventListener('DOMContentLoaded', () => {
     initDemoCtaAnalytics();
     initSmsApiStatusBadge();
     initPapersCarouselWhenReady();
+    initScrollIndicatorInterior();
 });
 
 function prefersReducedMotion() {
     return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+}
+
+/** Squiggle + stem are separate paths so only the stem bounces (avoids pill-top dash/glow artefact). */
+function initScrollIndicatorInterior() {
+    const pathSq = document.querySelector('.scroll-line--squiggle');
+    const pathStem = document.querySelector('.scroll-line--stem');
+    const bounceGroup = document.querySelector('#scroll-arrow-bounce');
+    if (
+        !pathSq ||
+        !pathStem ||
+        typeof pathSq.getTotalLength !== 'function' ||
+        typeof pathStem.getTotalLength !== 'function'
+    ) {
+        return;
+    }
+
+    const Lq = pathSq.getTotalLength();
+    const Ls = pathStem.getTotalLength();
+
+    if (prefersReducedMotion()) {
+        pathSq.style.strokeDasharray = 'none';
+        pathSq.style.strokeDashoffset = '0';
+        pathStem.style.strokeDasharray = 'none';
+        pathStem.style.strokeDashoffset = '0';
+        if (bounceGroup) bounceGroup.removeAttribute('transform');
+        return;
+    }
+
+    const CYCLE_MS = 5000;
+    const MORPH_END = 0.62;
+    const HIDE_END = 0.74; /* squiggle undraw: faster than before (~0.12 of cycle) */
+    const BOUNCE_END = 0.93; /* longer bounce window (~0.19 of cycle) */
+
+    function applyHidden(el, len) {
+        el.style.strokeDasharray = `${len}px`;
+        el.style.strokeDashoffset = `${len}px`;
+    }
+
+    function applyGrow(el, len, visibleLen) {
+        el.style.strokeDasharray = `${len}px`;
+        el.style.strokeDashoffset = `${len - visibleLen}px`;
+    }
+
+    function applySegment(el, len, a, b) {
+        if (b - a < 0.5) {
+            applyHidden(el, len);
+            return;
+        }
+        const tail = Math.max(0.001, len - b);
+        el.style.strokeDasharray = `0px ${a}px ${b - a}px ${tail}px`;
+        el.style.strokeDashoffset = '0px';
+    }
+
+    function tick() {
+        const now = document.timeline ? document.timeline.currentTime : performance.now();
+        const t = (now % CYCLE_MS) / CYCLE_MS;
+
+        if (bounceGroup) {
+            if (t >= HIDE_END && t < BOUNCE_END) {
+                const phase = (t - HIDE_END) / (BOUNCE_END - HIDE_END);
+                /* Fewer cycles in the longer window = slower, floatier jumps */
+                const theta = phase * Math.PI * 2 * 1.65;
+                const raw = Math.sin(theta);
+                const eased = raw * raw * raw * 0.35 + raw * 0.65;
+                const dy = 3.2 * eased;
+                bounceGroup.setAttribute('transform', `translate(0, ${dy.toFixed(2)})`);
+            } else {
+                bounceGroup.removeAttribute('transform');
+            }
+        }
+
+        if (t < 0.25) {
+            applyHidden(pathSq, Lq);
+            applyHidden(pathStem, Ls);
+        } else if (t < 0.52) {
+            const p = (t - 0.25) / (0.52 - 0.25);
+            applyGrow(pathSq, Lq, p * Lq);
+            applyHidden(pathStem, Ls);
+        } else if (t < MORPH_END) {
+            applyGrow(pathSq, Lq, Lq);
+            const u = (t - 0.52) / (MORPH_END - 0.52);
+            applyGrow(pathStem, Ls, u * Ls);
+        } else if (t < HIDE_END) {
+            const u = (t - MORPH_END) / (HIDE_END - MORPH_END);
+            const a = u * Lq;
+            applySegment(pathSq, Lq, a, Lq);
+            applyGrow(pathStem, Ls, Ls);
+        } else if (t < BOUNCE_END) {
+            applyHidden(pathSq, Lq);
+            applyGrow(pathStem, Ls, Ls);
+        } else {
+            applyHidden(pathSq, Lq);
+            const p = (t - BOUNCE_END) / (1 - BOUNCE_END);
+            const end = Ls - p * Ls;
+            applySegment(pathStem, Ls, 0, end);
+        }
+        requestAnimationFrame(tick);
+    }
+
+    requestAnimationFrame(tick);
+}
+
+/** Must match `zoom` on `html` in styles.css when present; mouse coords stay viewport-based while fixed layout is zoom-scaled. */
+function getRootZoomFactor() {
+    const z = parseFloat(getComputedStyle(document.documentElement).zoom);
+    if (Number.isFinite(z) && z > 0) return z;
+    return 1;
 }
 
 function initCursorGlow() {
@@ -87,8 +195,9 @@ function initCursorGlow() {
 
     if (window.matchMedia('(pointer: fine)').matches) {
         document.addEventListener('mousemove', (e) => {
-            cursorGlow.style.left = e.clientX + 'px';
-            cursorGlow.style.top = e.clientY + 'px';
+            const z = getRootZoomFactor();
+            cursorGlow.style.left = e.clientX / z + 'px';
+            cursorGlow.style.top = e.clientY / z + 'px';
         });
 
         document.addEventListener('mouseenter', () => {
@@ -146,7 +255,7 @@ function initSmoothScroll() {
 
 function initScrollAnimations() {
     const animateElements = document.querySelectorAll(
-        '.skill-category, .project-card, .cert-card, .papers-carousel-outer, .education, .about-content, .contact-content, .experience-item'
+        '.skill-category, .project-card, .cert-cell, .papers-carousel-outer, .certifications, .about-content, .contact-content, .experience-item'
     );
 
     if (prefersReducedMotion()) {
@@ -180,43 +289,69 @@ function initNavbarScroll() {
     const navbar = document.querySelector('.navbar');
     const sections = document.querySelectorAll('section[id]');
     const navLinks = document.querySelectorAll('.nav-links a');
+    const hero = document.querySelector('#home');
 
-    window.addEventListener('scroll', () => {
+    const update = () => {
+        if (!navbar) return;
+
         const currentScroll = window.pageYOffset;
 
         navbar.style.boxShadow = currentScroll > 100
             ? '0 4px 20px rgba(0, 0, 0, 0.3)'
             : 'none';
 
+        if (!hero) {
+            document.body.classList.add('nav-past-hero');
+        } else {
+            const pastHero = hero.getBoundingClientRect().bottom <= 72;
+            document.body.classList.toggle('nav-past-hero', pastHero);
+        }
+
+        /* Viewport-based: offsetTop + pageYOffset drift with html { zoom } in some browsers. */
+        const activatorY = navbar.offsetHeight + 88;
         let current = '';
         sections.forEach(section => {
-            const sectionTop = section.offsetTop - navbar.offsetHeight - 100;
-            if (currentScroll >= sectionTop) {
-                current = section.getAttribute('id');
+            const id = section.getAttribute('id');
+            if (!id) return;
+            if (section.getBoundingClientRect().top <= activatorY) {
+                current = id;
             }
         });
 
+        const doc = document.documentElement;
+        const scrollBottom = currentScroll + window.innerHeight;
+        if (sections.length && scrollBottom >= doc.scrollHeight - 3) {
+            const last = sections[sections.length - 1];
+            const lastId = last && last.getAttribute('id');
+            if (lastId) current = lastId;
+        }
+
         navLinks.forEach(link => {
             link.classList.remove('active');
-            if (link.getAttribute('href') === `#${current}`) {
+            const href = link.getAttribute('href') || '';
+            if (href.startsWith('#') && href === `#${current}`) {
                 link.classList.add('active');
             }
         });
-    });
+    };
+
+    update();
+    window.addEventListener('scroll', update, { passive: true });
+    window.addEventListener('resize', update);
 }
 
 function initTerminalTyping() {
     const typingElement = document.querySelector('.terminal-command-animated');
     if (!typingElement) return;
     if (prefersReducedMotion()) {
-        typingElement.textContent = 'python3 merge_case_docs.py';
+        typingElement.textContent = 'pytest tests/test_pipeline.py';
         return;
     }
 
     const commands = [
+        'pytest tests/test_pipeline.py',
         'python3 merge_case_docs.py',
         'nmap -sV --script=vuln 10.0.0.0/24',
-        'pytest tests/test_pipeline.py',
         'git commit -m "feat: ocr quality checks"',
         'cat outputs/metrics_dl.csv'
     ];

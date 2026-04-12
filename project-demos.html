@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <meta name="description" content="SMS bulk-style classifier demo: P(bulk-style) from a CNN on SMS labels, FastAPI backend API, offline fallback when unreachable.">
+    <meta name="theme-color" content="#0a0a0f">
     <link rel="canonical" href="https://omshahinfo.com/project-demos.html">
     <meta property="og:title" content="security.portfolio/live_demo · SMS classifier | Om Shah">
     <meta property="og:description" content="SMS bulk-style classifier demo: P(bulk-style) from a CNN on SMS labels, FastAPI backend API, offline fallback when unreachable.">
@@ -15,7 +16,7 @@
     <link rel="stylesheet" href="styles.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         /* ── How-it-works modal (self-contained, no var() dependency) ── */
         .hiw-backdrop {
@@ -164,6 +165,7 @@
     </style>
 </head>
 <body class="page-demo">
+    <div class="cursor-glow" aria-hidden="true"></div>
     <nav class="navbar" aria-label="Main navigation">
         <a href="index.html" class="nav-brand" title="security.portfolio — home">
             <span class="terminal-prompt">&gt;_</span>
@@ -188,56 +190,61 @@
             <div class="container demo-container">
                 <header class="demo-hero">
                     <p class="demo-eyebrow">Live demo</p>
-                    <h1 class="demo-page-title">SMS bulk-style classifier</h1>
+                    <h1 class="section-title demo-page-title">
+                        <span class="section-number">Live</span>
+                        <span class="demo-page-title-text">SMS bulk-style classifier</span>
+                    </h1>
                     <p class="demo-lead demo-lead-tight">
                         Trained on SMS <strong>spam / not-spam</strong> labels. The score is <strong>P(bulk-style)</strong>.
                         <span class="demo-verbose-only"> How much the text resembles bulk or automated messaging in the dataset, not whether a message is dangerous, fraudulent, or “malicious.”</span>
                     </p>
-                    <p class="demo-hero-meta"><a href="#common-misconceptions">Common misconceptions</a> · <a href="#demo-credibility">Failure case</a> · <a href="#demo-explainer">How it works</a> · <a href="papers/SMSClassifier-Report_Om.pdf" target="_blank" rel="noopener noreferrer">Course report (PDF)</a></p>
                 </header>
 
-                <div id="common-misconceptions" class="demo-misconceptions demo-misconceptions--top">
-                    <h2 class="demo-misconceptions-title">Common misconceptions &amp; disclaimer</h2>
+                <details id="common-misconceptions" class="demo-disclosure demo-misconceptions demo-misconceptions--top">
+                    <summary class="demo-disclosure-summary">Common misconceptions &amp; disclaimer</summary>
+                    <div class="demo-disclosure-body">
                     <div class="demo-misconceptions-grid">
                         <div class="demo-misconception-card">
                             <span class="demo-misconception-num">01</span>
                             <h3 class="demo-misconception-heading">Bulk-style is not the same as a scam</h3>
                             <p class="demo-misconception-body">
-                                In the training data, the <em>spam</em> label mostly tracks automated or mass-sent text, not whether someone is trying to defraud you. A two-factor code, a shipping update, or a flight reminder can score as bulk-style because they read like automated blasts. That does not make them untrustworthy by itself.
+                                <em>Spam</em> here means mass/automated wording, not “scam.” 2FA codes and shipping pings can read “bulk” and still be fine.
                             </p>
                         </div>
                         <div class="demo-misconception-card">
                             <span class="demo-misconception-num">02</span>
                             <h3 class="demo-misconception-heading">A high score is not a danger rating</h3>
                             <p class="demo-misconception-body">
-                                P(bulk-style) reflects how much the wording matches bulk SMS patterns from the dataset, not how harmful a message is. A brand you follow might score high. A low score is not proof that a message is safe. Always use your own judgement, especially with links or payment requests.
+                                High P(bulk-style) is not a danger score. Low P is not proof of safety—use judgement on links and payments.
                             </p>
                         </div>
                     </div>
                     <div class="demo-disclaimer">
                         <span class="demo-disclaimer-tag">Disclaimer</span>
-                        <p class="demo-disclaimer-body">This is a coursework demo. Results are probabilistic and not for production or safety decisions.</p>
+                        <p class="demo-disclaimer-body">Coursework demo. Not for production or safety decisions.</p>
                     </div>
-                </div>
+                    </div>
+                </details>
 
-                <div id="demo-credibility" class="demo-credibility demo-credibility--top">
-                    <div class="demo-credibility-head">
+                <details id="demo-credibility" class="demo-disclosure demo-credibility demo-credibility--top">
+                    <summary class="demo-disclosure-summary demo-credibility-summary">
                         <span class="demo-credibility-icon" aria-hidden="true">✓</span>
-                        <p id="demo-credibility-toggle-label" class="demo-credibility-head-title">Example failure case from small-text CNNs</p>
-                    </div>
+                        <span id="demo-credibility-toggle-label">Failure case (example)</span>
+                    </summary>
                     <div id="demo-credibility-panel" class="demo-credibility-panel">
                         <p class="demo-credibility-title">Representative error</p>
-                        <p class="demo-credibility-text">Real test: a legitimate appointment reminder containing the phrase “Reply STOP to unsubscribe” scored 95.7% spam. The model learned that opt-out language is a strong spam signal from training data, and correctly so in most cases. But legitimate services use the same phrase, causing a false positive. This is a known limitation of pattern-based models trained without sender context or opt-in history.</p>
+                        <p class="demo-credibility-text">Legitimate reminder with “Reply STOP to unsubscribe” scored 95.7% spam—opt-out wording is a strong spam cue in training, so real senders can false-positive without sender context.</p>
                     </div>
-                </div>
+                </details>
 
                 <div id="spam-api-banner" class="demo-api-banner demo-api-banner--pending" role="status">
                     <span class="demo-api-banner-dot" aria-hidden="true"></span>
                     <div class="demo-api-banner-body">
                         <span id="spam-api-status-text" class="demo-api-banner-primary">Checking inference API…</span>
-                        <span id="spam-api-status-detail" class="demo-api-banner-detail">
-                            Default backend is a FastAPI app on Hugging Face Spaces. This page calls the /health and POST /predict endpoints on the live service, not a browser mock.
-                        </span>
+                        <details id="spam-api-status-details" class="demo-api-inline-details" hidden>
+                            <summary class="demo-api-inline-details-summary">Details</summary>
+                            <span id="spam-api-status-detail" class="demo-api-banner-detail"></span>
+                        </details>
                     </div>
                 </div>
 
@@ -290,12 +297,14 @@
                                 </div>
                             </div>
                             <div class="demo-actions">
-                                <button id="analyze-btn" class="btn btn-primary" type="button">
-                                    <span class="btn-icon">⚡</span>
-                                    Analyze
-                                </button>
-                                <button id="clear-btn" class="btn btn-secondary" type="button">Clear</button>
-                                <a href="papers/SMSClassifier-Report_Om.pdf" class="btn btn-secondary btn-ghost" target="_blank" rel="noopener noreferrer">Course report (PDF)</a>
+                                <div class="demo-actions-row">
+                                    <button id="analyze-btn" class="btn btn-primary" type="button">
+                                        <span class="btn-icon">⚡</span>
+                                        Analyze
+                                    </button>
+                                    <button id="clear-btn" class="btn btn-secondary" type="button">Clear</button>
+                                </div>
+                                <a href="papers/SMSClassifier-Report_Om.pdf" class="btn btn-secondary btn-ghost demo-actions-report" target="_blank" rel="noopener noreferrer">Course report (PDF)</a>
                             </div>
                             <p id="random-label" class="demo-random-label" hidden></p>
                         </div>
@@ -379,38 +388,17 @@
                     </div>
                 </article>
 
-                <div id="demo-explainer" class="demo-explainer-after">
-                    <div class="demo-hero-grid" aria-label="Overview">
-                        <div class="demo-hero-card">
-                            <h2 class="demo-hero-card-title">How to use it</h2>
-                            <p class="demo-hero-card-text">
-                                Type a message and click <strong>Analyze</strong>. Live inference uses a <strong>backend API</strong> (default: Hugging Face Space hosting the FastAPI app), not rules running only in your browser.
-                            </p>
-                        </div>
-                        <div class="demo-hero-card">
-                            <h2 class="demo-hero-card-title">How it was built</h2>
-                            <p class="demo-hero-card-text">
-                                Pipeline, architecture, failure cases, and metrics are in the <a href="papers/SMSClassifier-Report_Om.pdf" target="_blank" rel="noopener noreferrer">course report (PDF)</a>.
-                            </p>
-                        </div>
-                        <div class="demo-hero-card">
-                            <h2 class="demo-hero-card-title">What powers it</h2>
-                            <p class="demo-hero-card-text">
-                                Python, TensorFlow/Keras, tokenizer + CNN on the server. Trained on real SMS data, about <strong>98.7%</strong> test accuracy on the exported run.
-                            </p>
-                        </div>
-                    </div>
-
-                    <div class="demo-pipeline demo-pipeline--crosslink" id="pipeline">
-                        <p class="demo-pipeline-crosslink-text">
-                            This is a coursework demo, not something you would ship as a production spam filter. <strong>P(bulk-style)</strong> is how close the wording looks to bulk SMS in the training data. It is not a scam score or a safety rating.
-                        </p>
-                    </div>
+                <div id="demo-explainer" class="demo-explainer-after demo-explainer-compact">
+                    <p class="demo-explainer-compact-text">
+                        Full write-up: <a href="papers/SMSClassifier-Report_Om.pdf" target="_blank" rel="noopener noreferrer">course report (PDF)</a>.
+                        <span class="demo-explainer-muted">Coursework demo. <strong>P(bulk-style)</strong> measures wording similarity to bulk SMS in training—not scams or safety.</span>
+                    </p>
                 </div>
             </div>
         </section>
     </main>
 
+    <script src="script.js" defer></script>
     <script src="project-demos.js" defer></script>
     <!-- GoatCounter: same site as index; path/title isolate live demo in dashboard -->
     <script data-goatcounter="https://omshah.goatcounter.com/count"

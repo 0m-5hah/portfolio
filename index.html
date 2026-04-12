@@ -28,9 +28,9 @@
     </script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
-<body>
+<body class="home-page">
     <!-- Other top-level pages: copy nav brand from project-demos.html — add <span class="brand-path">/slug</span> after .portfolio -->
     <div class="cursor-glow"></div>
     
@@ -61,41 +61,14 @@
         <section id="home" class="hero">
             <div class="hero-content">
                 <div class="hero-text">
-                    <p class="hero-subtitle typed-text">
-                        <span class="typing-indicator"></span>
-                        Hi there, welcome to my portfolio.
-                    </p>
-                    <h1 class="hero-title">
-                        <span class="greeting">Hello, I'm</span>
-                        <span class="name">Om Shah</span>
+                    <h1 class="hero-title hero-title--minimal" aria-label="Om Shah">
+                        <span class="hero-name-line">Om</span>
+                        <span class="hero-name-line">Shah</span>
                     </h1>
-                    <h2 class="hero-role">Cybersecurity Student & Automation Engineer</h2>
-                    <p class="hero-description">
-                        UTS cybersecurity student with hands-on experience in network scanning, 
-                        Python automation, and web application testing. Building tools that 
-                        streamline workflows and strengthen security posture.
-                    </p>
-                    <div class="hero-cta">
-                        <a href="#projects" class="btn btn-primary">
-                            <span class="btn-icon">⚡</span>
-                            View projects
-                        </a>
-                        <a href="https://github.com/0m-5hah" class="btn btn-secondary" target="_blank" rel="noopener">
-                            <span class="btn-icon">🐙</span>
-                            GitHub
-                        </a>
-                        <a href="#contact" class="btn btn-secondary">
-                            <span class="btn-icon">📧</span>
-                            Get In Touch
-                        </a>
-                        <a href="om-shah-resume.pdf?v=20260409" class="btn btn-secondary" target="_blank" rel="noopener">
-                            <span class="btn-icon">📄</span>
-                            Resume (PDF)
-                        </a>
-                    </div>
+                    <p class="hero-tagline">Cybersecurity student &amp; automation engineer</p>
                 </div>
                 <div class="hero-visual">
-                    <div class="terminal-window">
+                    <div class="terminal-window terminal-window--matrix">
                         <div class="terminal-header">
                             <span class="terminal-dot red"></span>
                             <span class="terminal-dot yellow"></span>
@@ -119,7 +92,7 @@
                             <div class="terminal-line terminal-line-active">
                                 <span class="prompt">$</span>
                                 <span class="terminal-input-group">
-                                    <span class="command terminal-command-animated"></span><span class="terminal-cursor" aria-hidden="true">▊</span>
+                                    <span class="command terminal-command-animated"></span><span class="terminal-cursor" aria-hidden="true"></span>
                                 </span>
                             </div>
                         </div>
@@ -128,7 +101,30 @@
             </div>
             <div class="scroll-indicator">
                 <span>Scroll Down</span>
-                <div class="scroll-arrow"></div>
+                <div class="scroll-indicator-svg" aria-hidden="true">
+                    <svg viewBox="0 0 180 116" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <defs>
+                            <!-- Top→bottom: electric lead → mint → violet tail (neon reference) -->
+                            <linearGradient id="scroll-stroke-gradient" x1="50%" y1="0%" x2="50%" y2="100%">
+                                <stop offset="0%" stop-color="#38bdf8" />
+                                <stop offset="35%" stop-color="#34d399" />
+                                <stop offset="72%" stop-color="#a78bfa" />
+                                <stop offset="100%" stop-color="#e9d5ff" />
+                            </linearGradient>
+                        </defs>
+                        <!-- One pill outline (single slow→fast→slow); was two paths which doubled the rhythm -->
+                        <path class="scroll-line scroll-line--pill" pathLength="1" stroke="url(#scroll-stroke-gradient)"
+                            d="M 90 108 A 28 28 0 0 1 62 80 L 62 36 A 28 28 0 0 1 90 8 A 28 28 0 0 1 118 36 L 118 80 A 28 28 0 0 1 90 108" />
+                        <!-- Squiggle outside bounce group so dash/glow at the pill top is not translated with the arrow -->
+                        <path class="scroll-line--interior scroll-line--squiggle" stroke="url(#scroll-stroke-gradient)"
+                            d="M 90 8 L 90 11 Q 82 22.5 90 34 Q 98 46 90 58" />
+                        <g id="scroll-arrow-bounce" class="scroll-arrow-bounce">
+                            <!-- Stem length = 25 (= 1/4 pill height); meets squiggle at (90,58) -->
+                            <path class="scroll-line--interior scroll-line--stem" stroke="url(#scroll-stroke-gradient)"
+                                d="M 90 58 L 90 83 L 85 77 L 90 83 L 95 77" />
+                        </g>
+                    </svg>
+                </div>
             </div>
         </section>
 
@@ -139,30 +135,42 @@
                     About Me
                 </h2>
                 <div class="about-content">
-                    <div class="about-text">
-                        <p>
-                            I'm a cybersecurity student at UTS with industry experience across
-                            immigration casework, QA, and automation. I build automations that
-                            reduce manual handling and shrink attack surface: fewer copy-paste
-                            workflows, less room for human error in checks, and clearer visibility
-                            into what's exposed when systems are left misconfigured or outdated.
-                        </p>
-                        <p>
-                            The roles and shipped tools at Migrate Zone and ITonKey are summarised
-                            in <a class="about-inline-link" href="#experience">Experience</a> below. For project detail, including
-                            Sentinel, my final-year capstone, see <a class="about-inline-link" href="#projects">Featured Projects</a>.
-                            For something hands-on, open the <a class="about-inline-link" href="project-demos.html">live SMS classifier demo</a>.
-                        </p>
+                    <div class="about-panel">
+                        <div class="category-header about-panel-header">
+                            <span class="skill-matrix-icon about-panel-icon" aria-hidden="true">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                            </span>
+                            <h3 class="skill-matrix-title about-panel-title"><span class="skill-matrix-highlight">My</span> background</h3>
+                        </div>
+                        <div class="skill-snippet about-snippet">
+                            <span class="skill-snippet-open">description: |</span>
+                            <div class="about-snippet-body">
+                                <p>
+                                    I'm a cybersecurity student at UTS with industry experience across
+                                    immigration casework, QA, and automation. I build automations that
+                                    reduce manual handling and shrink attack surface: fewer copy-paste
+                                    workflows, less room for human error in checks, and clearer visibility
+                                    into what's exposed when systems are left misconfigured or outdated.
+                                </p>
+                                <p>
+                                    The roles and shipped tools at Migrate Zone and ITonKey are summarised
+                                    in <a class="about-inline-link" href="#experience">Experience</a> below. For project detail, including
+                                    Sentinel, my final-year capstone, see <a class="about-inline-link" href="#projects">Featured Projects</a>.
+                                    For something hands-on, open the <a class="about-inline-link" href="project-demos.html">live SMS classifier demo</a>.
+                                </p>
+                            </div>
+                            <span class="skill-snippet-close" aria-hidden="true">---</span>
+                        </div>
                         <div class="about-stats">
-                            <div class="stat">
+                            <div class="stat stat--accent-a">
                                 <span class="stat-number">35%</span>
                                 <span class="stat-label">Faster Case Handling</span>
                             </div>
-                            <div class="stat">
+                            <div class="stat stat--accent-b">
                                 <span class="stat-number">3+</span>
                                 <span class="stat-label">Years at Migrate Zone</span>
                             </div>
-                            <div class="stat">
+                            <div class="stat stat--accent-c">
                                 <span class="stat-number">2026</span>
                                 <span class="stat-label">UTS Graduation</span>
                             </div>
@@ -179,42 +187,81 @@
                     Experience
                 </h2>
                 <div class="experience-timeline">
-                    <div class="experience-item">
-                        <div class="experience-header">
-                            <h3>Automation Engineer</h3>
-                            <span class="experience-date">Dec 2024 to present</span>
+                    <div class="experience-item cert-cell--accent-a">
+                        <div class="experience-card-top">
+                            <div class="category-header">
+                                <span class="skill-matrix-icon" aria-hidden="true">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+                                </span>
+                                <div class="experience-card-main">
+                                    <div class="experience-header">
+                                        <h3 class="skill-matrix-title"><span class="skill-matrix-highlight">Automation</span> Engineer</h3>
+                                        <span class="experience-date">Dec 2024 to present</span>
+                                    </div>
+                                    <p class="experience-company">Migrate Zone · Jul 2023 to present · Part-time</p>
+                                </div>
+                            </div>
                         </div>
-                        <p class="experience-company">Migrate Zone · Jul 2023 to present · Part-time</p>
-                        <ul class="experience-bullets">
-                            <li>Expanded the internal automation toolkit to streamline visa processing workflows and support higher case volumes after the company's UAE expansion.</li>
-                            <li>Consolidated financial audit checks into a single workflow, reducing duplicate checks and manual cross-referencing.</li>
-                            <li>Co-led the redesign and rollout of modular automations for file naming, risk flagging, and routing, reducing average case handling time from about 8.0 hours to 5.3 hours per case, a roughly 35% improvement.</li>
-                            <li>Developed a prefill tool that mapped validated case data into Excel lodgement templates, reducing repetitive data checks and speeding up preparation.</li>
-                            <li>Built a lightweight scraping tool to monitor policy update pages, removing the need for repeated manual website checks.</li>
-                        </ul>
+                        <div class="skill-snippet">
+                            <span class="skill-snippet-open">description: |</span>
+                            <ul class="experience-bullets">
+                                <li>Expanded the internal automation toolkit to streamline visa processing workflows and support higher case volumes after the company's UAE expansion.</li>
+                                <li>Consolidated financial audit checks into a single workflow, reducing duplicate checks and manual cross-referencing.</li>
+                                <li>Co-led the redesign and rollout of modular automations for file naming, risk flagging, and routing, reducing average case handling time from about 8.0 hours to 5.3 hours per case, a roughly 35% improvement.</li>
+                                <li>Developed a prefill tool that mapped validated case data into Excel lodgement templates, reducing repetitive data checks and speeding up preparation.</li>
+                                <li>Built a lightweight scraping tool to monitor policy update pages, removing the need for repeated manual website checks.</li>
+                            </ul>
+                            <span class="skill-snippet-close" aria-hidden="true">---</span>
+                        </div>
                     </div>
-                    <div class="experience-item">
-                        <div class="experience-header">
-                            <h3>Junior Automation Engineer</h3>
-                            <span class="experience-date">Jul 2023 to Nov 2024</span>
+                    <div class="experience-item cert-cell--accent-b">
+                        <div class="experience-card-top">
+                            <div class="category-header">
+                                <span class="skill-matrix-icon" aria-hidden="true">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+                                </span>
+                                <div class="experience-card-main">
+                                    <div class="experience-header">
+                                        <h3 class="skill-matrix-title"><span class="skill-matrix-highlight">Junior</span> Automation Engineer</h3>
+                                        <span class="experience-date">Jul 2023 to Nov 2024</span>
+                                    </div>
+                                    <p class="experience-company">Migrate Zone · Jul 2023 to present · Part-time</p>
+                                </div>
+                            </div>
                         </div>
-                        <p class="experience-company">Migrate Zone · Jul 2023 to present · Part-time</p>
-                        <ul class="experience-bullets">
-                            <li>Built Python scripts to automate case data entry and reduce repetitive manual processing across visa workflows.</li>
-                            <li>Co-developed a PDF collation and OCR-based document validation workflow that reduced manual review time and detected missed, outdated, or lapsed documents before lodgement, catching dozens of issues each month.</li>
-                            <li>Produced internal documentation that enabled staff to use the toolkit without ongoing developer support.</li>
-                        </ul>
+                        <div class="skill-snippet">
+                            <span class="skill-snippet-open">description: |</span>
+                            <ul class="experience-bullets">
+                                <li>Built Python scripts to automate case data entry and reduce repetitive manual processing across visa workflows.</li>
+                                <li>Co-developed a PDF collation and OCR-based document validation workflow that reduced manual review time and detected missed, outdated, or lapsed documents before lodgement, catching dozens of issues each month.</li>
+                                <li>Produced internal documentation that enabled staff to use the toolkit without ongoing developer support.</li>
+                            </ul>
+                            <span class="skill-snippet-close" aria-hidden="true">---</span>
+                        </div>
                     </div>
-                    <div class="experience-item">
-                        <div class="experience-header">
-                            <h3>Python Backend Developer Intern</h3>
-                            <span class="experience-date">Aug 2024 to Oct 2024</span>
+                    <div class="experience-item cert-cell--accent-c">
+                        <div class="experience-card-top">
+                            <div class="category-header">
+                                <span class="skill-matrix-icon" aria-hidden="true">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 10h-1.26A8 8 0 109 20h9a5 5 0 000-10z"/></svg>
+                                </span>
+                                <div class="experience-card-main">
+                                    <div class="experience-header">
+                                        <h3 class="skill-matrix-title"><span class="skill-matrix-highlight">Python</span> Backend Developer Intern</h3>
+                                        <span class="experience-date">Aug 2024 to Oct 2024</span>
+                                    </div>
+                                    <p class="experience-company">ITonKey · Part-time</p>
+                                </div>
+                            </div>
                         </div>
-                        <p class="experience-company">ITonKey · Part-time</p>
-                        <ul class="experience-bullets">
-                            <li>Built a Python invoicing tool that converted structured business data into branded, multi-page PDF invoices using templated layouts aligned with internal workflows.</li>
-                            <li>Contributed to custom software development for small business clients, including inventory management features for stock tracking and basic reporting.</li>
-                        </ul>
+                        <div class="skill-snippet">
+                            <span class="skill-snippet-open">description: |</span>
+                            <ul class="experience-bullets">
+                                <li>Built a Python invoicing tool that converted structured business data into branded, multi-page PDF invoices using templated layouts aligned with internal workflows.</li>
+                                <li>Contributed to custom software development for small business clients, including inventory management features for stock tracking and basic reporting.</li>
+                            </ul>
+                            <span class="skill-snippet-close" aria-hidden="true">---</span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -229,10 +276,12 @@
                 <!-- 3D phone: large desktop only (≥1400px); see phone-showcase-loader.js -->
                 <div class="projects-phone-row">
                 <div class="projects-grid projects-grid--with-phone">
-                    <article class="project-card featured">
+                    <article class="project-card featured project-card--accent-d">
                         <div class="project-image">
                             <div class="project-placeholder">
-                                <span>🔐</span>
+                                <span class="skill-matrix-icon project-placeholder-matrix-icon" aria-hidden="true">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+                                </span>
                             </div>
                         </div>
                         <div class="project-content">
@@ -268,22 +317,24 @@
                             </ul>
                             <div class="project-demos-btn project-demos-btn--row">
                                 <a href="https://www.youtube.com/watch?v=PYdyxlkMpVw" class="btn btn-primary" target="_blank" rel="noopener noreferrer">
-                                    <span class="btn-icon">▶</span>
+                                    <span class="btn-icon" aria-hidden="true"><svg class="btn-icon-svg" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></span>
                                     Watch demo
                                 </a>
                                 <a href="papers/Cyber-CapstonePDLJ_Om.pdf" class="btn btn-secondary" target="_blank" rel="noopener noreferrer">
-                                    <span class="btn-icon">📄</span>
+                                    <span class="btn-icon" aria-hidden="true"><svg class="btn-icon-svg" viewBox="0 0 24 24" fill="currentColor"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v-2zm-3-5V3.5L18.5 9H13z"/></svg></span>
                                     Capstone journal
                                 </a>
                             </div>
                         </div>
                     </article>
 
-                    <article class="project-card">
+                    <article class="project-card project-card--accent-a">
                         <div class="project-content">
                             <div class="project-header">
                                 <div class="project-header-main">
-                                    <span class="folder-icon">📁</span>
+                                    <span class="skill-matrix-icon project-header-matrix-icon" aria-hidden="true">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h16a2 2 0 002-2V8a2 2 0 00-2-2h-7.93a2 2 0 01-1.66-.9l-.82-1.2A2 2 0 006.93 3H4a2 2 0 00-2 2v13a2 2 0 002 2z"/></svg>
+                                    </span>
                                     <span class="project-scope project-scope--production">Production</span>
                                 </div>
                             </div>
@@ -307,21 +358,22 @@
                     </article>
 
 
-                    <article class="project-card">
+                    <article class="project-card project-card--accent-b">
                         <div class="project-content">
                             <div class="project-header">
                                 <div class="project-header-main">
-                                    <span class="folder-icon">📁</span>
+                                    <span class="skill-matrix-icon project-header-matrix-icon" aria-hidden="true">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h16a2 2 0 002-2V8a2 2 0 00-2-2h-7.93a2 2 0 01-1.66-.9l-.82-1.2A2 2 0 006.93 3H4a2 2 0 00-2 2v13a2 2 0 002 2z"/></svg>
+                                    </span>
                                     <span class="project-scope project-scope--production">Production</span>
                                 </div>
                             </div>
                             <h3 class="project-title">Document Completeness Check &amp; Form Pre-fill Tool</h3>
                             <p class="project-description">
-                                A Migrate Zone automation tool that reads uploaded case documents using 
-                                text recognition, flags anything missing or out of date, and automatically 
-                                pre-fills the relevant Excel forms with verified data, cutting out the 
-                                manual checking that previously had to be done before each visa 
-                                application was submitted.
+                                A Migrate Zone automation tool that reads uploaded case documents, flags
+                                anything missing or out of date, and automatically pre-fills the relevant
+                                Excel forms with verified data, cutting out the manual checking that
+                                previously had to be done before each visa application was submitted.
                             </p>
                             <ul class="project-tech">
                                 <li>Python</li>
@@ -331,11 +383,13 @@
                         </div>
                     </article>
 
-                    <article class="project-card project-card--live-demo">
+                    <article class="project-card project-card--live-demo project-card--accent-c">
                         <div class="project-content">
                             <div class="project-header">
                                 <div class="project-header-main">
-                                    <span class="folder-icon">📁</span>
+                                    <span class="skill-matrix-icon project-header-matrix-icon" aria-hidden="true">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h16a2 2 0 002-2V8a2 2 0 00-2-2h-7.93a2 2 0 01-1.66-.9l-.82-1.2A2 2 0 006.93 3H4a2 2 0 00-2 2v13a2 2 0 002 2z"/></svg>
+                                    </span>
                                     <span class="project-scope project-scope--coursework">Coursework</span>
                                     <span id="sms-api-status-badge" class="project-scope project-scope--live project-scope--live--pending" role="status" aria-live="polite" title="Checking whether the Hugging Face inference API is reachable from your browser.">API status: checking</span>
                                 </div>
@@ -362,7 +416,7 @@
                             </ul>
                             <div class="project-demos-btn">
                                 <a href="project-demos.html" class="btn btn-primary">
-                                    <span class="btn-icon">⚡</span>
+                                    <span class="btn-icon" aria-hidden="true"><svg class="btn-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg></span>
                                     Try Live Demo
                                 </a>
                             </div>
@@ -387,11 +441,13 @@
                         </div>
                     </div>
 
-                    <article class="project-card">
+                    <article class="project-card project-card--accent-a">
                         <div class="project-content">
                             <div class="project-header">
                                 <div class="project-header-main">
-                                    <span class="folder-icon">📁</span>
+                                    <span class="skill-matrix-icon project-header-matrix-icon" aria-hidden="true">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h16a2 2 0 002-2V8a2 2 0 00-2-2h-7.93a2 2 0 01-1.66-.9l-.82-1.2A2 2 0 006.93 3H4a2 2 0 00-2 2v13a2 2 0 002 2z"/></svg>
+                                    </span>
                                     <span class="project-scope project-scope--production">Production</span>
                                 </div>
                             </div>
@@ -410,11 +466,13 @@
                         </div>
                     </article>
 
-                    <article class="project-card">
+                    <article class="project-card project-card--accent-b">
                         <div class="project-content">
                             <div class="project-header">
                                 <div class="project-header-main">
-                                    <span class="folder-icon" aria-hidden="true">🔧</span>
+                                    <span class="skill-matrix-icon project-header-matrix-icon" aria-hidden="true">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"/></svg>
+                                    </span>
                                     <span class="project-scope project-scope--redteam">Red teaming</span>
                                 </div>
                                 <div class="project-links">
@@ -438,7 +496,7 @@
                             </ul>
                             <div class="project-demos-btn">
                                 <a href="https://www.youtube.com/watch?v=Y03m1uaIHTQ" class="btn btn-primary" target="_blank" rel="noopener noreferrer">
-                                    <span class="btn-icon">▶</span>
+                                    <span class="btn-icon" aria-hidden="true"><svg class="btn-icon-svg" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></span>
                                     Watch on YouTube
                                 </a>
                             </div>
@@ -451,11 +509,13 @@
                     <h3 class="projects-coming-soon-heading">Coming soon</h3>
                     <p class="projects-coming-soon-lead">Write-ups and deployment notes for these builds are in progress.</p>
                     <div class="projects-coming-soon-grid">
-                        <article class="project-card project-card--soon">
+                        <article class="project-card project-card--soon project-card--accent-c">
                             <div class="project-content">
                                 <div class="project-header">
                                     <div class="project-header-main">
-                                        <span class="folder-icon" aria-hidden="true">☁️</span>
+                                        <span class="skill-matrix-icon project-header-matrix-icon" aria-hidden="true">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 10h-1.26A8 8 0 109 20h9a5 5 0 000-10z"/></svg>
+                                        </span>
                                         <span class="project-scope project-scope--soon">Coming soon</span>
                                     </div>
                                 </div>
@@ -468,11 +528,13 @@
                                 </ul>
                             </div>
                         </article>
-                        <article class="project-card project-card--soon">
+                        <article class="project-card project-card--soon project-card--accent-d">
                             <div class="project-content">
                                 <div class="project-header">
                                     <div class="project-header-main">
-                                        <span class="folder-icon" aria-hidden="true">☁️</span>
+                                        <span class="skill-matrix-icon project-header-matrix-icon" aria-hidden="true">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 10h-1.26A8 8 0 109 20h9a5 5 0 000-10z"/></svg>
+                                        </span>
                                         <span class="project-scope project-scope--soon">Coming soon</span>
                                     </div>
                                 </div>
@@ -505,30 +567,32 @@
                     <article class="paper-card">
                         <div class="paper-header">
                             <div class="paper-header-main">
-                                <span class="paper-scope">Ethics of data and AI</span>
+                                <span class="paper-scope paper-scope--accent-a">Ethics of data and AI</span>
                                 <span class="paper-meta">UTS · 2024</span>
-                            </div>
-                            <div class="project-links">
-                                <a href="https://github.com/0m-5hah/Ethical-and-Technical-Challenges-of-Lethal-Autonomous-Weapons-Systems" class="project-link" target="_blank" rel="noopener noreferrer" title="LAWS paper on GitHub" aria-label="LAWS paper on GitHub">
-                                    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
-                                </a>
                             </div>
                         </div>
                         <h3 class="paper-title">Ethical and technical challenges of lethal autonomous weapons systems (LAWS)</h3>
-                        <p class="paper-description">Research paper on weaponised AI that can select and engage targets with reduced human oversight. Uses open-source case studies (e.g. SGR-A1, Super aEgis II, Guardium-LS) to discuss accountability, international law, sensor and recognition limits, dataset bias, and options for oversight and regulation. Written for educational and research purposes only.</p>
+                        <div class="paper-snippet">
+                            <span class="skill-snippet-open">description: |</span>
+                            <p class="paper-description">Research paper on weaponised AI that can select and engage targets with reduced human oversight. Uses open-source case studies (e.g. SGR-A1, Super aEgis II, Guardium-LS) to discuss accountability, international law, sensor and recognition limits, dataset bias, and options for oversight and regulation. Written for educational and research purposes only.</p>
+                        </div>
                         <div class="paper-actions">
                             <a href="papers/Ethical-and-Technical-Challenges-of-Lethal-Autonomous-Weapons-Systems.pdf" class="paper-link" target="_blank" rel="noopener noreferrer">View paper</a>
+                            <a href="https://github.com/0m-5hah/Ethical-and-Technical-Challenges-of-Lethal-Autonomous-Weapons-Systems" class="paper-link paper-link--aux" target="_blank" rel="noopener noreferrer" title="LAWS paper on GitHub" aria-label="LAWS paper on GitHub">GitHub</a>
                         </div>
                     </article>
                     <article class="paper-card">
                         <div class="paper-header">
                             <div class="paper-header-main">
-                                <span class="paper-scope">Cloud security</span>
+                                <span class="paper-scope paper-scope--accent-b">Cloud security</span>
                                 <span class="paper-meta">UTS · 2025</span>
                             </div>
                         </div>
                         <h3 class="paper-title">Cloud Governance and Threat Assessment</h3>
-                        <p class="paper-description">Written assessment on cloud governance practices and structured threat analysis for cloud workloads, including control trade-offs and risk framing relevant to organisational security posture.</p>
+                        <div class="paper-snippet">
+                            <span class="skill-snippet-open">description: |</span>
+                            <p class="paper-description">Written assessment on cloud governance practices and structured threat analysis for cloud workloads, including control trade-offs and risk framing relevant to organisational security posture.</p>
+                        </div>
                         <div class="paper-actions">
                             <a href="papers/OM_SHAH_Cloud_threat_assessment.pdf" class="paper-link" target="_blank" rel="noopener noreferrer">View paper</a>
                         </div>
@@ -536,12 +600,15 @@
                     <article class="paper-card">
                         <div class="paper-header">
                             <div class="paper-header-main">
-                                <span class="paper-scope">Capstone</span>
+                                <span class="paper-scope paper-scope--accent-c">Capstone</span>
                                 <span class="paper-meta">UTS · 2025</span>
                             </div>
                         </div>
                         <h3 class="paper-title">Sentinel capstone: project development journal</h3>
-                        <p class="paper-description">Same UTS capstone as <strong>Sentinel</strong>: a full project development journal covering the virtual lab (Kali, Ubuntu, Windows Server on VMware/VirtualBox), recon and spoofing labs, early Python work on Sentinel, and weekly reflection on what worked, what failed, and what was learned.</p>
+                        <div class="paper-snippet">
+                            <span class="skill-snippet-open">description: |</span>
+                            <p class="paper-description">Same UTS capstone as <strong>Sentinel</strong>: a full project development journal covering the virtual lab (Kali, Ubuntu, Windows Server on VMware/VirtualBox), recon and spoofing labs, early Python work on Sentinel, and weekly reflection on what worked, what failed, and what was learned.</p>
+                        </div>
                         <div class="paper-actions">
                             <a href="papers/Cyber-CapstonePDLJ_Om.pdf" class="paper-link" target="_blank" rel="noopener noreferrer">View paper</a>
                         </div>
@@ -549,12 +616,15 @@
                     <article class="paper-card">
                         <div class="paper-header">
                             <div class="paper-header-main">
-                                <span class="paper-scope">Data analytics</span>
+                                <span class="paper-scope paper-scope--accent-d">Data analytics</span>
                                 <span class="paper-meta">UTS · 2026</span>
                             </div>
                         </div>
                         <h3 class="paper-title">SMS spam classification: model comparison report</h3>
-                        <p class="paper-description">Compares Naive Bayes, SVM, and a deep learning 1D CNN for spam detection, with tokenisation, padding, embeddings, training behaviour, and evaluation through precision, recall, F1, confusion matrices, and ROC-AUC. The CNN delivered the strongest overall performance while balancing detection with false positives.</p>
+                        <div class="paper-snippet">
+                            <span class="skill-snippet-open">description: |</span>
+                            <p class="paper-description">Compares Naive Bayes, SVM, and a deep learning 1D CNN for spam detection, with tokenisation, padding, embeddings, training behaviour, and evaluation through precision, recall, F1, confusion matrices, and ROC-AUC. The CNN delivered the strongest overall performance while balancing detection with false positives.</p>
+                        </div>
                         <div class="paper-actions">
                             <a href="papers/SMSClassifier-Report_Om.pdf" class="paper-link" target="_blank" rel="noopener noreferrer">View paper</a>
                         </div>
@@ -562,12 +632,15 @@
                     <article class="paper-card">
                         <div class="paper-header">
                             <div class="paper-header-main">
-                                <span class="paper-scope">Ethics &amp; practice</span>
+                                <span class="paper-scope paper-scope--accent-e">Ethics &amp; practice</span>
                                 <span class="paper-meta">UTS · 2025</span>
                             </div>
                         </div>
                         <h3 class="paper-title">Project ethics: Guest Hospitality System</h3>
-                        <p class="paper-description">Ethics and professional practice analysis for a resort guest hospitality system: data collection and retention, RFID location tracking, and childcare safety checks, grounded in ACS, PMI, and IEEE codes of ethics, with practical recommendations to protect privacy, safety, and public trust.</p>
+                        <div class="paper-snippet">
+                            <span class="skill-snippet-open">description: |</span>
+                            <p class="paper-description">Ethics and professional practice analysis for a resort guest hospitality system: data collection and retention, RFID location tracking, and childcare safety checks, grounded in ACS, PMI, and IEEE codes of ethics, with practical recommendations to protect privacy, safety, and public trust.</p>
+                        </div>
                         <div class="paper-actions">
                             <a href="papers/ProjectManagement_EthicsReport_Om.pdf" class="paper-link" target="_blank" rel="noopener noreferrer">View paper</a>
                         </div>
@@ -585,40 +658,80 @@
                     Education &amp; coursework
                 </h2>
                 <p class="section-intro">Degree and subject areas from my UTS transcript (not separate industry certifications).</p>
-                <div class="cert-grid">
-                    <div class="cert-card">
-                        <div class="cert-icon">🔐</div>
-                        <h3>Cybersecurity</h3>
-                        <p>Built STRIDE-style threat models for sample applications and documented mitigations for each threat class in written assessments.</p>
-                        <span class="cert-date">UTS coursework</span>
+                <div class="cert-matrix">
+                    <div class="cert-cell cert-cell--accent-a">
+                        <div class="category-header">
+                            <span class="skill-matrix-icon" aria-hidden="true">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+                            </span>
+                            <h3 class="skill-matrix-title"><span class="skill-matrix-highlight">Cyber</span>security</h3>
+                        </div>
+                        <div class="skill-snippet">
+                            <span class="skill-snippet-open">description: |</span>
+                            <p class="cert-snippet-text">Built STRIDE-style threat models for sample applications and documented mitigations for each threat class in written assessments.</p>
+                            <span class="skill-snippet-close" aria-hidden="true">---</span>
+                        </div>
+                        <span class="cert-badge">UTS coursework</span>
                     </div>
-                    <div class="cert-card">
-                        <div class="cert-icon">🎯</div>
-                        <h3>System Security</h3>
-                        <p>Hardened Linux VMs (services, permissions, updates) and compared access-control models in practical lab submissions.</p>
-                        <span class="cert-date">UTS coursework</span>
+                    <div class="cert-cell cert-cell--accent-b">
+                        <div class="category-header">
+                            <span class="skill-matrix-icon" aria-hidden="true">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+                            </span>
+                            <h3 class="skill-matrix-title"><span class="skill-matrix-highlight">System</span> security</h3>
+                        </div>
+                        <div class="skill-snippet">
+                            <span class="skill-snippet-open">description: |</span>
+                            <p class="cert-snippet-text">Hardened Linux VMs (services, permissions, updates) and compared access-control models in practical lab submissions.</p>
+                            <span class="skill-snippet-close" aria-hidden="true">---</span>
+                        </div>
+                        <span class="cert-badge">UTS coursework</span>
                     </div>
-                    <div class="cert-card">
-                        <div class="cert-icon">🔒</div>
-                        <h3>Cloud Security (AWS)</h3>
-                        <p>Deployed small workloads using IAM roles, security groups, and least-privilege reviews in AWS console lab exercises.</p>
-                        <span class="cert-date">UTS coursework</span>
+                    <div class="cert-cell cert-cell--accent-c">
+                        <div class="category-header">
+                            <span class="skill-matrix-icon" aria-hidden="true">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 10h-1.26A8 8 0 109 20h9a5 5 0 000-10z"/></svg>
+                            </span>
+                            <h3 class="skill-matrix-title"><span class="skill-matrix-highlight">Cloud</span> security (AWS)</h3>
+                        </div>
+                        <div class="skill-snippet">
+                            <span class="skill-snippet-open">description: |</span>
+                            <p class="cert-snippet-text">Deployed small workloads using IAM roles, security groups, and least-privilege reviews in AWS console lab exercises.</p>
+                            <span class="skill-snippet-close" aria-hidden="true">---</span>
+                        </div>
+                        <span class="cert-badge">UTS coursework</span>
                     </div>
-                    <div class="cert-card">
-                        <div class="cert-icon">🔍</div>
-                        <h3>Digital Forensics</h3>
-                        <p>Imaged virtual disks, extracted timelines and artefacts with forensic tools, and wrote short reports with documented handling steps.</p>
-                        <span class="cert-date">UTS coursework</span>
+                    <div class="cert-cell cert-cell--accent-d">
+                        <div class="category-header">
+                            <span class="skill-matrix-icon" aria-hidden="true">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/></svg>
+                            </span>
+                            <h3 class="skill-matrix-title"><span class="skill-matrix-highlight">Digital</span> forensics</h3>
+                        </div>
+                        <div class="skill-snippet">
+                            <span class="skill-snippet-open">description: |</span>
+                            <p class="cert-snippet-text">Imaged virtual disks, extracted timelines and artefacts with forensic tools, and wrote short reports with documented handling steps.</p>
+                            <span class="skill-snippet-close" aria-hidden="true">---</span>
+                        </div>
+                        <span class="cert-badge">UTS coursework</span>
                     </div>
                 </div>
-                <div class="education">
-                    <h3 class="education-title">Formal qualification</h3>
-                    <div class="education-item">
-                        <div class="edu-icon">🎓</div>
-                        <div class="edu-content">
-                            <h4>Bachelor of Cybersecurity</h4>
-                            <p>University of Technology Sydney</p>
-                            <span class="edu-date">2023 to present. Expected graduation: June 2026</span>
+                <div class="cert-matrix cert-matrix--formal">
+                    <div class="cert-cell cert-cell--accent-formal">
+                        <div class="category-header">
+                            <span class="skill-matrix-icon" aria-hidden="true">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                            </span>
+                            <h3 class="skill-matrix-title"><span class="skill-matrix-highlight">Formal</span> qualification</h3>
+                        </div>
+                        <div class="skill-snippet">
+                            <span class="skill-snippet-open">description: |</span>
+                            <div class="edu-formal-inner">
+                                <p class="edu-formal-degree">Bachelor of Cybersecurity</p>
+                                <p class="edu-formal-school">University of Technology Sydney</p>
+                                <span class="edu-date">2023 to present. Expected graduation: June 2026</span>
+                            </div>
+                            <span class="skill-snippet-close" aria-hidden="true">---</span>
                         </div>
                     </div>
                 </div>
@@ -631,58 +744,82 @@
                     <span class="section-number">06.</span>
                     Skills &amp; Tools
                 </h2>
-                <div class="skills-grid">
-                    <div class="skill-category">
+                <div class="skills-matrix">
+                    <div class="skill-category skill-category--accent-a">
                         <div class="category-header">
-                            <span class="category-icon">🔓</span>
-                            <h3>Security Testing</h3>
+                            <span class="skill-matrix-icon" aria-hidden="true">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+                            </span>
+                            <h3 class="skill-matrix-title"><span class="skill-matrix-highlight">Security</span> Testing</h3>
                         </div>
-                        <ul class="skill-list">
-                            <li><span class="skill-bullet"></span>Network Scanning (Nmap/NSE)</li>
-                            <li><span class="skill-bullet"></span>Vulnerability Assessment</li>
-                            <li><span class="skill-bullet"></span>Web Application Testing</li>
-                            <li><span class="skill-bullet"></span>Known Vulnerability Research</li>
-                            <li><span class="skill-bullet"></span>Offensive security labs (coursework)</li>
-                        </ul>
+                        <div class="skill-snippet">
+                            <span class="skill-snippet-open">description: |</span>
+                            <ul class="skill-list skill-list--snippet">
+                                <li>Network scanning (Nmap / NSE)</li>
+                                <li>Vulnerability assessment</li>
+                                <li>Web application testing</li>
+                                <li>Known vulnerability research</li>
+                                <li>Offensive security labs (coursework)</li>
+                            </ul>
+                            <span class="skill-snippet-close" aria-hidden="true">---</span>
+                        </div>
                     </div>
-                    <div class="skill-category">
+                    <div class="skill-category skill-category--accent-b">
                         <div class="category-header">
-                            <span class="category-icon">🛡️</span>
-                            <h3>Defensive Security</h3>
+                            <span class="skill-matrix-icon" aria-hidden="true">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                            </span>
+                            <h3 class="skill-matrix-title"><span class="skill-matrix-highlight">Defensive</span> Security</h3>
                         </div>
-                        <ul class="skill-list">
-                            <li><span class="skill-bullet"></span>Digital Forensics</li>
-                            <li><span class="skill-bullet"></span>Cryptography</li>
-                            <li><span class="skill-bullet"></span>Cloud Security (AWS)</li>
-                            <li><span class="skill-bullet"></span>Routing & Switching</li>
-                            <li><span class="skill-bullet"></span>Information Security Management</li>
-                        </ul>
+                        <div class="skill-snippet">
+                            <span class="skill-snippet-open">description: |</span>
+                            <ul class="skill-list skill-list--snippet">
+                                <li>Digital forensics</li>
+                                <li>Cryptography</li>
+                                <li>Cloud security (AWS)</li>
+                                <li>Routing &amp; switching</li>
+                                <li>Information security management</li>
+                            </ul>
+                            <span class="skill-snippet-close" aria-hidden="true">---</span>
+                        </div>
                     </div>
-                    <div class="skill-category">
+                    <div class="skill-category skill-category--accent-c">
                         <div class="category-header">
-                            <span class="category-icon">⚙️</span>
-                            <h3>Tools & Technologies</h3>
+                            <span class="skill-matrix-icon" aria-hidden="true">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"/></svg>
+                            </span>
+                            <h3 class="skill-matrix-title"><span class="skill-matrix-highlight">Tools</span> &amp; technologies</h3>
                         </div>
-                        <ul class="skill-list">
-                            <li><span class="skill-bullet"></span>Metasploit</li>
-                            <li><span class="skill-bullet"></span>Wireshark</li>
-                            <li><span class="skill-bullet"></span>Nmap / NSE Scripts</li>
-                            <li><span class="skill-bullet"></span>Postman / Chrome DevTools / Jira</li>
-                            <li><span class="skill-bullet"></span>VMware / VirtualBox / Cisco Packet Tracer</li>
-                        </ul>
+                        <div class="skill-snippet">
+                            <span class="skill-snippet-open">description: |</span>
+                            <ul class="skill-list skill-list--snippet">
+                                <li>Metasploit</li>
+                                <li>Wireshark</li>
+                                <li>Nmap / NSE scripts</li>
+                                <li>Postman / Chrome DevTools / Jira</li>
+                                <li>VMware / VirtualBox / Cisco Packet Tracer</li>
+                            </ul>
+                            <span class="skill-snippet-close" aria-hidden="true">---</span>
+                        </div>
                     </div>
-                    <div class="skill-category">
+                    <div class="skill-category skill-category--accent-d">
                         <div class="category-header">
-                            <span class="category-icon">💻</span>
-                            <h3>Programming & Scripting</h3>
+                            <span class="skill-matrix-icon" aria-hidden="true">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M16 18l6-6-6-6"/><path d="M8 6l-6 6 6 6"/></svg>
+                            </span>
+                            <h3 class="skill-matrix-title"><span class="skill-matrix-highlight">Programming</span> &amp; Scripting</h3>
                         </div>
-                        <ul class="skill-list">
-                            <li><span class="skill-bullet"></span>Python</li>
-                            <li><span class="skill-bullet"></span>Selenium</li>
-                            <li><span class="skill-bullet"></span>JSON / CSV / Excel</li>
-                            <li><span class="skill-bullet"></span>Git / GitHub</li>
-                            <li><span class="skill-bullet"></span>HTML / CSS</li>
-                        </ul>
+                        <div class="skill-snippet">
+                            <span class="skill-snippet-open">description: |</span>
+                            <ul class="skill-list skill-list--snippet">
+                                <li>Python</li>
+                                <li>Selenium</li>
+                                <li>JSON / CSV / Excel</li>
+                                <li>Git / GitHub</li>
+                                <li>HTML / CSS</li>
+                            </ul>
+                            <span class="skill-snippet-close" aria-hidden="true">---</span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -695,25 +832,41 @@
                     Get In Touch
                 </h2>
                 <div class="contact-content">
-                    <p class="contact-text">
-                        Open to cybersecurity and automation roles. Summary of experience, roles, and projects:
-                        <a href="om-shah-resume.pdf?v=20260409" target="_blank" rel="noopener">resume (PDF)</a>.
-                    </p>
-                    <p class="contact-direct">
-                        <a href="mailto:omsshah05@gmail.com">omsshah05@gmail.com</a>
-                        <span class="contact-sep" aria-hidden="true">·</span>
-                        <a href="tel:+61401227996">+61 401 227 996</a>
-                        <span class="contact-sep" aria-hidden="true">·</span>
-                        Sydney, Australia
-                    </p>
-                    <a href="mailto:omsshah05@gmail.com" class="btn btn-primary btn-large">
-                        <span class="btn-icon">📧</span>
-                        Say Hello
-                    </a>
-                    <div class="social-links">
-                        <a href="https://github.com/0m-5hah" class="social-link" title="GitHub" target="_blank" rel="noopener">
-                            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
-                        </a>
+                    <div class="contact-panel">
+                        <div class="category-header contact-panel-header">
+                            <span class="skill-matrix-icon contact-panel-icon" aria-hidden="true">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><path d="m22 6-10 7L2 6"/></svg>
+                            </span>
+                            <h3 class="skill-matrix-title contact-panel-title"><span class="skill-matrix-highlight">Open</span> to opportunities</h3>
+                        </div>
+                        <div class="skill-snippet contact-snippet">
+                            <span class="skill-snippet-open">availability: |</span>
+                            <div class="contact-snippet-body">
+                                <p class="contact-text">
+                                    Open to cybersecurity and automation roles. Summary of experience, roles, and projects:
+                                    <a href="om-shah-resume.pdf?v=20260409" target="_blank" rel="noopener">resume (PDF)</a>.
+                                </p>
+                                <p class="contact-direct">
+                                    <a href="mailto:omsshah05@gmail.com">omsshah05@gmail.com</a>
+                                    <span class="contact-sep" aria-hidden="true">·</span>
+                                    <a href="tel:+61401227996">+61 401 227 996</a>
+                                    <span class="contact-sep" aria-hidden="true">·</span>
+                                    Sydney, Australia
+                                </p>
+                            </div>
+                            <span class="skill-snippet-close" aria-hidden="true">---</span>
+                        </div>
+                        <div class="contact-actions">
+                            <a href="mailto:omsshah05@gmail.com" class="btn btn-primary btn-large">
+                                <span class="btn-icon" aria-hidden="true"><svg class="btn-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><path d="m22 6-10 7L2 6"/></svg></span>
+                                Say Hello
+                            </a>
+                            <div class="social-links">
+                                <a href="https://github.com/0m-5hah" class="social-link social-link--matrix" title="GitHub" target="_blank" rel="noopener">
+                                    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+                                </a>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -721,7 +874,7 @@
     </main>
 
     <footer class="footer">
-        <p>Designed & Built with <span class="heart">♥</span> and Security in Mind</p>
+        <p class="footer-tagline">Designed &amp; built with <span class="footer-heart" aria-hidden="true"><svg class="footer-heart-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></span> and security in mind</p>
         <p class="footer-resume"><a href="om-shah-resume.pdf?v=20260409" target="_blank" rel="noopener">View resume (PDF)</a></p>
         <p class="copyright">© 2026 Om Shah. All rights reserved.</p>
     </footer>

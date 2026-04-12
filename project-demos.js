@@ -51,25 +51,7 @@
 
         document.addEventListener('DOMContentLoaded', function () {
             loadClientConfig().finally(function () {
-            const menuBtn = document.querySelector('.mobile-menu-btn');
-            const navLinks = document.querySelector('.nav-links');
-
-            if (menuBtn && navLinks) {
-                function setMenuOpen(open) {
-                    navLinks.classList.toggle('active', open);
-                    menuBtn.classList.toggle('active', open);
-                    menuBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
-                }
-                menuBtn.addEventListener('click', function () {
-                    setMenuOpen(!navLinks.classList.contains('active'));
-                });
-
-                document.querySelectorAll('.nav-links a').forEach(function (link) {
-                    link.addEventListener('click', function () {
-                        setMenuOpen(false);
-                    });
-                });
-            }
+            /* Mobile nav: handled by script.js (shared with index.html). */
 
             var SAMPLE_MESSAGES = [
                 // --- HAM ---
@@ -851,16 +833,18 @@
             }
 
             var API_STATUS_DETAIL_LIVE =
-                'FastAPI on Hugging Face Spaces loads the saved TensorFlow/Keras CNN (GloVe + Conv1D). This page sends your text to POST /predict and the server runs the real model weights and tokenizer from the repo.';
+                'TensorFlow/Keras CNN on Hugging Face; this page POSTs to /predict with the real tokenizer and weights.';
 
             function setApiBannerDetail(detailEl, text) {
                 if (!detailEl) return;
+                var wrap = detailEl.closest('.demo-api-inline-details');
                 if (text) {
                     detailEl.textContent = text;
                     detailEl.hidden = false;
+                    if (wrap) wrap.hidden = false;
                 } else {
                     detailEl.textContent = '';
-                    detailEl.hidden = true;
+                    if (wrap) wrap.hidden = true;
                 }
             }
 
@@ -879,7 +863,7 @@
                         var staticOff = document.getElementById('demo-static-offline');
                         if (j && j.ok && j.model_loaded) {
                             banner.className = 'demo-api-banner demo-api-banner--ok';
-                            textEl.textContent = 'Live inference is up. You are talking to the real API.';
+                            textEl.textContent = 'Live API — real model on server.';
                             setApiBannerDetail(detailEl, API_STATUS_DETAIL_LIVE);
                             if (staticOff) staticOff.hidden = true;
                         } else {
@@ -900,11 +884,10 @@
                                 ? ' Try opening the page over http:// instead of file://.'
                                 : '';
                         textEl.textContent =
-                            'Backend API offline. Analyze still runs an offline estimate. Sample table below.' +
-                            extra;
+                            'API offline — keyword fallback below.' + extra;
                         setApiBannerDetail(
                             detailEl,
-                            'When the API is reachable again, the same FastAPI + Keras pipeline runs on the server. The offline row is a keyword-only stand-in so the UI still works.'
+                            'When the API returns, inference uses the same server pipeline. Offline mode is keyword-only.'
                         );
                         var staticOff = document.getElementById('demo-static-offline');
                         if (staticOff) staticOff.hidden = false;
