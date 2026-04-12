@@ -70,23 +70,10 @@ document.addEventListener('DOMContentLoaded', () => {
     initDemoCtaAnalytics();
     initSmsApiStatusBadge();
     initPapersCarouselWhenReady();
-    initProjectCardAccordions();
 });
 
 function prefersReducedMotion() {
     return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-}
-
-/** Featured projects: <details> collapsed on narrow viewports, forced open on desktop (keep in sync with CSS). */
-function initProjectCardAccordions() {
-    const mq = window.matchMedia('(min-width: 769px)');
-    const sync = () => {
-        document.querySelectorAll('#projects details.project-card').forEach((el) => {
-            el.open = mq.matches;
-        });
-    };
-    sync();
-    mq.addEventListener('change', sync);
 }
 
 function initCursorGlow() {

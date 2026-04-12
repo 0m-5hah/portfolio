@@ -988,8 +988,10 @@ body {
     box-shadow: 0 20px 48px rgba(94, 234, 212, 0.12);
 }
 
-details.project-card.featured {
+.project-card.featured {
     grid-column: span 2;
+    display: grid;
+    grid-template-columns: 1fr 1.5fr;
 }
 
 @media (min-width: 1280px) {
@@ -998,151 +1000,8 @@ details.project-card.featured {
         gap: 1.25rem 1.5rem;
     }
 
-    details.project-card.featured {
+    .project-card.featured {
         grid-column: span 3;
-    }
-}
-
-/* ---- Project cards as <details>: collapsed on phones, full card on ≥769px (see initProjectCardAccordions) ---- */
-.project-card__summary {
-    list-style: none;
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: 0.75rem;
-    cursor: pointer;
-    -webkit-tap-highlight-color: transparent;
-}
-
-.project-card__summary::-webkit-details-marker { display: none; }
-.project-card__summary::marker { content: ''; }
-
-.project-card__summary-main {
-    flex: 1;
-    min-width: 0;
-    text-align: left;
-}
-
-.project-card__summary-main .project-title {
-    margin-bottom: 0;
-}
-
-.project-card__summary-main .project-header {
-    margin-bottom: 0.75rem;
-}
-
-.project-card__expandable {
-    border-top: 1px solid transparent;
-}
-
-@media (max-width: 768px) {
-    .project-card__expandable {
-        border-top-color: var(--border-color);
-        padding-top: 0.5rem;
-    }
-
-    .project-card__summary::after {
-        content: '';
-        flex-shrink: 0;
-        width: 0.65rem;
-        height: 0.65rem;
-        margin-top: 0.45rem;
-        border-right: 2px solid var(--text-muted);
-        border-bottom: 2px solid var(--text-muted);
-        transform: rotate(45deg);
-        transition: transform var(--transition-fast);
-    }
-
-    details.project-card[open] > .project-card__summary::after {
-        transform: rotate(225deg);
-        margin-top: 0.55rem;
-    }
-
-    details.project-card.featured > .project-card__summary {
-        flex-direction: column;
-        align-items: stretch;
-    }
-
-    details.project-card.featured .project-image {
-        min-height: 160px;
-    }
-
-    details.project-card.featured .project-card__summary-main {
-        padding: 0.75rem 1.25rem 1rem;
-    }
-
-    details.project-card.featured .project-card__expandable {
-        padding: 0 1.25rem 1.25rem;
-    }
-
-    details.project-card:not(.featured) .project-card__summary-main {
-        padding: 1.25rem 1.25rem 1rem;
-    }
-
-    details.project-card:not(.featured) .project-card__expandable {
-        padding: 0 1.25rem 1.25rem;
-    }
-}
-
-@media (min-width: 769px) {
-    .project-card__summary::after {
-        display: none;
-    }
-
-    .project-card__summary {
-        cursor: default;
-    }
-
-    details.project-card.featured {
-        display: grid;
-        grid-template-columns: 1fr 1.5fr;
-    }
-
-    details.project-card.featured > .project-card__summary {
-        display: contents;
-    }
-
-    details.project-card.featured .project-image {
-        grid-column: 1;
-        grid-row: 1 / span 2;
-    }
-
-    details.project-card.featured .project-card__summary-main {
-        grid-column: 2;
-        grid-row: 1;
-        align-self: start;
-        padding: 2rem 2rem 0.75rem;
-    }
-
-    details.project-card.featured .project-card__expandable {
-        grid-column: 2;
-        grid-row: 2;
-        padding: 0 2rem 2rem;
-        border-top: none;
-        padding-top: 0;
-    }
-
-    details.project-card:not(.featured) .project-card__summary-main {
-        padding: 2rem 2rem 0.75rem;
-    }
-
-    details.project-card:not(.featured) .project-card__expandable {
-        padding: 0 2rem 2rem;
-    }
-
-    details.project-card:not(.featured) .project-card__expandable .project-description {
-        margin-top: 0;
-    }
-}
-
-@media (min-width: 769px) {
-    details.project-card:focus-within {
-        outline: none;
-    }
-
-    .project-card__summary:focus-visible {
-        outline: 2px solid var(--accent-secondary);
-        outline-offset: 2px;
     }
 }
 
@@ -3837,8 +3696,9 @@ details.project-card.featured {
         grid-template-columns: 1fr;
     }
 
-    details.project-card.featured {
+    .project-card.featured {
         grid-column: span 1;
+        grid-template-columns: 1fr;
     }
 
     .cert-grid {
