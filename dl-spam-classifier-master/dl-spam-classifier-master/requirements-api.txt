@@ -1,5 +1,0 @@
-﻿# Runtime dependencies - pure numpy inference, no TensorFlow or ONNX Runtime needed
-fastapi>=0.109
-uvicorn[standard]>=0.27
-numpy
-pydantic>=2

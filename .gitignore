@@ -16,3 +16,6 @@ secret/
 
 # Large ML model binary: host externally (Hugging Face / GDrive)
 *.keras
+
+# Spam-classifier project copy (tokenizer.json etc. exceed Cloudflare Pages 25 MiB/file)
+dl-spam-classifier-master/
