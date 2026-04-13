@@ -481,6 +481,8 @@ function initProjectsFilter() {
         });
 
         phoneRow?.classList.toggle('projects-phone-row--filter-ml', filterKey === 'ml');
+        /* Featured Sentinel: full-width hero only on “All”; single cell like peers when a filter is active. */
+        grid.classList.toggle('projects-grid--compact-featured', filterKey !== 'all');
     }
 
     buttons.forEach((btn) => {

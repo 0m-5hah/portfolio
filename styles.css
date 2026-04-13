@@ -1333,6 +1333,7 @@ body.nav-past-hero .mobile-menu-btn {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 1.5rem;
+    align-items: stretch;
 }
 
 .projects-phone-row {
@@ -1353,12 +1354,6 @@ body.nav-past-hero .mobile-menu-btn {
     --phone-showcase-mobile-max-w: min(100%, 96vw);
     --phone-video-decode-w: 1080px;
     --phone-video-decode-h: 2340px;
-    /* Extra top offset when ML filter is active (script toggles .projects-phone-row--filter-ml). */
-    --phone-showcase-ml-nudge-y: 0rem;
-}
-
-.projects-phone-row.projects-phone-row--filter-ml {
-    --phone-showcase-ml-nudge-y: -25rem;
 }
 
 /* Cards stay full width and above the decorative phone (z-index). */
@@ -1455,19 +1450,12 @@ body.nav-past-hero .mobile-menu-btn {
         display: block;
     }
 
-    /*
-     * ML filter only: don’t stretch cards to the phone’s track height so the live-demo
-     * card top matches the measured phone offset (see script.js).
-     */
-    .projects-phone-row.projects-phone-row--filter-ml .projects-grid--with-phone > .project-card {
-        align-self: start;
-    }
-
     .projects-phone-row .projects-grid--with-phone > article {
         position: relative;
         z-index: 1;
     }
 
+    /* Default (All, Security, …): phone sits behind the grid, absolutely positioned. */
     .project-phone-showcase-slot.project-card {
         grid-column: 1 / -1;
         grid-row: 1 / -1;
@@ -1496,6 +1484,29 @@ body.nav-past-hero .mobile-menu-btn {
     .project-phone-showcase-slot .phone-showcase-standalone {
         pointer-events: auto;
     }
+
+}
+
+/*
+ * ML filter only:
+ * - IDS (non–live-demo) before SMS in auto-placement; normal grid column widths.
+ * - Phone slot order 99: full-grid overlay behind cards.
+ * - `--phone-showcase-ml-nudge-y` shifts the phone vertically (adds to `top`; negative = up, positive = down).
+ */
+.projects-phone-row.projects-phone-row--filter-ml {
+    --phone-showcase-ml-nudge-y: -25rem;
+}
+
+.projects-phone-row.projects-phone-row--filter-ml .project-phone-showcase-slot.project-card {
+    order: 99;
+}
+
+.projects-phone-row.projects-phone-row--filter-ml .projects-grid--with-phone > article:not(.project-card--live-demo):not(.project-card--filter-hidden) {
+    order: 1;
+}
+
+.projects-phone-row.projects-phone-row--filter-ml .projects-grid--with-phone > article.project-card--live-demo {
+    order: 2;
 }
 
 .phone-showcase-viewport {
@@ -1617,6 +1628,15 @@ body.nav-past-hero .mobile-menu-btn {
         transform var(--transition-normal);
 }
 
+/* Equal height within each grid row: stretch + column flex (featured uses its own grid layout).
+ * Completed projects share a floor height so short copy doesn’t read as a different “card size”. */
+.projects-grid > .project-card:not(.project-phone-showcase-slot):not(.featured):not(.project-card--soon) {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-height: clamp(18rem, 32vmin, 28rem);
+}
+
 /* Tech-noir panels: charcoal card, cyan edge on hover (Featured Projects grid). */
 .projects .project-card:not(.project-phone-showcase-slot) {
     background: linear-gradient(165deg, rgba(22, 27, 34, 0.94) 0%, rgba(14, 17, 22, 0.98) 100%);
@@ -1665,6 +1685,25 @@ body.nav-past-hero .mobile-menu-btn {
     .project-card.featured {
         grid-column: span 3;
     }
+}
+
+/* Filter chips (Security, ML, …): featured card matches one column; no wide hero strip. */
+.projects-grid--compact-featured > .project-card.featured {
+    grid-column: span 1;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-height: clamp(18rem, 32vmin, 28rem);
+}
+
+@media (min-width: 1280px) {
+    .projects-grid--compact-featured > .project-card.featured {
+        grid-column: span 1;
+    }
+}
+
+.projects-grid--compact-featured > .project-card.featured .project-image {
+    display: none;
 }
 
 .project-image {
@@ -1718,6 +1757,8 @@ body.nav-past-hero .mobile-menu-btn {
     padding: 2rem;
     display: flex;
     flex-direction: column;
+    flex: 1;
+    min-height: 0;
 }
 
 .project-header {
@@ -1757,7 +1798,7 @@ body.nav-past-hero .mobile-menu-btn {
     box-shadow: 0 0 12px rgba(0, 0, 0, 0.2);
 }
 
-.project-scope--capstone {
+.project-scope--major-project {
     color: #c4b5fd;
     background: rgba(123, 97, 255, 0.14);
     border-color: rgba(123, 97, 255, 0.45);
@@ -1769,7 +1810,7 @@ body.nav-past-hero .mobile-menu-btn {
     border-color: rgba(0, 255, 136, 0.42);
 }
 
-.project-scope--coursework {
+.project-scope--applied-ml {
     color: #d8b4fe;
     background: rgba(167, 139, 250, 0.12);
     border-color: rgba(167, 139, 250, 0.4);
@@ -1807,6 +1848,12 @@ body.nav-past-hero .mobile-menu-btn {
     color: #f0a0a0;
     background: rgba(240, 160, 160, 0.1);
     border-color: rgba(240, 160, 160, 0.4);
+}
+
+.project-scope--analytics {
+    color: #7dd3fc;
+    background: rgba(56, 189, 248, 0.12);
+    border-color: rgba(56, 189, 248, 0.42);
 }
 
 .folder-icon {
