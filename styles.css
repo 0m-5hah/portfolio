@@ -1567,13 +1567,18 @@ body.nav-past-hero .mobile-menu-btn {
     margin-top: 1.25rem;
 }
 
-/* SMS project card: pulsing “Try Live Demo” only (demos stay discoverable per project) */
-.project-card--live-demo .project-demos-btn > .btn-primary {
+.project-content > .project-demos-btn {
+    margin-top: auto;
+    padding-top: 1.25rem;
+}
+
+/* SMS project card: pulsing glow on compact play tile (replaces full-width “Try Live Demo” CTA) */
+.project-card--live-demo .project-link--tile-live {
     animation: btnLiveDemoCTAPulse 1s ease-in-out infinite;
     will-change: filter, box-shadow;
 }
 
-.project-card--live-demo .project-demos-btn > .btn-primary:hover {
+.project-card--live-demo .project-link--tile-live:hover {
     animation-play-state: paused;
 }
 
@@ -1597,7 +1602,52 @@ body.nav-past-hero .mobile-menu-btn {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
+    justify-content: flex-start;
     gap: 0.75rem 1rem;
+}
+
+.project-icon-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+/* Dark squircle tiles (PDF / GitHub / YouTube / quick links) — bottom of project cards */
+.project-link.project-link--tile {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: 10px;
+    background: rgba(30, 30, 36, 0.92);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #9ca3af;
+    text-decoration: none;
+    transition:
+        color var(--transition-fast),
+        border-color var(--transition-fast),
+        background var(--transition-fast),
+        transform var(--transition-fast);
+}
+
+.project-link.project-link--tile:hover {
+    color: #d1d5db;
+    background: rgba(40, 40, 48, 0.96);
+    border-color: rgba(255, 255, 255, 0.14);
+    transform: translateY(-1px);
+}
+
+.project-link.project-link--tile:focus-visible {
+    outline: 2px solid rgba(0, 212, 255, 0.45);
+    outline-offset: 2px;
+}
+
+.project-link.project-link--tile svg {
+    width: 16px;
+    height: 16px;
+    display: block;
 }
 
 .projects .btn-primary {
@@ -1854,6 +1904,12 @@ body.nav-past-hero .mobile-menu-btn {
     color: #7dd3fc;
     background: rgba(56, 189, 248, 0.12);
     border-color: rgba(56, 189, 248, 0.42);
+}
+
+.project-scope--education {
+    color: #fde68a;
+    background: rgba(251, 191, 36, 0.1);
+    border-color: rgba(251, 191, 36, 0.42);
 }
 
 .folder-icon {
@@ -2133,6 +2189,10 @@ body.nav-past-hero .mobile-menu-btn {
     margin-left: 0;
     margin-right: 0;
     line-height: 1.65;
+}
+
+.demo-lead-tight + .demo-lead-tight {
+    margin-top: 1rem;
 }
 
 .demo-hero-meta {
@@ -4699,7 +4759,7 @@ details.demo-credibility > summary::-webkit-details-marker {
         animation: none !important;
     }
 
-    .project-card--live-demo .project-demos-btn > .btn-primary {
+    .project-card--live-demo .project-link--tile-live {
         animation: none !important;
         filter: none !important;
     }
