@@ -505,14 +505,11 @@ body.nav-past-hero .mobile-menu-btn {
     fill: none;
 }
 
-/* Flat end on squiggle meets one round cap on stem; avoids double round-cap bulge at the joint */
-.scroll-line--squiggle {
+/* Butt start at pill fork; miter at chevron tip (path revisits stem tip). */
+.scroll-line--scroll-interior {
     stroke-linecap: butt;
-}
-
-.scroll-arrow-bounce {
-    transform-box: fill-box;
-    transform-origin: 50% 88%;
+    stroke-linejoin: miter;
+    stroke-miterlimit: 2;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -532,9 +529,6 @@ body.nav-past-hero .mobile-menu-btn {
         stroke-dashoffset: 0 !important;
     }
 
-    .scroll-arrow-bounce {
-        transform: none !important;
-    }
 }
 
 .section-title {
@@ -643,6 +637,25 @@ body.nav-past-hero .mobile-menu-btn {
     margin-bottom: 0;
 }
 
+.about-snippet--scan .about-snippet-body {
+    padding-top: 0.15rem;
+    padding-bottom: 0.15rem;
+}
+
+.about-snippet--scan .about-snippet-body p {
+    margin: 0 0 0.45rem;
+    line-height: 1.55;
+}
+
+.about-snippet--scan .about-snippet-body p.about-snippet-tech {
+    margin-bottom: 0;
+    margin-top: 0.35rem;
+    padding-top: 0.5rem;
+    border-top: 1px solid rgba(167, 139, 250, 0.22);
+    color: rgba(226, 232, 240, 0.88);
+    font-size: 0.82rem;
+}
+
 .about-inline-link {
     font-family: 'JetBrains Mono', ui-monospace, monospace;
     color: var(--accent-secondary);
@@ -661,6 +674,11 @@ body.nav-past-hero .mobile-menu-btn {
     outline: 2px solid var(--accent-secondary);
     outline-offset: 2px;
     border-radius: 2px;
+}
+
+.about-snippet--scan + .about-stats {
+    margin-top: 1.25rem;
+    padding-top: 1.25rem;
 }
 
 .about-stats {

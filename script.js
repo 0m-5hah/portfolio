@@ -285,41 +285,44 @@ function applySplitPillGrow(prefixEl, suffixEl, Lp, Ls, v) {
     }
 }
 
-/** Squiggle + stem are separate paths so only the stem bounces (avoids pill-top dash/glow artefact). */
+const SCROLL_INTERIOR_SQUIGGLE_D =
+    'M 90 8 Q 82 22.5 90 34 C 95.33 41.67 90 53 90 58';
+
+function measureSvgPathLength(d) {
+    const p = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    p.setAttribute('d', d);
+    return typeof p.getTotalLength === 'function' ? p.getTotalLength() : 0;
+}
+
+/** One interior path (squiggle + arrow) so stroke + drop-shadow are not doubled at the fork. */
 function initScrollIndicatorInterior() {
-    const pathSq = document.querySelector('.scroll-line--squiggle');
-    const pathStem = document.querySelector('.scroll-line--stem');
+    const pathInt = document.querySelector('.scroll-line--scroll-interior');
     const pillPrefix = document.querySelector('.scroll-line--pill-prefix');
     const pillSuffix = document.querySelector('.scroll-line--pill-suffix');
-    const bounceGroup = document.querySelector('#scroll-arrow-bounce');
     if (
-        !pathSq ||
-        !pathStem ||
+        !pathInt ||
         !pillPrefix ||
         !pillSuffix ||
-        typeof pathSq.getTotalLength !== 'function' ||
-        typeof pathStem.getTotalLength !== 'function' ||
+        typeof pathInt.getTotalLength !== 'function' ||
         typeof pillPrefix.getTotalLength !== 'function' ||
         typeof pillSuffix.getTotalLength !== 'function'
     ) {
         return;
     }
 
-    const Lq = pathSq.getTotalLength();
-    const Ls = pathStem.getTotalLength();
+    const Lt = pathInt.getTotalLength();
+    const Lq = measureSvgPathLength(SCROLL_INTERIOR_SQUIGGLE_D);
+    const Ls = Math.max(0, Lt - Lq);
     const Lp = pillPrefix.getTotalLength();
     const Lsuf = pillSuffix.getTotalLength();
 
     if (prefersReducedMotion()) {
-        pathSq.style.strokeDasharray = 'none';
-        pathSq.style.strokeDashoffset = '0';
-        pathStem.style.strokeDasharray = 'none';
-        pathStem.style.strokeDashoffset = '0';
+        pathInt.style.strokeDasharray = 'none';
+        pathInt.style.strokeDashoffset = '0';
         pillPrefix.style.strokeDasharray = 'none';
         pillPrefix.style.strokeDashoffset = '0';
         pillSuffix.style.strokeDasharray = 'none';
         pillSuffix.style.strokeDashoffset = '0';
-        if (bounceGroup) bounceGroup.removeAttribute('transform');
         return;
     }
 
@@ -353,7 +356,8 @@ function initScrollIndicatorInterior() {
     }
 
     function applySegment(el, len, a, b) {
-        if (b - a < 0.5) {
+        /* ~stroke-width in user units; tiny dashes read as a glowing dot under filters */
+        if (b - a < 2.5) {
             applyHidden(el, len);
             return;
         }
@@ -373,43 +377,24 @@ function initScrollIndicatorInterior() {
         const pillReady = pillVisible >= junctionFraction - 0.008;
         const waitForPill = t < tJ || (pillStillDrawing && !pillReady);
 
-        if (bounceGroup) {
-            if (t >= hideEnd && t < bounceEnd) {
-                const phase = (t - hideEnd) / (bounceEnd - hideEnd);
-                const theta = phase * Math.PI * 2 * 1.65;
-                const raw = Math.sin(theta);
-                const eased = raw * raw * raw * 0.35 + raw * 0.65;
-                const dy = 3.2 * eased;
-                bounceGroup.setAttribute('transform', `translate(0, ${dy.toFixed(2)})`);
-            } else {
-                bounceGroup.removeAttribute('transform');
-            }
-        }
-
         if (waitForPill) {
-            applyHidden(pathSq, Lq);
-            applyHidden(pathStem, Ls);
+            applyHidden(pathInt, Lt);
         } else if (t < squiggleEnd) {
             const p = (t - tJ) / (squiggleEnd - tJ);
-            applyGrow(pathSq, Lq, p * Lq);
-            applyHidden(pathStem, Ls);
+            applyGrow(pathInt, Lt, p * Lq);
         } else if (t < morphEnd) {
-            applyGrow(pathSq, Lq, Lq);
             const u = (t - squiggleEnd) / (morphEnd - squiggleEnd);
-            applyGrow(pathStem, Ls, u * Ls);
+            applyGrow(pathInt, Lt, Lq + u * Ls);
         } else if (t < hideEnd) {
             const u = (t - morphEnd) / (hideEnd - morphEnd);
             const a = u * Lq;
-            applySegment(pathSq, Lq, a, Lq);
-            applyGrow(pathStem, Ls, Ls);
+            applySegment(pathInt, Lt, a, Lt);
         } else if (t < bounceEnd) {
-            applyHidden(pathSq, Lq);
-            applyGrow(pathStem, Ls, Ls);
+            applySegment(pathInt, Lt, Lq, Lt);
         } else {
-            applyHidden(pathSq, Lq);
             const p = (t - bounceEnd) / (1 - bounceEnd);
             const end = Ls - p * Ls;
-            applySegment(pathStem, Ls, 0, end);
+            applySegment(pathInt, Lt, Lq, Lq + end);
         }
         requestAnimationFrame(tick);
     }

@@ -120,14 +120,9 @@
                             d="M 90 108 A 28 28 0 0 1 62 80 L 62 36 A 28 28 0 0 1 90 8" />
                         <path class="scroll-line scroll-line--pill-suffix" stroke="url(#scroll-stroke-gradient)"
                             d="M 90 8 A 28 28 0 0 1 118 36 L 118 80 A 28 28 0 0 1 90 108" />
-                        <!-- Cubic tail: C1 at (90,34), eases to vertical at (90,58) to meet stem (same Y = same gradient sample) -->
-                        <path class="scroll-line--interior scroll-line--squiggle" stroke="url(#scroll-stroke-gradient)"
-                            d="M 90 8 L 90 11 Q 82 22.5 90 34 C 95.33 41.67 90 53 90 58" />
-                        <g id="scroll-arrow-bounce" class="scroll-arrow-bounce">
-                            <!-- Stem length = 25 (= 1/4 pill height); meets squiggle at (90,58) -->
-                            <path class="scroll-line--interior scroll-line--stem" stroke="url(#scroll-stroke-gradient)"
-                                d="M 90 58 L 90 83 L 85 77 L 90 83 L 95 77" />
-                        </g>
+                        <!-- Single continuous interior path: avoids two strokes at (90,58) stacking glow into a “dot” -->
+                        <path class="scroll-line--interior scroll-line--scroll-interior" stroke="url(#scroll-stroke-gradient)"
+                            d="M 90 8 Q 82 22.5 90 34 C 95.33 41.67 90 53 90 58 L 90 83 L 85 77 L 90 83 L 95 77" />
                     </svg>
                 </div>
             </div>
@@ -145,39 +140,29 @@
                             <span class="skill-matrix-icon about-panel-icon" aria-hidden="true">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
                             </span>
-                            <h3 class="skill-matrix-title about-panel-title"><span class="skill-matrix-highlight">My</span> background</h3>
+                            <h3 class="skill-matrix-title about-panel-title"><span class="skill-matrix-highlight">At a</span> glance</h3>
                         </div>
-                        <div class="skill-snippet about-snippet">
-                            <span class="skill-snippet-open">description: |</span>
+                        <div class="about-snippet about-snippet--scan">
                             <div class="about-snippet-body">
-                                <p>
-                                    I'm a cybersecurity student at UTS with industry experience across
-                                    immigration casework, QA, and automation. I build automations that
-                                    reduce manual handling and shrink attack surface: fewer copy-paste
-                                    workflows, less room for human error in checks, and clearer visibility
-                                    into what's exposed when systems are left misconfigured or outdated.
-                                </p>
-                                <p>
-                                    The roles and shipped tools at Migrate Zone and ITonKey are summarised
-                                    in <a class="about-inline-link" href="#experience">Experience</a> below. For project detail, including
-                                    Sentinel, a major independent project, see <a class="about-inline-link" href="#projects">Featured Projects</a>.
-                                    For something hands-on, open the <a class="about-inline-link" href="project-demos.html">live SMS classifier demo</a>.
-                                </p>
+                                <p>UTS cybersecurity student with 3+ years in QA and automation.</p>
+                                <p>I build automation that cuts human error and security risk.</p>
+                                <p>Delivered 35% faster case handling after rollout.</p>
+                                <p>Focused on finding misconfigurations and reducing attack surface.</p>
+                                <p class="about-snippet-tech">Python, APIs, Automation, Security</p>
                             </div>
-                            <span class="skill-snippet-close" aria-hidden="true">---</span>
                         </div>
                         <div class="about-stats">
                             <div class="stat stat--accent-a">
                                 <span class="stat-number">35%</span>
-                                <span class="stat-label">Faster Case Handling</span>
+                                <span class="stat-label">35% faster case handling</span>
                             </div>
                             <div class="stat stat--accent-b">
                                 <span class="stat-number">3+</span>
-                                <span class="stat-label">Years at Migrate Zone</span>
+                                <span class="stat-label">years QA + automation</span>
                             </div>
                             <div class="stat stat--accent-c">
                                 <span class="stat-number">2026</span>
-                                <span class="stat-label">UTS Graduation</span>
+                                <span class="stat-label">UTS graduation</span>
                             </div>
                         </div>
                     </div>
@@ -915,7 +900,7 @@
                             <span class="skill-snippet-close" aria-hidden="true">---</span>
                         </div>
                         <div class="contact-actions">
-                            <a href="mailto:omsshah05@gmail.com" class="btn btn-primary btn-large">
+                            <a href="mailto:omsshah2005@gmail.com" class="btn btn-primary btn-large">
                                 <span class="btn-icon" aria-hidden="true"><svg class="btn-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><path d="m22 6-10 7L2 6"/></svg></span>
                                 Say Hello
                             </a>
