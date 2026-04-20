@@ -1643,6 +1643,8 @@ body.nav-past-hero .mobile-menu-btn {
     min-height: calc(var(--projects-stack-card-h) + clamp(1.5rem, 4vmin, 2.5rem));
     perspective: 1400px;
     perspective-origin: 50% 40%;
+    /* Let peeled cards (negative translateY) stay visible above the deck */
+    overflow: visible;
 }
 
 @media (min-width: 900px) {
@@ -1764,7 +1766,7 @@ body.nav-past-hero .mobile-menu-btn {
 }
 
 /* Left half: hero / image / placeholder — right half: text (scrolls if long). */
-.projects-stack-deck .project-card--stack-clone > .project-image {
+.projects-stack-deck .project-card--stack-clone .project-image {
     grid-column: 1;
     grid-row: 1;
     min-height: 0;
@@ -1782,8 +1784,13 @@ body.nav-past-hero .mobile-menu-btn {
     position: relative;
 }
 
+/* SMS compact card: wrapper is skipped for grid placement (children participate in the deck grid). */
+.projects-stack-deck .project-card--stack-clone .project-card--compact-grid-hover__stage {
+    display: contents;
+}
+
 /* When you add real thumbnails, they fill the left half. */
-.projects-stack-deck .project-card--stack-clone > .project-image > img:first-child:last-child {
+.projects-stack-deck .project-card--stack-clone .project-image > img:first-child:last-child {
     position: absolute;
     inset: 0;
     width: 100%;
@@ -1792,7 +1799,7 @@ body.nav-past-hero .mobile-menu-btn {
     display: block;
 }
 
-.projects-stack-deck .project-card--stack-clone > .project-content {
+.projects-stack-deck .project-card--stack-clone .project-content {
     grid-column: 2;
     grid-row: 1;
     min-height: 0;
@@ -2099,6 +2106,21 @@ body.nav-past-hero .mobile-menu-btn {
     animation-play-state: paused;
 }
 
+/*
+ * Compact grid SMS card: the default pulse uses filter: drop-shadow(), which paints outside the
+ * tile box and ignores normal overflow clipping — square glow in rounded card corners. Use a
+ * box-shadow-only pulse here so the card’s radius / clip-path can contain it.
+ */
+.project-card--compact-grid-hover:not(.project-card--stack-clone) .project-link--tile-live {
+    animation: btnLiveDemoCTAPulseCompact 1s ease-in-out infinite;
+    filter: none !important;
+    will-change: box-shadow;
+}
+
+.project-card--compact-grid-hover:not(.project-card--stack-clone) .project-link--tile-live:hover {
+    animation-play-state: paused;
+}
+
 /* SMS demo page: Analyze (same pulse as portfolio “Try Live Demo”) */
 #analyze-btn.btn-primary {
     animation: btnLiveDemoCTAPulse 1s ease-in-out infinite;
@@ -2227,7 +2249,8 @@ body.nav-past-hero .mobile-menu-btn {
     box-shadow:
         0 0 0 1px rgba(94, 234, 212, 0.12),
         0 12px 32px rgba(0, 0, 0, 0.25) !important;
-    overflow: visible;
+    /* Inherit .project-card overflow:hidden so screenshots / inner UI respect border-radius */
+    overflow: hidden;
 }
 
 .project-card--live-demo:hover {
@@ -2237,10 +2260,127 @@ body.nav-past-hero .mobile-menu-btn {
         0 20px 52px rgba(94, 234, 212, 0.14) !important;
 }
 
+/*
+ * Static grid SMS card = one “window” (__stage): overflow clips everything.
+ * Default: .project-image covers the top 75%; .project-content fills the window underneath
+ * (absolute inset 0) with header+title pinned to the visible bottom strip (flex-end).
+ * Hover: the whole .project-image layer translates up by 100% of its height and exits; text
+ * stays one layer (no flex-collapse vs inner <img> race, no double scrollbar in default state).
+ * Stack: __stage uses display:contents (deck rules) — these rules are :not(.stack-clone) only.
+ */
+.project-card--compact-grid-hover__stage {
+    position: relative;
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+}
+
+.project-card--compact-grid-hover:not(.project-card--stack-clone) .project-image {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 75%;
+    z-index: 2;
+    border-right: none;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    overflow: hidden;
+    transition: transform 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+    will-change: transform;
+}
+
+.project-card--compact-grid-hover:not(.project-card--stack-clone):hover .project-image,
+.project-card--compact-grid-hover:not(.project-card--stack-clone):focus-within .project-image {
+    transform: translateY(-100%);
+    border-bottom: none;
+}
+
+.project-card--compact-grid-hover:not(.project-card--stack-clone) .project-image img {
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+    object-fit: cover;
+    object-position: center top;
+    display: block;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .project-card--compact-grid-hover:not(.project-card--stack-clone) .project-image,
+    .project-card--compact-grid-hover:not(.project-card--stack-clone) .project-content {
+        transition: none;
+    }
+
+    .project-card--compact-grid-hover:not(.project-card--stack-clone):hover .project-image,
+    .project-card--compact-grid-hover:not(.project-card--stack-clone):focus-within .project-image {
+        transform: none;
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+    }
+}
+
+.project-card--compact-grid-hover:not(.project-card--stack-clone) .project-content {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    min-height: 0;
+    overflow: hidden;
+    /* Collapsed strip: match horizontal inset of other cards; keep vertical tight for the peek row */
+    padding: 0.75rem 2rem 1rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    box-sizing: border-box;
+}
+
+.project-card--compact-grid-hover:not(.project-card--stack-clone):hover .project-content,
+.project-card--compact-grid-hover:not(.project-card--stack-clone):focus-within .project-content {
+    /* Same as .project-content on other grid cards (header row lines up with Production / toolkit cards) */
+    padding: 2rem;
+    justify-content: flex-start;
+    overflow-x: hidden;
+    overflow-y: auto;
+    border-radius: 0 0 12px 12px;
+    -webkit-overflow-scrolling: touch;
+}
+
+.project-card--compact-grid-hover:not(.project-card--stack-clone) .project-content-detail {
+    display: none;
+}
+
+.project-card--compact-grid-hover:not(.project-card--stack-clone):hover .project-content-detail,
+.project-card--compact-grid-hover:not(.project-card--stack-clone):focus-within .project-content-detail {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+}
+
+/* Icon rows live inside .project-content-detail on compact cards (not .project-content > .project-demos-btn) */
+.project-card--compact-grid-hover:not(.project-card--stack-clone) .project-content-detail .project-demos-btn {
+    margin-top: auto;
+    padding-top: 1.25rem;
+}
+
+.projects-stack-deck .project-card--compact-grid-hover .project-content-detail {
+    display: flex !important;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+}
+
+.project-card--compact-grid-hover:not(.project-card--stack-clone):not(:hover):not(:focus-within) .project-header {
+    margin-bottom: 0.5rem;
+}
+
+.project-card--compact-grid-hover:not(.project-card--stack-clone):not(:hover):not(:focus-within) .project-title {
+    margin-bottom: 0;
+}
+
 .project-card.featured {
     grid-column: span 2;
     display: grid;
-    grid-template-columns: 1fr 1.5fr;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
 }
 
 @media (min-width: 1280px) {
@@ -2292,6 +2432,15 @@ body.nav-past-hero .mobile-menu-btn {
     inset: 0;
     background: radial-gradient(ellipse 70% 60% at 50% 40%, rgba(167, 139, 250, 0.09), transparent 65%);
     pointer-events: none;
+}
+
+.project-card.featured .project-image img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center top;
 }
 
 .project-placeholder {
@@ -5488,6 +5637,20 @@ details.demo-misconceptions[open] .demo-misconceptions-chevron::after {
     }
     50% {
         filter: brightness(1.1) drop-shadow(0 0 18px rgba(0, 255, 136, 0.75)) drop-shadow(0 6px 22px rgba(0, 212, 255, 0.55));
+        box-shadow:
+            inset 0 1px 0 rgba(255, 255, 255, 0.35),
+            0 0 0 3px rgba(0, 255, 136, 0.45);
+    }
+}
+
+/* Featured Projects compact SMS tile only: no filter — stays inside rounded clip */
+@keyframes btnLiveDemoCTAPulseCompact {
+    0%, 100% {
+        box-shadow:
+            inset 0 0 0 0 rgba(255, 255, 255, 0),
+            0 0 0 0 rgba(0, 255, 136, 0.35);
+    }
+    50% {
         box-shadow:
             inset 0 1px 0 rgba(255, 255, 255, 0.35),
             0 0 0 3px rgba(0, 255, 136, 0.45);

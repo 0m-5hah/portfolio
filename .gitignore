@@ -14,6 +14,9 @@ spam-ui-test-output/
 # Private folder
 secret/
 
+# Local-only Featured Projects wheel-stack toggle (fetch `123`; omit on host = default behavior)
+123
+
 # Large ML model binary: host externally (Hugging Face / GDrive)
 *.keras
 

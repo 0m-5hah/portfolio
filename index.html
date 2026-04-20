@@ -294,11 +294,13 @@
                         data-project-tags="security"
                         data-stack-image="scrollinganimation_cardshots/sentinel.png?v=1">
                         <div class="project-image">
-                            <div class="project-placeholder">
-                                <span class="skill-matrix-icon project-placeholder-matrix-icon" aria-hidden="true">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
-                                </span>
-                            </div>
+                            <img
+                                src="scrollinganimation_cardshots/sentinel.png?v=1"
+                                alt="Sentinel: Automated Network Security Scanner preview"
+                                loading="lazy"
+                                decoding="async"
+                                width="800"
+                                height="450">
                         </div>
                         <div class="project-content">
                             <div class="project-header">
@@ -311,14 +313,11 @@
                             </div>
                             <h3 class="project-title">Sentinel: Automated Network Security Scanner</h3>
                             <p class="project-description">
-                                As a major independent project at UTS, Sentinel is a Python tool that automatically
-                                scans a computer network, identifies every connected device and service
-                                running on it, and checks each one against a public database of known
-                                security flaws. It cleans up the raw scan output, maps services to
-                                CPE-style software identifiers, and queries the NVD so each finding
-                                is tied to known CVEs with severity metadata. The report groups results
-                                by asset and priority so teams can patch or verify the riskiest items
-                                first, with steps to confirm each issue.
+                                Sentinel is a Python-based network security tool developed as a major independent
+                                project at UTS. It scans networks, identifies devices and services, and checks them
+                                against the NVD vulnerability database. It maps results to software identifiers
+                                and known CVEs, then groups findings by asset and priority to highlight the
+                                highest-risk issues and how to verify them.
                             </p>
                             <ul class="project-tech">
                                 <li>Python</li>
@@ -340,9 +339,20 @@
                     </article>
 
                     <article
-                        class="project-card project-card--accent-a"
+                        class="project-card project-card--accent-a project-card--compact-grid-hover"
                         data-project-tags="automation"
-                        data-stack-image="scrollinganimation_cardshots/toolkit.png?v=1">
+                        data-stack-image="scrollinganimation_cardshots/toolkit.png?v=1"
+                        tabindex="0">
+                        <div class="project-card--compact-grid-hover__stage">
+                        <div class="project-image">
+                            <img
+                                src="scrollinganimation_cardshots/toolkit.png?v=1"
+                                alt="Immigration Case Workflow Automation Toolkit preview"
+                                loading="lazy"
+                                decoding="async"
+                                width="800"
+                                height="450">
+                        </div>
                         <div class="project-content">
                             <div class="project-header">
                                 <div class="project-header-main">
@@ -353,21 +363,24 @@
                                 </div>
                             </div>
                             <h3 class="project-title">Immigration Case Workflow Automation Toolkit</h3>
-                            <p class="project-description">
-                                A team-built automation toolkit used at Migrate Zone to process immigration 
-                                case files. Staff upload documents and the tool merges them into a single PDF, 
-                                reads and extracts the text automatically (using OCR, text recognition 
-                                technology), and checks that every required document is present based on 
-                                the specific visa type. Missing or outdated items are flagged, and the 
-                                results are bundled into summary reports and review-ready PDF packages 
-                                for the team.
-                            </p>
-                            <ul class="project-tech">
-                                <li>Python</li>
-                                <li>Adobe PDF Services</li>
-                                <li>OCR</li>
-                                <li>JSON</li>
-                            </ul>
+                            <div class="project-content-detail">
+                                <p class="project-description">
+                                    A team-built automation toolkit used at Migrate Zone to process immigration
+                                    case files. Staff upload documents and the tool merges them into a single PDF,
+                                    reads and extracts the text automatically (using OCR, text recognition
+                                    technology), and checks that every required document is present based on
+                                    the specific visa type. Missing or outdated items are flagged, and the
+                                    results are bundled into summary reports and review-ready PDF packages
+                                    for the team.
+                                </p>
+                                <ul class="project-tech">
+                                    <li>Python</li>
+                                    <li>Adobe PDF Services</li>
+                                    <li>OCR</li>
+                                    <li>JSON</li>
+                                </ul>
+                            </div>
+                        </div>
                         </div>
                     </article>
 
@@ -398,9 +411,20 @@
                     </article>
 
                     <article
-                        class="project-card project-card--live-demo project-card--accent-c"
+                        class="project-card project-card--live-demo project-card--accent-c project-card--compact-grid-hover"
                         data-project-tags="ml"
-                        data-stack-image="scrollinganimation_cardshots/sms.png?v=1">
+                        data-stack-image="scrollinganimation_cardshots/sms.png?v=1"
+                        tabindex="0">
+                        <div class="project-card--compact-grid-hover__stage">
+                        <div class="project-image">
+                            <img
+                                src="scrollinganimation_cardshots/sms.png?v=1"
+                                alt="SMS bulk-style classifier demo UI"
+                                loading="lazy"
+                                decoding="async"
+                                width="640"
+                                height="360">
+                        </div>
                         <div class="project-content">
                             <div class="project-header">
                                 <div class="project-header-main">
@@ -412,27 +436,30 @@
                                 </div>
                             </div>
                             <h3 class="project-title">SMS bulk-style detector (machine learning)</h3>
-                            <p class="project-description">
-                                An applied ML build: a neural network on SMS text that outputs <strong>P(bulk-style)</strong>
-                                (dataset spam/not-spam labels): how much the wording resembles bulk or automated
-                                messaging, not whether a message is dangerous. Deployed as a backend API with a
-                                live demo.
-                            </p>
-                            <ul class="project-tech">
-                                <li>Python</li>
-                                <li>TensorFlow</li>
-                                <li>GloVe</li>
-                            </ul>
-                            <div class="project-demos-btn project-demos-btn--row">
-                                <div class="project-icon-actions" role="group" aria-label="SMS classifier resources">
-                                    <a href="project-demos.html" class="project-link project-link--tile project-link--tile-live" title="Open live demo" aria-label="Open SMS classifier live demo">
-                                        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>
-                                    </a>
-                                    <a href="papers/SMSClassifier-Report_Om.pdf" class="project-link project-link--tile" target="_blank" rel="noopener noreferrer" title="Technical report (PDF)" aria-label="SMS classifier technical report PDF">
-                                        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v-2zm-3-5V3.5L18.5 9H13z"/></svg>
-                                    </a>
+                            <div class="project-content-detail">
+                                <p class="project-description">
+                                    An applied ML build: a neural network on SMS text that outputs <strong>P(bulk-style)</strong>
+                                    (dataset spam/not-spam labels): how much the wording resembles bulk or automated
+                                    messaging, not whether a message is dangerous. Deployed as a backend API with a
+                                    live demo.
+                                </p>
+                                <ul class="project-tech">
+                                    <li>Python</li>
+                                    <li>TensorFlow</li>
+                                    <li>GloVe</li>
+                                </ul>
+                                <div class="project-demos-btn project-demos-btn--row">
+                                    <div class="project-icon-actions" role="group" aria-label="SMS classifier resources">
+                                        <a href="project-demos.html" class="project-link project-link--tile project-link--tile-live" title="Open live demo" aria-label="Open SMS classifier live demo">
+                                            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>
+                                        </a>
+                                        <a href="papers/SMSClassifier-Report_Om.pdf" class="project-link project-link--tile" target="_blank" rel="noopener noreferrer" title="Technical report (PDF)" aria-label="SMS classifier technical report PDF">
+                                            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v-2zm-3-5V3.5L18.5 9H13z"/></svg>
+                                        </a>
+                                    </div>
                                 </div>
                             </div>
+                        </div>
                         </div>
                     </article>
 
@@ -502,9 +529,20 @@
                     </article>
 
                     <article
-                        class="project-card project-card--accent-b"
+                        class="project-card project-card--accent-b project-card--compact-grid-hover"
                         data-project-tags="security"
-                        data-stack-image="scrollinganimation_cardshots/mitmproxy.png?v=1">
+                        data-stack-image="scrollinganimation_cardshots/mitmproxy.png?v=1"
+                        tabindex="0">
+                        <div class="project-card--compact-grid-hover__stage">
+                        <div class="project-image">
+                            <img
+                                src="scrollinganimation_cardshots/mitmproxy.png?v=1"
+                                alt="TLS interception lab with mitmproxy preview"
+                                loading="lazy"
+                                decoding="async"
+                                width="800"
+                                height="450">
+                        </div>
                         <div class="project-content">
                             <div class="project-header">
                                 <div class="project-header-main">
@@ -515,32 +553,46 @@
                                 </div>
                             </div>
                             <h3 class="project-title">TLS Interception Lab with mitmproxy</h3>
-                            <p class="project-description">
-                                Lab demonstration: a <strong>man-in-the-middle</strong> attack using mitmproxy in a controlled environment. I installed a rogue certificate authority on a Windows 10 VM to intercept and decrypt HTTPS in real time, including form submissions and login flows, when trust in the certificate chain is exploited. Shown only in an isolated lab, not for use outside authorized settings.
-                            </p>
-                            <ul class="project-tech">
-                                <li>Kali Linux</li>
-                                <li>mitmproxy</li>
-                                <li>OpenSSL</li>
-                                <li>Windows 10 VM</li>
-                            </ul>
-                            <div class="project-demos-btn project-demos-btn--row">
-                                <div class="project-icon-actions" role="group" aria-label="TLS lab resources">
-                                    <a href="https://github.com/0m-5hah/TLS-Interception-and-Credential-Capture-via-Proxy-based-MITM-Attack" class="project-link project-link--tile" target="_blank" rel="noopener noreferrer" title="README and lab notes on GitHub" aria-label="TLS interception lab on GitHub">
-                                        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
-                                    </a>
-                                    <a href="https://www.youtube.com/watch?v=Y03m1uaIHTQ" class="project-link project-link--tile" target="_blank" rel="noopener noreferrer" title="Watch on YouTube" aria-label="Watch TLS interception lab on YouTube">
-                                        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
-                                    </a>
+                            <div class="project-content-detail">
+                                <p class="project-description">
+                                    Lab demonstration: a <strong>man-in-the-middle</strong> attack using mitmproxy in a controlled environment. I installed a rogue certificate authority on a Windows 10 VM to intercept and decrypt HTTPS in real time, including form submissions and login flows, when trust in the certificate chain is exploited. Shown only in an isolated lab, not for use outside authorized settings.
+                                </p>
+                                <ul class="project-tech">
+                                    <li>Kali Linux</li>
+                                    <li>mitmproxy</li>
+                                    <li>OpenSSL</li>
+                                    <li>Windows 10 VM</li>
+                                </ul>
+                                <div class="project-demos-btn project-demos-btn--row">
+                                    <div class="project-icon-actions" role="group" aria-label="TLS lab resources">
+                                        <a href="https://github.com/0m-5hah/TLS-Interception-and-Credential-Capture-via-Proxy-based-MITM-Attack" class="project-link project-link--tile" target="_blank" rel="noopener noreferrer" title="README and lab notes on GitHub" aria-label="TLS interception lab on GitHub">
+                                            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+                                        </a>
+                                        <a href="https://www.youtube.com/watch?v=Y03m1uaIHTQ" class="project-link project-link--tile" target="_blank" rel="noopener noreferrer" title="Watch on YouTube" aria-label="Watch TLS interception lab on YouTube">
+                                            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+                                        </a>
+                                    </div>
                                 </div>
                             </div>
+                        </div>
                         </div>
                     </article>
 
                     <article
-                        class="project-card project-card--accent-c"
+                        class="project-card project-card--accent-c project-card--compact-grid-hover"
                         data-project-tags="security"
-                        data-stack-image="scrollinganimation_cardshots/Notification listener - Android demo (Wellness Pulse).png?v=3">
+                        data-stack-image="scrollinganimation_cardshots/Notification listener - Android demo (Wellness Pulse).png?v=3"
+                        tabindex="0">
+                        <div class="project-card--compact-grid-hover__stage">
+                        <div class="project-image">
+                            <img
+                                src="scrollinganimation_cardshots/Notification listener - Android demo (Wellness Pulse).png?v=3"
+                                alt="Notification listener Android demo (Wellness Pulse) preview"
+                                loading="lazy"
+                                decoding="async"
+                                width="800"
+                                height="450">
+                        </div>
                         <div class="project-content">
                             <div class="project-header">
                                 <div class="project-header-main">
@@ -551,22 +603,25 @@
                                 </div>
                             </div>
                             <h3 class="project-title">Notification listener - Android demo (Wellness Pulse)</h3>
-                            <p class="project-description">
-                                Android demo using a fake wellness-style UI to teach notification listener risk: what permission really means, what notification-derived data can look like on-device, and why &ldquo;tap allow&rdquo; matters. Personal portfolio project; demo run only on my own device/emulator.
-                            </p>
-                            <ul class="project-tech">
-                                <li>Android</li>
-                                <li>Kotlin</li>
-                                <li>Privacy</li>
-                                <li>Notification listener</li>
-                            </ul>
-                            <div class="project-demos-btn project-demos-btn--row">
-                                <div class="project-icon-actions" role="group" aria-label="Video resources">
-                                    <a href="https://youtu.be/kOetCv9GY7I" class="project-link project-link--tile" target="_blank" rel="noopener noreferrer" title="Video walkthrough on YouTube" aria-label="Notification listener demo (Wellness Pulse) video walkthrough on YouTube">
-                                        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
-                                    </a>
+                            <div class="project-content-detail">
+                                <p class="project-description">
+                                    Android demo using a fake wellness-style UI to teach notification listener risk: what permission really means, what notification-derived data can look like on-device, and why &ldquo;tap allow&rdquo; matters. Personal portfolio project; demo run only on my own device/emulator.
+                                </p>
+                                <ul class="project-tech">
+                                    <li>Android</li>
+                                    <li>Kotlin</li>
+                                    <li>Privacy</li>
+                                    <li>Notification listener</li>
+                                </ul>
+                                <div class="project-demos-btn project-demos-btn--row">
+                                    <div class="project-icon-actions" role="group" aria-label="Video resources">
+                                        <a href="https://youtu.be/kOetCv9GY7I" class="project-link project-link--tile" target="_blank" rel="noopener noreferrer" title="Video walkthrough on YouTube" aria-label="Notification listener demo (Wellness Pulse) video walkthrough on YouTube">
+                                            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+                                        </a>
+                                    </div>
                                 </div>
                             </div>
+                        </div>
                         </div>
                     </article>
                 </div>

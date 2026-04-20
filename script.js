@@ -226,7 +226,44 @@ function prefersReducedMotion() {
 }
 
 /**
- * Featured Projects: wheel-driven stack progress while the deck is vertically centered.
+ * Temporary dev toggle: fetch a file named `123` next to index.html.
+ * Contents `0` = disable wheel stack; `1` (or anything other than `0`) = enable.
+ * Missing file or fetch error = enable (matches previous behavior).
+ */
+async function projectsStackScrollEnabledByFlag() {
+    try {
+        const res = await fetch(new URL('123', window.location.href).toString(), { cache: 'no-store' });
+        if (!res.ok) return true;
+        const t = (await res.text()).trim();
+        return t !== '0';
+    } catch {
+        return true;
+    }
+}
+
+function releaseProjectsStackForStaticGrid() {
+    const stackRoot = document.getElementById('projects-stack-root');
+    const filter = document.getElementById('projects-filter');
+    const grid = document.querySelector('.projects-grid--with-phone');
+    stackRoot?.removeAttribute('hidden');
+    filter?.classList.remove('projects-filter--stack-hidden');
+    filter?.removeAttribute('aria-hidden');
+    const pr = grid?.closest('.projects-phone-row');
+    pr?.classList.remove('projects-grid--stack-pending');
+    pr?.removeAttribute('aria-hidden');
+}
+
+async function maybeInitProjectsStackScroll() {
+    const enabled = await projectsStackScrollEnabledByFlag();
+    if (!enabled) {
+        releaseProjectsStackForStaticGrid();
+        return;
+    }
+    initProjectsStackScroll();
+}
+
+/**
+ * Featured Projects: wheel-driven stack when the deck viewport straddles the screen midline (not #projects-stack-root — its min-height reserves grid space and is huge).
  * No tall scroll track — document height matches the normal section (reserved min-height).
  * Desktop (≥900px) only; prefers-reduced-motion skips. Logic is isolated to this module.
  */
@@ -242,12 +279,7 @@ function initProjectsStackScroll() {
     const DESKTOP_MIN = '(min-width: 900px)';
 
     function releaseStackHidden() {
-        stackRoot?.removeAttribute('hidden');
-        filter?.classList.remove('projects-filter--stack-hidden');
-        filter?.removeAttribute('aria-hidden');
-        const pr = grid?.closest('.projects-phone-row');
-        pr?.classList.remove('projects-grid--stack-pending');
-        pr?.removeAttribute('aria-hidden');
+        releaseProjectsStackForStaticGrid();
     }
 
     if (prefersReducedMotion()) {
@@ -280,12 +312,24 @@ function initProjectsStackScroll() {
         });
     }
 
+    /**
+     * initScrollAnimations() runs before async stack init finishes and sets inline opacity/transform/transition
+     * on grid cards; cloneNode(true) copies those. `.animate-in` uses transform !important and also breaks the peel.
+     */
+    function prepareStackCloneForDeck(el) {
+        el.classList.remove('animate-in');
+        el.style.removeProperty('opacity');
+        el.style.removeProperty('transform');
+        el.style.removeProperty('transition');
+        el.style.removeProperty('transition-delay');
+    }
+
     /** Left half = visual (data-stack-image, or placeholder); featured uses existing .project-image when a shot is set. */
     function ensureStackLeftVisual(clone) {
-        const content = clone.querySelector(':scope > .project-content');
+        const content = clone.querySelector('.project-content');
         if (!content) return;
         const shotSrc = clone.getAttribute('data-stack-image');
-        const existingVisual = clone.querySelector(':scope > .project-image');
+        const existingVisual = clone.querySelector('.project-image');
 
         if (existingVisual && shotSrc) {
             existingVisual.innerHTML = '';
@@ -324,7 +368,7 @@ function initProjectsStackScroll() {
             }
             visual.appendChild(ph);
         }
-        clone.insertBefore(visual, content);
+        content.parentNode.insertBefore(visual, content);
     }
 
     /* Reserve the same vertical space as filter + grid so flow height does not change when swapping. */
@@ -344,6 +388,7 @@ function initProjectsStackScroll() {
             const clone = cardEl.cloneNode(true);
             stripCloneIds(clone);
             clone.classList.add('project-card--stack-clone');
+            prepareStackCloneForDeck(clone);
             clone.dataset.stackIndex = String(i);
             clone.style.zIndex = String(100 + n - i);
             ensureStackLeftVisual(clone);
@@ -392,7 +437,7 @@ function initProjectsStackScroll() {
 
     const n = cards.length;
     /* Wheel → progress (higher = less scroll per card). */
-    const DELTA_TO_PROGRESS = 0.001;
+    const DELTA_TO_PROGRESS = 0.0032;
     /** ~Hz for exponential smoothing (frame-rate independent; lower = softer follow). */
     const SMOOTH_RATE = 11;
 
@@ -433,18 +478,29 @@ function initProjectsStackScroll() {
         }
     }
 
-    /** True when the stack’s vertical center is near the viewport center (wheel engages only then). */
+    /**
+     * True when the *deck viewport* (not #projects-stack-root) crosses the viewport midline.
+     * Using “center ± tolerance” was easy to miss; straddling midline means: scroll until the deck
+     * actually spans the middle of the screen — then wheel / arrow keys can drive the peel.
+     */
     function isStackEngagementReady() {
         if (!stackRoot || stackRoot.classList.contains('projects-stack-root--hidden')) return false;
-        const r = stackRoot.getBoundingClientRect();
+        const el = viewportEl;
+        if (!el) return false;
+        const r = el.getBoundingClientRect();
         const vh = window.innerHeight;
         if (r.height < 8) return false;
         if (r.bottom <= 0 || r.top >= vh) return false;
         const mid = vh * 0.5;
-        const cy = r.top + r.height * 0.5;
-        /* Tight band ~5–6% of viewport height so the user must scroll the deck to mid-screen first. */
-        const tolerance = Math.max(28, vh * 0.055);
-        return Math.abs(cy - mid) < tolerance;
+        return r.top < mid && r.bottom > mid;
+    }
+
+    /** WheelEvent.deltaY is not always pixels; line/page modes are common on Windows trackpads/mice. */
+    function wheelDeltaYPixels(e) {
+        const y = e.deltaY;
+        if (e.deltaMode === 1) return y * 16;
+        if (e.deltaMode === 2) return y * window.innerHeight;
+        return y;
     }
 
     function lockBodyScroll() {
@@ -486,10 +542,12 @@ function initProjectsStackScroll() {
 
     const wheelOpts = { capture: true, passive: false };
     const touchOpts = { capture: true, passive: false };
+    const keyOpts = { capture: true, passive: false };
 
     function teardownWheelTouch() {
         window.removeEventListener('wheel', onWheel, wheelOpts);
         window.removeEventListener('touchmove', onTouchMove, touchOpts);
+        window.removeEventListener('keydown', onStackKeyDown, keyOpts);
     }
 
     function teardownListeners() {
@@ -706,20 +764,30 @@ function initProjectsStackScroll() {
         }
     }
 
-    function onWheel(e) {
+    /**
+     * Drives stack progress (same path as wheel). `evt` is omitted for programmatic calls.
+     * The visible “animation” is applyStackTransforms() updating transform on .project-card--stack-clone.
+     */
+    function handleStackScrollDelta(dyPx, evt) {
         if (staticLayoutApplied) return;
+
+        const block = () => {
+            if (evt && typeof evt.preventDefault === 'function') {
+                evt.preventDefault();
+                if (typeof evt.stopImmediatePropagation === 'function') evt.stopImmediatePropagation();
+            }
+        };
 
         /*
          * Finished stack but static grid not shown yet: wheel up in the engagement zone
          * pulls progress back so earlier cards can be re-read.
          */
-        if (!isStackActive && stackInteractionComplete && isStackEngagementReady() && e.deltaY < 0) {
-            e.preventDefault();
-            e.stopImmediatePropagation();
+        if (!isStackActive && stackInteractionComplete && isStackEngagementReady() && dyPx < 0) {
+            block();
             stackInteractionComplete = false;
             isStackActive = true;
             lockBodyScroll();
-            targetProgress = Math.max(0, n + e.deltaY * DELTA_TO_PROGRESS);
+            targetProgress = Math.max(0, n + dyPx * DELTA_TO_PROGRESS);
             ensureRaf();
             return;
         }
@@ -727,19 +795,17 @@ function initProjectsStackScroll() {
         if (!isStackEngagementReady() && !isStackActive) return;
 
         /* At end of stack: wheel down should scroll the page, not re-lock the deck. */
-        if (!isStackActive && stackInteractionComplete && e.deltaY > 0) {
+        if (!isStackActive && stackInteractionComplete && dyPx > 0) {
             return;
         }
 
         if (isStackActive) {
-            e.preventDefault();
-            e.stopImmediatePropagation();
-            const dy = e.deltaY;
-            targetProgress = Math.max(0, Math.min(n, targetProgress + dy * DELTA_TO_PROGRESS));
+            block();
+            targetProgress = Math.max(0, Math.min(n, targetProgress + dyPx * DELTA_TO_PROGRESS));
             if (targetProgress < n - 1e-6) {
                 stackInteractionComplete = false;
             }
-            if (targetProgress <= 0 && dy < 0) {
+            if (targetProgress <= 0 && dyPx < 0) {
                 isStackActive = false;
                 unlockBodyScroll();
             }
@@ -748,14 +814,26 @@ function initProjectsStackScroll() {
         }
 
         /* Engagement zone + not yet locked: wheel down starts the stack (capture before inner overflow scroll). */
-        if (e.deltaY > 0) {
-            e.preventDefault();
-            e.stopImmediatePropagation();
+        if (dyPx > 0) {
+            block();
             isStackActive = true;
             lockBodyScroll();
-            targetProgress = Math.max(0, Math.min(n, targetProgress + e.deltaY * DELTA_TO_PROGRESS));
+            targetProgress = Math.max(0, Math.min(n, targetProgress + dyPx * DELTA_TO_PROGRESS));
             ensureRaf();
         }
+    }
+
+    function onWheel(e) {
+        handleStackScrollDelta(wheelDeltaYPixels(e), e);
+    }
+
+    function onStackKeyDown(e) {
+        if (e.key !== 'ArrowDown' && e.key !== 'ArrowUp') return;
+        if (e.ctrlKey || e.metaKey || e.altKey) return;
+        const t = e.target;
+        if (t && t.closest && t.closest('input, textarea, select, [contenteditable="true"]')) return;
+        const dyPx = e.key === 'ArrowDown' ? 120 : -120;
+        handleStackScrollDelta(dyPx, e);
     }
 
     function onTouchMove(e) {
@@ -822,6 +900,7 @@ function initProjectsStackScroll() {
     stackRoot.addEventListener('click', onStackDeckClickCapture, true);
     window.addEventListener('wheel', onWheel, wheelOpts);
     window.addEventListener('touchmove', onTouchMove, touchOpts);
+    window.addEventListener('keydown', onStackKeyDown, keyOpts);
     window.addEventListener('resize', onResize);
 
     refreshCardHeights();
@@ -837,7 +916,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initCursorGlow();
     initMobileMenu();
     initSmoothScroll();
-    initProjectsStackScroll();
+    void maybeInitProjectsStackScroll();
     initScrollAnimations();
     initNavbarScroll();
     initTerminalTyping();
