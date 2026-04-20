@@ -222,6 +222,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initPapersCarouselWhenReady();
     initScrollIndicatorInterior();
     initProjectsFilter();
+    initExperienceTabs();
     initPortfolioEngagementTracking();
 });
 
@@ -485,6 +486,42 @@ function initProjectsFilter() {
     applyFilter('all');
 }
 
+function initExperienceTabs() {
+    const root = document.querySelector('.experience-layout');
+    if (!root) return;
+    const tabs = Array.from(root.querySelectorAll('.experience-tab'));
+    const panels = Array.from(root.querySelectorAll('.experience-panel'));
+    if (!tabs.length || tabs.length !== panels.length) return;
+
+    function activate(index) {
+        tabs.forEach((tab, i) => {
+            const on = i === index;
+            tab.classList.toggle('is-active', on);
+            tab.setAttribute('aria-selected', on ? 'true' : 'false');
+            tab.setAttribute('tabindex', on ? '0' : '-1');
+            panels[i].hidden = !on;
+            panels[i].classList.toggle('is-active', on);
+        });
+    }
+
+    tabs.forEach((tab, i) => {
+        tab.addEventListener('click', () => activate(i));
+        tab.addEventListener('keydown', (e) => {
+            let next = null;
+            if (e.key === 'ArrowDown' || e.key === 'ArrowRight') {
+                next = Math.min(i + 1, tabs.length - 1);
+            } else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') {
+                next = Math.max(i - 1, 0);
+            }
+            if (next !== null && next !== i) {
+                e.preventDefault();
+                activate(next);
+                tabs[next].focus();
+            }
+        });
+    });
+}
+
 /** Must match `zoom` on `html` in styles.css when present; mouse coords stay viewport-based while fixed layout is zoom-scaled. */
 function getRootZoomFactor() {
     const z = parseFloat(getComputedStyle(document.documentElement).zoom);
@@ -563,7 +600,7 @@ function initSmoothScroll() {
 
 function initScrollAnimations() {
     const animateElements = document.querySelectorAll(
-        '.skill-category, .project-card:not(.project-phone-showcase-slot), .cert-cell, .papers-carousel-outer, .certifications, .about-content, .contact-content, .experience-item'
+        '.skill-category, .project-card:not(.project-phone-showcase-slot), .cert-cell, .papers-carousel-outer, .certifications, .about-content, .contact-content, .experience-tab'
     );
 
     if (prefersReducedMotion()) {

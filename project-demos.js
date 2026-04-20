@@ -172,11 +172,6 @@
                 return { text: text, barWidth: barW, saturated: saturated };
             }
 
-            function credSaturatedUiNote() {
-                var cr = clientConfig && clientConfig.client && clientConfig.client.credibility;
-                return (cr && cr.saturated_ui_note) || '';
-            }
-
             function getLoadingSuffix() {
                 var s = clientConfig && clientConfig.client && clientConfig.client.loading_suffix;
                 return s || 'tokenize, pad, one CNN forward pass';
@@ -644,20 +639,6 @@
                 }
 
                 return reasons.slice(0, 5);
-            }
-
-            function initCredibilityBlock() {
-                var credPanel = document.getElementById('demo-credibility-panel');
-                var lab = document.getElementById('demo-credibility-toggle-label');
-                var cr = clientConfig && clientConfig.client && clientConfig.client.credibility;
-                if (!credPanel) return;
-                if (!cr || !cr.failure_detail) return;
-                if (lab && cr.toggle_label) lab.textContent = cr.toggle_label;
-                credPanel.innerHTML =
-                    (cr.failure_title
-                        ? '<p class="demo-credibility-title">' + escapeHtml(cr.failure_title) + '</p>'
-                        : '') +
-                    '<p class="demo-credibility-text">' + escapeHtml(cr.failure_detail) + '</p>';
             }
 
             function stopInferenceTick() {
@@ -1162,7 +1143,6 @@
             });
 
             refreshApiStatus();
-            initCredibilityBlock();
 
             if (inboxToggle && inboxPanel) {
                 inboxToggle.addEventListener('click', function () {

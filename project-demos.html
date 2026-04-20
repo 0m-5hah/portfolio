@@ -197,7 +197,7 @@
             <li><a href="index.html#projects">Projects</a></li>
             <li><a href="index.html#papers">Papers</a></li>
             <li><a href="index.html#contact">Contact</a></li>
-            <li><a href="om-shah-resume.pdf?v=20260409" class="nav-resume" target="_blank" rel="noopener">Resume</a></li>
+            <li><a href="resume.html" class="nav-resume">Resume</a></li>
         </ul>
         <button type="button" class="mobile-menu-btn" aria-label="Toggle menu" aria-expanded="false" aria-controls="nav-links-primary">
             <span></span>
@@ -215,15 +215,35 @@
                             <span class="demo-hero-label">Interactive demo</span>
                         </div>
                         <h1 class="demo-hero-title">SMS bulk-style classifier</h1>
-                        <p class="demo-lead demo-lead-tight">
-                            Trained on SMS <strong>spam / not-spam</strong> labels. The score is <strong>P(bulk-style)</strong>.
-                            <span class="demo-verbose-only"> How much the text resembles bulk or automated messaging in the dataset, not whether a message is dangerous, fraudulent, or “malicious.”</span>
-                        </p>
+                        <div class="demo-quickstart" role="region" aria-label="Quick start: what this demo is and how to use it">
+                            <div class="demo-quickstart-block">
+                                <p class="demo-quickstart-lead">What you’re looking at</p>
+                                <p class="demo-quickstart-blurb">
+                                    Paste or type a short message (like an SMS). You get a score for how much the <strong>wording</strong> looks like bulk or automated text. It does <strong>not</strong> judge whether the message is safe or a scam.
+                                </p>
+                            </div>
+                            <div class="demo-quickstart-block demo-quickstart-block--steps">
+                                <p class="demo-quickstart-lead">What to do</p>
+                                <ol class="demo-quickstart-steps">
+                                    <li>Paste or type in the box below, or press <span class="demo-quickstart-pill">Random</span> for an example.</li>
+                                    <li>Press <span class="demo-quickstart-pill">Analyze</span> (the green button).</li>
+                                    <li>Check the panel on the right for the label, percentage, and (after a run) which words mattered.</li>
+                                    <li class="demo-quickstart-steps-optional">Optional: further down, <span class="demo-quickstart-pill">Simulate inbox</span> scores several lines at once.</li>
+                                </ol>
+                            </div>
+                        </div>
                     </div>
                 </header>
 
                 <details id="common-misconceptions" class="demo-disclosure demo-misconceptions demo-misconceptions--top">
-                    <summary class="demo-disclosure-summary">Common misconceptions &amp; disclaimer</summary>
+                    <summary class="demo-disclosure-summary demo-disclosure-summary--misconceptions">
+                        <span class="demo-misconceptions-summary-label">Common misconceptions &amp; disclaimer</span>
+                        <span class="demo-misconceptions-summary-affordance">
+                            <span class="demo-misconceptions-hint demo-misconceptions-hint--open">Tap to expand</span>
+                            <span class="demo-misconceptions-hint demo-misconceptions-hint--close">Tap to collapse</span>
+                            <span class="demo-misconceptions-chevron" aria-hidden="true"></span>
+                        </span>
+                    </summary>
                     <div class="demo-disclosure-body">
                     <div class="demo-misconceptions-grid">
                         <div class="demo-misconception-card">
@@ -248,17 +268,6 @@
                     </div>
                 </details>
 
-                <details id="demo-credibility" class="demo-disclosure demo-credibility demo-credibility--top">
-                    <summary class="demo-disclosure-summary demo-credibility-summary">
-                        <span class="demo-credibility-icon" aria-hidden="true">✓</span>
-                        <span id="demo-credibility-toggle-label">Failure case (example)</span>
-                    </summary>
-                    <div id="demo-credibility-panel" class="demo-credibility-panel">
-                        <p class="demo-credibility-title">Representative error</p>
-                        <p class="demo-credibility-text">Legitimate reminder with “Reply STOP to unsubscribe” scored 95.7% spam; opt-out wording is a strong spam cue in training, so real senders can false-positive without sender context.</p>
-                    </div>
-                </details>
-
                 <div id="spam-api-gate-banner" class="spam-api-gate-banner" hidden role="status"></div>
 
                 <div id="spam-api-banner" class="demo-api-banner demo-api-banner--pending" role="status">
@@ -266,7 +275,7 @@
                     <div class="demo-api-banner-body">
                         <span id="spam-api-status-text" class="demo-api-banner-primary">Checking inference API…</span>
                         <details id="spam-api-status-details" class="demo-api-inline-details" hidden>
-                            <summary class="demo-api-inline-details-summary">Details</summary>
+                            <summary class="demo-api-inline-details-summary">View details</summary>
                             <span id="spam-api-status-detail" class="demo-api-banner-detail"></span>
                         </details>
                     </div>
