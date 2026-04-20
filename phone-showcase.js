@@ -859,7 +859,19 @@ export async function initPhoneShowcase(container, els) {
   };
 }
 
+function shouldSkipPhoneShowcase() {
+  if (typeof window !== 'undefined' && window.__OM_PORTFOLIO_NOJS__) return true;
+  if (document.documentElement.classList.contains('html-nojs-compat')) return true;
+  try {
+    if (new URLSearchParams(location.search).get('nojs') === '1') return true;
+  } catch (_) {
+    /* ignore */
+  }
+  return false;
+}
+
 async function boot() {
+  if (shouldSkipPhoneShowcase()) return;
   const root = document.getElementById('phone-showcase-root');
   if (!root) return;
   const canvas = root.querySelector('#phone-showcase-canvas');
@@ -899,8 +911,10 @@ async function boot() {
   tryStartShowcase();
 }
 
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', boot);
-} else {
-  boot();
+if (!shouldSkipPhoneShowcase()) {
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', boot);
+  } else {
+    boot();
+  }
 }

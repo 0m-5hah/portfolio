@@ -1,0 +1,34 @@
+/*
+ * Loaded when JavaScript is disabled (<noscript>) or when ?nojs=1 is used (see nojs-mode.js).
+ * Simplified layout: static hero scroll SVG, no phone glow, no terminal typing line.
+ */
+
+/* Entire 3D phone slot (canvas + video) — simplified / no-JS layout */
+.project-phone-showcase-slot,
+.phone-showcase-standalone,
+#phone-showcase-root,
+#phone-showcase-canvas,
+#phone-screen-video {
+    display: none !important;
+}
+
+/* Ground glow under 3D phone — redundant if slot is hidden; keep for partial CSS loads */
+.phone-showcase-standalone::after {
+    display: none !important;
+    content: none !important;
+}
+
+/* Hero scroll indicator: show full stroke (final frame) without JS-driven dash animation */
+.scroll-line,
+.scroll-line--pill-prefix,
+.scroll-line--pill-suffix,
+.scroll-line--interior {
+    stroke-dasharray: none !important;
+    stroke-dashoffset: 0 !important;
+    animation: none !important;
+}
+
+/* Last terminal line is only for JS typing animation */
+.terminal-line.terminal-line-active {
+    display: none !important;
+}

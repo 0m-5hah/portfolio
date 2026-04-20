@@ -33,6 +33,12 @@
 html {
     scroll-behavior: smooth;
     scroll-padding-top: 5.5rem;
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* legacy Edge */
+}
+
+html::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, Opera */
 }
 
 body {
@@ -41,6 +47,12 @@ body {
     color: var(--text-primary);
     line-height: 1.6;
     overflow-x: hidden;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+body::-webkit-scrollbar {
+    display: none;
 }
 
 ::selection {
@@ -63,6 +75,15 @@ body {
     max-width: 1200px;
     margin: 0 auto;
     padding: 0 2rem;
+}
+
+/* Simplified layout (?nojs=1): hide 3D phone slot even if a script slips through */
+html.html-nojs-compat .project-phone-showcase-slot,
+html.html-nojs-compat .phone-showcase-standalone,
+html.html-nojs-compat #phone-showcase-root,
+html.html-nojs-compat #phone-showcase-canvas,
+html.html-nojs-compat #phone-screen-video {
+    display: none !important;
 }
 
 .navbar {
@@ -488,6 +509,92 @@ body.nav-past-hero .mobile-menu-btn {
         drop-shadow(0 0 8px rgba(56, 189, 248, 0.55))
         drop-shadow(0 0 18px rgba(52, 211, 153, 0.25))
         drop-shadow(0 0 22px rgba(167, 139, 250, 0.35));
+}
+
+/* Pill + ball cue to the right of the wheel deck (replaces second neon SVG). */
+.projects-stack-scroll-hint {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+    box-sizing: border-box;
+}
+
+/* `display: flex` above beats the default [hidden] display:none at equal specificity — force hidden to win. */
+.projects-stack-scroll-hint[hidden] {
+    display: none !important;
+}
+
+/* Only when the wheel deck is active; keeps the cue off the static grid / mobile / after stack completes. */
+#projects:not(.projects-section--stack-active) .projects-stack-scroll-hint {
+    display: none !important;
+}
+
+#projects.projects-section--stack-active .projects-stack-scroll-hint:not([hidden]) {
+    display: flex !important;
+}
+
+.projects-stack-pill-scroll {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.projects-stack-pill-scroll__track {
+    position: relative;
+    width: 26px;
+    height: 64px;
+    box-sizing: border-box;
+    overflow: hidden;
+    border: 2px solid rgba(255, 255, 255, 0.14);
+    border-radius: 999px;
+    background: var(--bg-tertiary);
+    box-shadow:
+        inset 0 0 0 1px rgba(0, 0, 0, 0.4),
+        0 0 0 1px rgba(0, 255, 136, 0.12),
+        0 0 22px rgba(0, 212, 255, 0.14);
+}
+
+.projects-stack-pill-scroll__ball {
+    position: absolute;
+    left: 50%;
+    top: 8px;
+    width: 9px;
+    height: 9px;
+    margin-left: -4.5px;
+    border-radius: 50%;
+    background: radial-gradient(
+        circle at 32% 28%,
+        rgba(200, 255, 230, 0.95),
+        var(--accent-primary) 42%,
+        var(--accent-secondary) 100%
+    );
+    box-shadow:
+        0 0 8px rgba(0, 255, 136, 0.55),
+        0 0 16px rgba(0, 212, 255, 0.4),
+        0 0 22px rgba(139, 92, 246, 0.2);
+    animation: projects-stack-pill-ball-y 1.35s ease-in-out infinite;
+}
+
+@keyframes projects-stack-pill-ball-y {
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(31px);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .projects-stack-pill-scroll__ball {
+        animation: none;
+        top: 50%;
+        margin-left: 0;
+        left: 50%;
+        transform: translate(-50%, -50%);
+    }
 }
 
 .scroll-line {
@@ -1474,6 +1581,265 @@ body.nav-past-hero .mobile-menu-btn {
 
 .projects-filter-btn:not(.is-active) .projects-filter-count {
     opacity: 0.75;
+}
+
+/* Stacked scroll intro: Framer-style featured-work deck (centered, large rounded panels, visible peeks) */
+#projects.projects-section--stack-active {
+    background: var(--bg-secondary);
+}
+
+.projects-stack-root {
+    position: relative;
+    z-index: 2;
+    margin: 0;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    gap: clamp(1rem, 3vw, 2.25rem);
+}
+
+.projects-stack-viewport {
+    position: relative;
+    flex: 1 1 auto;
+    min-width: 0;
+    width: auto;
+    max-width: min(1120px, calc(92vw - 4rem));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    /* Match stack card vertical size (~half of previous defaults). */
+    min-height: min(26vh, 340px);
+    box-sizing: border-box;
+    overflow: visible;
+    /* Soft vignette behind the deck (reference: meet.framer.media featured work) */
+    background: radial-gradient(
+        ellipse 85% 75% at 50% 45%,
+        rgba(255, 255, 255, 0.03) 0%,
+        transparent 62%
+    );
+    border-radius: clamp(12px, 2vmin, 20px);
+}
+
+@media (min-width: 900px) {
+    .projects-stack-viewport {
+        min-height: min(29vh, 380px);
+    }
+}
+
+/*
+ * Stack scroll: card height — change only --projects-stack-card-h here (and the 900px override below).
+ * All clones use this via height / min-height / max-height.
+ */
+.projects-stack-deck {
+    --projects-stack-card-h: min(29vh, 380px);
+    position: relative;
+    width: 100%;
+    max-width: min(1120px, 92vw);
+    margin: 0 auto;
+    padding-bottom: clamp(1.75rem, 4.5vmin, 2.75rem);
+    min-height: calc(var(--projects-stack-card-h) + clamp(1.5rem, 4vmin, 2.5rem));
+    perspective: 1400px;
+    perspective-origin: 50% 40%;
+}
+
+@media (min-width: 900px) {
+    .projects-stack-deck {
+        --projects-stack-card-h: min(30vh, 390px);
+    }
+}
+
+.projects-stack-deck .project-card--stack-clone {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    margin: 0 auto;
+    width: 100%;
+    max-width: 100%;
+    height: var(--projects-stack-card-h);
+    min-height: var(--projects-stack-card-h);
+    max-height: var(--projects-stack-card-h);
+    box-sizing: border-box;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-rows: minmax(0, 1fr);
+    align-items: stretch;
+    column-gap: 0;
+    transform-origin: 50% 0;
+    will-change: transform;
+    border-radius: clamp(20px, 2.2vmin, 28px);
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.09);
+    box-shadow:
+        0 0 0 1px rgba(0, 0, 0, 0.35),
+        0 8px 16px rgba(0, 0, 0, 0.28),
+        0 32px 72px rgba(0, 0, 0, 0.5),
+        0 0 80px rgba(0, 0, 0, 0.25);
+    backface-visibility: hidden;
+    transition: border-color 0.2s ease, box-shadow 0.25s ease;
+}
+
+/* Accent-tinted panels (reads like case-study hero cards on Framer portfolios) */
+.projects-stack-deck .project-card--stack-clone.project-card--accent-a {
+    background: linear-gradient(
+        165deg,
+        rgba(28, 22, 30, 0.98) 0%,
+        rgba(14, 17, 22, 0.99) 50%,
+        rgba(184, 79, 134, 0.14) 100%
+    );
+}
+
+.projects-stack-deck .project-card--stack-clone.project-card--accent-b {
+    background: linear-gradient(
+        165deg,
+        rgba(22, 28, 34, 0.98) 0%,
+        rgba(14, 17, 22, 0.99) 50%,
+        rgba(56, 189, 248, 0.12) 100%
+    );
+}
+
+.projects-stack-deck .project-card--stack-clone.project-card--accent-c {
+    background: linear-gradient(
+        165deg,
+        rgba(30, 26, 22, 0.98) 0%,
+        rgba(14, 17, 22, 0.99) 50%,
+        rgba(251, 146, 60, 0.14) 100%
+    );
+}
+
+.projects-stack-deck .project-card--stack-clone.project-card--accent-d {
+    background: linear-gradient(
+        165deg,
+        rgba(26, 24, 34, 0.98) 0%,
+        rgba(14, 17, 22, 0.99) 50%,
+        rgba(167, 139, 250, 0.14) 100%
+    );
+}
+
+.projects-stack-root .projects-stack-deck .project-card--stack-clone:hover {
+    border-color: rgba(255, 255, 255, 0.12);
+    box-shadow:
+        0 0 0 1px rgba(0, 0, 0, 0.35),
+        0 12px 24px rgba(0, 0, 0, 0.32),
+        0 36px 80px rgba(0, 0, 0, 0.52);
+}
+
+/* Do not set height:auto on stack clones — it overrides the fixed deck height (same specificity, later rule). */
+.projects-stack-root .project-card {
+    width: 100%;
+    max-width: 100%;
+    min-height: 0;
+}
+
+.projects-stack-root .project-card:not(.project-card--stack-clone) {
+    height: auto;
+}
+
+.projects-stack-root .project-card--stack-clone {
+    opacity: 1 !important;
+    visibility: visible !important;
+    /* Beat .projects-stack-root .project-card and lock one height for every card in the stack */
+    height: var(--projects-stack-card-h) !important;
+    min-height: var(--projects-stack-card-h) !important;
+    max-height: var(--projects-stack-card-h) !important;
+    box-sizing: border-box;
+}
+
+/*
+ * Hit targets: only the front card is interactive. Descendants of inactive stacked
+ * cards must not receive clicks (parent pointer-events:none alone is not enough in
+ * some browsers for overlapping absolute siblings).
+ */
+.projects-stack-deck .project-card--stack-clone:not(.stack-clone--interactive),
+.projects-stack-deck .project-card--stack-clone:not(.stack-clone--interactive) * {
+    pointer-events: none !important;
+}
+
+.projects-stack-deck .project-card--stack-clone.stack-clone--interactive,
+.projects-stack-deck .project-card--stack-clone.stack-clone--interactive * {
+    pointer-events: auto !important;
+}
+
+/* Left half: hero / image / placeholder — right half: text (scrolls if long). */
+.projects-stack-deck .project-card--stack-clone > .project-image {
+    grid-column: 1;
+    grid-row: 1;
+    min-height: 0;
+    height: 100%;
+    max-height: none;
+    width: 100%;
+    align-self: stretch;
+    border-right: 1px solid rgba(255, 255, 255, 0.06);
+    border-bottom: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    position: relative;
+}
+
+/* When you add real thumbnails, they fill the left half. */
+.projects-stack-deck .project-card--stack-clone > .project-image > img:first-child:last-child {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.projects-stack-deck .project-card--stack-clone > .project-content {
+    grid-column: 2;
+    grid-row: 1;
+    min-height: 0;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.projects-stack-deck .project-card--stack-clone .project-stack-visual__placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+    padding: 1rem;
+    box-sizing: border-box;
+}
+
+.projects-stack-deck .project-card--stack-clone .project-stack-visual .project-header-matrix-icon {
+    width: clamp(3.5rem, 12vmin, 5rem);
+    height: clamp(3.5rem, 12vmin, 5rem);
+    opacity: 0.92;
+}
+
+.projects-stack-deck .project-card--stack-clone .project-stack-visual .project-header-matrix-icon svg {
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+
+.projects-filter.projects-filter--stack-hidden {
+    display: none !important;
+}
+
+.projects-phone-row.projects-grid--stack-pending {
+    max-height: 0 !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+    border: none !important;
+}
+
+.projects-stack-root.projects-stack-root--hidden {
+    display: none !important;
 }
 
 .project-card.project-card--filter-hidden {

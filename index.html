@@ -25,6 +25,8 @@
     <title>Om Shah | Cybersecurity &amp; Automation</title>
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
     <link rel="stylesheet" href="styles.css">
+    <noscript><link rel="stylesheet" href="nojs.css" /></noscript>
+    <script src="nojs-mode.js"></script>
     <!-- Import map: Three.js addons import bare "three"; hash must match script-src above (edit both if this JSON changes). -->
     <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -34,7 +36,7 @@
 <body class="home-page">
     <!-- Other top-level pages: copy nav brand from project-demos.html; add <span class="brand-path">/slug</span> after .portfolio -->
     <div class="cursor-glow"></div>
-    
+
         <nav class="navbar" aria-label="Main navigation">
         <a href="#home" class="nav-brand">
             <span class="terminal-prompt">&gt;_</span>
@@ -255,6 +257,15 @@
                     <span class="section-number">03.</span>
                     Featured Projects
                 </h2>
+                <div id="projects-stack-root" class="projects-stack-root" aria-label="Project highlights" role="region" hidden>
+                    <div id="projects-stack-scroll-hint" class="projects-stack-scroll-hint" hidden aria-hidden="true">
+                        <div class="projects-stack-pill-scroll" aria-hidden="true">
+                            <div class="projects-stack-pill-scroll__track">
+                                <div class="projects-stack-pill-scroll__ball"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 <div class="projects-filter" id="projects-filter" role="group" aria-label="Filter projects by type of work">
                     <span class="projects-filter-label" id="projects-filter-label">Filter by</span>
                     <div class="projects-filter-chips" role="toolbar" aria-labelledby="projects-filter-label">
@@ -278,7 +289,10 @@
                 <!-- 3D phone: large desktop only (≥1400px); see phone-showcase-loader.js -->
                 <div class="projects-phone-row">
                 <div class="projects-grid projects-grid--with-phone">
-                    <article class="project-card featured project-card--accent-d" data-project-tags="security">
+                    <article
+                        class="project-card featured project-card--accent-d"
+                        data-project-tags="security"
+                        data-stack-image="scrollinganimation_cardshots/sentinel.png?v=1">
                         <div class="project-image">
                             <div class="project-placeholder">
                                 <span class="skill-matrix-icon project-placeholder-matrix-icon" aria-hidden="true">
@@ -325,7 +339,10 @@
                         </div>
                     </article>
 
-                    <article class="project-card project-card--accent-a" data-project-tags="automation">
+                    <article
+                        class="project-card project-card--accent-a"
+                        data-project-tags="automation"
+                        data-stack-image="scrollinganimation_cardshots/toolkit.png?v=1">
                         <div class="project-content">
                             <div class="project-header">
                                 <div class="project-header-main">
@@ -380,7 +397,10 @@
                         </div>
                     </article>
 
-                    <article class="project-card project-card--live-demo project-card--accent-c" data-project-tags="ml">
+                    <article
+                        class="project-card project-card--live-demo project-card--accent-c"
+                        data-project-tags="ml"
+                        data-stack-image="scrollinganimation_cardshots/sms.png?v=1">
                         <div class="project-content">
                             <div class="project-header">
                                 <div class="project-header-main">
@@ -481,7 +501,10 @@
                         </div>
                     </article>
 
-                    <article class="project-card project-card--accent-b" data-project-tags="security">
+                    <article
+                        class="project-card project-card--accent-b"
+                        data-project-tags="security"
+                        data-stack-image="scrollinganimation_cardshots/mitmproxy.png?v=1">
                         <div class="project-content">
                             <div class="project-header">
                                 <div class="project-header-main">
@@ -514,7 +537,10 @@
                         </div>
                     </article>
 
-                    <article class="project-card project-card--accent-c" data-project-tags="security">
+                    <article
+                        class="project-card project-card--accent-c"
+                        data-project-tags="security"
+                        data-stack-image="scrollinganimation_cardshots/Notification listener - Android demo (Wellness Pulse).png?v=3">
                         <div class="project-content">
                             <div class="project-header">
                                 <div class="project-header-main">

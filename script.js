@@ -9,6 +9,18 @@ const SMS_API_BADGE_SESSION_KEY = 'smsApiBadgePreview';
 
 const SMS_API_BADGE_VALID = new Set(['down', 'checking', 'live', 'warmup']);
 
+/** Set by nojs-mode.js for ?nojs=1; also used when matching search (before class is set). */
+function isNoJsCompatLayout() {
+    if (typeof window !== 'undefined' && window.__OM_PORTFOLIO_NOJS__) return true;
+    if (document.documentElement.classList.contains('html-nojs-compat')) return true;
+    try {
+        if (new URLSearchParams(location.search).get('nojs') === '1') return true;
+    } catch (_) {
+        /* ignore */
+    }
+    return /\bnojs=1\b/.test(typeof location !== 'undefined' ? location.search : '');
+}
+
 function normalizeApiBadgeMode(v) {
     if (v == null || v === '') return null;
     const m = String(v).toLowerCase();
@@ -209,10 +221,623 @@ function initDemoExitLinksTracking() {
     });
 }
 
+function prefersReducedMotion() {
+    return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+}
+
+/**
+ * Featured Projects: wheel-driven stack progress while the deck is vertically centered.
+ * No tall scroll track — document height matches the normal section (reserved min-height).
+ * Desktop (≥900px) only; prefers-reduced-motion skips. Logic is isolated to this module.
+ */
+function initProjectsStackScroll() {
+    if (isNoJsCompatLayout()) return;
+
+    const stackRoot = document.getElementById('projects-stack-root');
+    const stackScrollHint = document.getElementById('projects-stack-scroll-hint');
+    const section = document.getElementById('projects');
+    const grid = document.querySelector('.projects-grid--with-phone');
+    const filter = document.getElementById('projects-filter');
+
+    const DESKTOP_MIN = '(min-width: 900px)';
+
+    function releaseStackHidden() {
+        stackRoot?.removeAttribute('hidden');
+        filter?.classList.remove('projects-filter--stack-hidden');
+        filter?.removeAttribute('aria-hidden');
+        const pr = grid?.closest('.projects-phone-row');
+        pr?.classList.remove('projects-grid--stack-pending');
+        pr?.removeAttribute('aria-hidden');
+    }
+
+    if (prefersReducedMotion()) {
+        releaseStackHidden();
+        return;
+    }
+
+    if (!section || !grid || !filter || !stackRoot) {
+        releaseStackHidden();
+        return;
+    }
+
+    if (!window.matchMedia(DESKTOP_MIN).matches) {
+        releaseStackHidden();
+        return;
+    }
+
+    const cards = Array.from(
+        grid.querySelectorAll('article.project-card:not(.project-card--soon)')
+    );
+    if (cards.length === 0) {
+        releaseStackHidden();
+        return;
+    }
+
+    function stripCloneIds(el) {
+        el.removeAttribute('id');
+        el.querySelectorAll('[id]').forEach((node) => {
+            node.removeAttribute('id');
+        });
+    }
+
+    /** Left half = visual (data-stack-image, or placeholder); featured uses existing .project-image when a shot is set. */
+    function ensureStackLeftVisual(clone) {
+        const content = clone.querySelector(':scope > .project-content');
+        if (!content) return;
+        const shotSrc = clone.getAttribute('data-stack-image');
+        const existingVisual = clone.querySelector(':scope > .project-image');
+
+        if (existingVisual && shotSrc) {
+            existingVisual.innerHTML = '';
+            const img = document.createElement('img');
+            img.className = 'project-stack-visual__shot';
+            img.src = shotSrc;
+            img.loading = 'lazy';
+            img.decoding = 'async';
+            const titleEl = clone.querySelector('.project-title');
+            img.alt = titleEl ? titleEl.textContent.trim() : '';
+            existingVisual.appendChild(img);
+            existingVisual.setAttribute('aria-hidden', 'true');
+            return;
+        }
+
+        if (existingVisual) return;
+
+        const visual = document.createElement('div');
+        visual.className = 'project-image project-stack-visual';
+        visual.setAttribute('aria-hidden', 'true');
+        if (shotSrc) {
+            const img = document.createElement('img');
+            img.className = 'project-stack-visual__shot';
+            img.src = shotSrc;
+            img.loading = 'lazy';
+            img.decoding = 'async';
+            const titleEl = clone.querySelector('.project-title');
+            img.alt = titleEl ? titleEl.textContent.trim() : '';
+            visual.appendChild(img);
+        } else {
+            const ph = document.createElement('div');
+            ph.className = 'project-placeholder project-stack-visual__placeholder';
+            const iconSrc = clone.querySelector('.project-header-matrix-icon');
+            if (iconSrc) {
+                ph.appendChild(iconSrc.cloneNode(true));
+            }
+            visual.appendChild(ph);
+        }
+        clone.insertBefore(visual, content);
+    }
+
+    /* Reserve the same vertical space as filter + grid so flow height does not change when swapping. */
+    const phoneRow = grid.closest('.projects-phone-row');
+    const filterMb = parseFloat(getComputedStyle(filter).marginBottom) || 0;
+    const reservedContentHeight = filter.offsetHeight + (phoneRow ? phoneRow.offsetHeight : 0) + filterMb;
+
+    try {
+        const viewport = document.createElement('div');
+        viewport.className = 'projects-stack-viewport';
+
+        const deck = document.createElement('div');
+        deck.className = 'projects-stack-deck';
+
+        const n = cards.length;
+        cards.forEach((cardEl, i) => {
+            const clone = cardEl.cloneNode(true);
+            stripCloneIds(clone);
+            clone.classList.add('project-card--stack-clone');
+            clone.dataset.stackIndex = String(i);
+            clone.style.zIndex = String(100 + n - i);
+            ensureStackLeftVisual(clone);
+            deck.appendChild(clone);
+        });
+
+        viewport.appendChild(deck);
+        /* Deck first, scroll hint stays last inside #projects-stack-root so the SVG sits flush under the cards. */
+        stackRoot.prepend(viewport);
+    } catch (e) {
+        releaseStackHidden();
+        return;
+    }
+
+    if (!stackRoot.querySelector('.projects-stack-viewport')) {
+        releaseStackHidden();
+        return;
+    }
+
+    const viewportEl = stackRoot.querySelector('.projects-stack-viewport');
+    filter.classList.add('projects-filter--stack-hidden');
+    filter.setAttribute('aria-hidden', 'true');
+    if (phoneRow) {
+        phoneRow.classList.add('projects-grid--stack-pending');
+        phoneRow.setAttribute('aria-hidden', 'true');
+    }
+    section.classList.add('projects-section--stack-active');
+    stackRoot.style.minHeight = `${Math.max(320, reservedContentHeight)}px`;
+    stackRoot.removeAttribute('hidden');
+    if (stackScrollHint) {
+        stackScrollHint.removeAttribute('hidden');
+        stackScrollHint.removeAttribute('aria-hidden');
+    }
+
+    /** One height for all stack cards (lift math); avoids featured vs non-featured offsetHeight drift. */
+    let uniformStackCardHeight = 0;
+    function refreshCardHeights() {
+        const el = stackRoot.querySelector('.project-card--stack-clone');
+        if (!el) {
+            uniformStackCardHeight = 0;
+            return;
+        }
+        const h = el.getBoundingClientRect().height;
+        uniformStackCardHeight = h > 0 ? h : 0;
+    }
+
+    const n = cards.length;
+    /* Wheel → progress (higher = less scroll per card). */
+    const DELTA_TO_PROGRESS = 0.001;
+    /** ~Hz for exponential smoothing (frame-rate independent; lower = softer follow). */
+    const SMOOTH_RATE = 11;
+
+    let targetProgress = 0;
+    let smoothProgress = 0;
+    let lastRafTs = 0;
+    let isStackActive = false;
+    /** True after filter + grid replace the stack (user can revisit static layout). */
+    let staticLayoutApplied = false;
+    /** True after the last card is done; stack still visible until #projects leaves the viewport. */
+    let stackInteractionComplete = false;
+    let rafId = 0;
+    let sectionExitObserver = null;
+
+    let scrollLockActive = false;
+    /** Set once when locking; never read from window.scrollY after lock (unreliable with fixed body). */
+    let pinnedScrollY = 0;
+
+    function readWindowScrollY() {
+        return (
+            window.pageYOffset ||
+            document.documentElement.scrollTop ||
+            document.body.scrollTop ||
+            0
+        );
+    }
+
+    const scrollPinOpts = { capture: true, passive: true };
+
+    function onScrollPin() {
+        if (!scrollLockActive) return;
+        const cur = readWindowScrollY();
+        if (Math.abs(cur - pinnedScrollY) > 2) {
+            const prev = document.documentElement.style.scrollBehavior;
+            document.documentElement.style.scrollBehavior = 'auto';
+            window.scrollTo({ top: pinnedScrollY, left: 0, behavior: 'auto' });
+            document.documentElement.style.scrollBehavior = prev;
+        }
+    }
+
+    /** True when the stack’s vertical center is near the viewport center (wheel engages only then). */
+    function isStackEngagementReady() {
+        if (!stackRoot || stackRoot.classList.contains('projects-stack-root--hidden')) return false;
+        const r = stackRoot.getBoundingClientRect();
+        const vh = window.innerHeight;
+        if (r.height < 8) return false;
+        if (r.bottom <= 0 || r.top >= vh) return false;
+        const mid = vh * 0.5;
+        const cy = r.top + r.height * 0.5;
+        /* Tight band ~5–6% of viewport height so the user must scroll the deck to mid-screen first. */
+        const tolerance = Math.max(28, vh * 0.055);
+        return Math.abs(cy - mid) < tolerance;
+    }
+
+    function lockBodyScroll() {
+        if (scrollLockActive) return;
+        pinnedScrollY = readWindowScrollY();
+        scrollLockActive = true;
+        document.documentElement.style.overflow = 'hidden';
+        document.body.style.overflow = 'hidden';
+        window.addEventListener('scroll', onScrollPin, scrollPinOpts);
+    }
+
+    /**
+     * @returns {number|null} Saved Y to re-apply after layout, or null if nothing was locked.
+     */
+    function unlockBodyScroll() {
+        if (!scrollLockActive) return null;
+        const y = pinnedScrollY;
+        scrollLockActive = false;
+        pinnedScrollY = 0;
+        window.removeEventListener('scroll', onScrollPin, scrollPinOpts);
+        document.documentElement.style.overflow = '';
+        document.body.style.overflow = '';
+        const prev = document.documentElement.style.scrollBehavior;
+        document.documentElement.style.scrollBehavior = 'auto';
+        window.scrollTo({ top: y, left: 0, behavior: 'auto' });
+        document.documentElement.style.scrollBehavior = prev;
+        return y;
+    }
+
+    function restoreScrollAfterLayout(y) {
+        if (typeof y !== 'number' || Number.isNaN(y)) return;
+        const maxY = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
+        const yClamped = Math.min(Math.max(0, y), maxY);
+        const prev = document.documentElement.style.scrollBehavior;
+        document.documentElement.style.scrollBehavior = 'auto';
+        window.scrollTo({ top: yClamped, left: 0, behavior: 'auto' });
+        document.documentElement.style.scrollBehavior = prev;
+    }
+
+    const wheelOpts = { capture: true, passive: false };
+    const touchOpts = { capture: true, passive: false };
+
+    function teardownWheelTouch() {
+        window.removeEventListener('wheel', onWheel, wheelOpts);
+        window.removeEventListener('touchmove', onTouchMove, touchOpts);
+    }
+
+    function teardownListeners() {
+        teardownWheelTouch();
+        stackRoot.removeEventListener('click', onStackDeckClickCapture, true);
+        window.removeEventListener('resize', onResize);
+        if (rafId) cancelAnimationFrame(rafId);
+        rafId = 0;
+    }
+
+    function disconnectSectionExitObserver() {
+        if (sectionExitObserver) {
+            sectionExitObserver.disconnect();
+            sectionExitObserver = null;
+        }
+    }
+
+    /** Last card is done: release scroll, keep stack visible, watch for leaving #projects. */
+    function onStackInteractionComplete() {
+        if (stackInteractionComplete || staticLayoutApplied) return;
+        stackInteractionComplete = true;
+        targetProgress = n;
+        smoothProgress = n;
+        isStackActive = false;
+        unlockBodyScroll();
+        /* Keep wheel/touch until static grid swap so the user can reverse-scroll the stack. */
+        if (rafId) cancelAnimationFrame(rafId);
+        rafId = 0;
+        applyStackTransforms(n);
+
+        const papers = document.getElementById('papers');
+        sectionExitObserver = new IntersectionObserver(
+            (entries) => {
+                entries.forEach((entry) => {
+                    if (entry.target !== section) return;
+                    if (!entry.isIntersecting && stackInteractionComplete && !staticLayoutApplied) {
+                        applyStaticProjectsLayout();
+                    }
+                });
+            },
+            { root: null, threshold: 0, rootMargin: '0px' }
+        );
+        sectionExitObserver.observe(section);
+        /* If #projects is already off-screen (short viewport / layout), swap immediately. */
+        requestAnimationFrame(() => {
+            if (staticLayoutApplied) return;
+            const r = section.getBoundingClientRect();
+            const vh = window.innerHeight;
+            const visible = r.bottom > 0 && r.top < vh;
+            if (!visible && stackInteractionComplete && !staticLayoutApplied) {
+                applyStaticProjectsLayout();
+            }
+        });
+    }
+
+    /**
+     * Swap stack for filter + grid after the user has left the projects section.
+     * Preserves viewport using #papers anchor so content below does not jump.
+     */
+    function applyStaticProjectsLayout() {
+        if (staticLayoutApplied) return;
+        disconnectSectionExitObserver();
+        staticLayoutApplied = true;
+        stackInteractionComplete = false;
+        isStackActive = false;
+        const savedScrollY = unlockBodyScroll();
+
+        const papers = document.getElementById('papers');
+        const anchorTopBefore = papers ? papers.getBoundingClientRect().top : null;
+
+        teardownListeners();
+
+        filter.classList.remove('projects-filter--stack-hidden');
+        filter.removeAttribute('aria-hidden');
+        if (phoneRow) {
+            phoneRow.classList.remove('projects-grid--stack-pending');
+            phoneRow.removeAttribute('aria-hidden');
+        }
+        stackRoot.style.minHeight = '';
+        stackRoot.classList.add('projects-stack-root--hidden');
+        stackRoot.setAttribute('aria-hidden', 'true');
+        if (stackScrollHint) {
+            stackScrollHint.setAttribute('hidden', '');
+            stackScrollHint.setAttribute('aria-hidden', 'true');
+        }
+        section.classList.remove('projects-section--stack-active');
+        section.classList.add('projects-section--stack-done');
+        grid.querySelectorAll('article.project-card').forEach((card) => {
+            card.classList.add('animate-in');
+            card.style.opacity = '';
+            card.style.transform = '';
+        });
+        window.dispatchEvent(new Event('resize'));
+        requestAnimationFrame(() => {
+            window.dispatchEvent(new Event('resize'));
+            requestAnimationFrame(() => {
+                if (papers && anchorTopBefore != null) {
+                    const delta = papers.getBoundingClientRect().top - anchorTopBefore;
+                    if (Math.abs(delta) > 0.5) {
+                        const prev = document.documentElement.style.scrollBehavior;
+                        document.documentElement.style.scrollBehavior = 'auto';
+                        window.scrollBy({ top: delta, left: 0, behavior: 'auto' });
+                        document.documentElement.style.scrollBehavior = prev;
+                    }
+                } else if (savedScrollY != null) {
+                    restoreScrollAfterLayout(savedScrollY);
+                    requestAnimationFrame(() => restoreScrollAfterLayout(savedScrollY));
+                }
+            });
+        });
+    }
+
+    /** Narrow viewport / reduced path: show grid immediately (no deferred swap). */
+    function revealProjectsContent() {
+        if (staticLayoutApplied) return;
+        disconnectSectionExitObserver();
+        applyStaticProjectsLayout();
+    }
+
+    function easeInOutCubic(t) {
+        const u = Math.max(0, Math.min(1, t));
+        return u < 0.5 ? 4 * u * u * u : 1 - Math.pow(-2 * u + 2, 3) / 2;
+    }
+
+    function applyStackTransforms(p) {
+        if (staticLayoutApplied) return;
+        const vh = window.innerHeight;
+        const fp = Math.max(0, Math.min(n, p));
+
+        /* Larger offset = clearer “strip” of each card behind (Framer-style stack). */
+        const depthStep = 26;
+        const scaleStep = 0.022;
+        const minScale = 0.85;
+        if (!uniformStackCardHeight) {
+            refreshCardHeights();
+        }
+        const activeH = uniformStackCardHeight || vh * 0.36;
+        const liftMax = Math.max(vh * 0.88, activeH * 1.1);
+
+        stackRoot.querySelectorAll('.project-card--stack-clone').forEach((card, i) => {
+            let transform;
+            let interactive = false;
+
+            /* Finished peeling (off top), except we never “toss” the last card. */
+            if (i < n - 1 && fp >= i + 1) {
+                transform = `translate3d(0, ${-liftMax}px, 0) scale(1)`;
+            } else if (i === n - 1 && fp >= n) {
+                /* Stack complete: last card rests in place. */
+                transform = 'translate3d(0, 0, 0) scale(1)';
+                interactive = true;
+            } else if (fp >= i && fp < i + 1) {
+                /* Active card: peel with eased lift (last card: no lift). */
+                const t = fp - i;
+                const isLastCard = i === n - 1;
+                const lift = isLastCard ? 0 : easeInOutCubic(t) * liftMax;
+                transform = `translate3d(0, ${-lift}px, 0) scale(1)`;
+                interactive = true;
+            } else if (fp < i) {
+                /*
+                 * Behind the front: continuous depth d = i − fp so Y and scale move smoothly
+                 * as the top card peels (no step change when the index advances).
+                 */
+                const d = i - fp;
+                const ty = depthStep * d;
+                const sc = Math.max(minScale, 1 - scaleStep * d);
+                transform = `translate3d(0, ${ty}px, 0) scale(${sc})`;
+            } else {
+                transform = 'translate3d(0, 0, 0) scale(1)';
+                interactive = true;
+            }
+
+            card.style.transform = transform;
+            card.classList.toggle('stack-clone--interactive', interactive);
+            /*
+             * Lower index = higher base z-index, so “gone” cards (0..i-1) still stacked above the
+             * active card in hit-testing. Bump only the interactive card above all siblings so
+             * links receive the click.
+             */
+            card.style.zIndex = interactive ? String(5000 + (n - i)) : String(100 + n - i);
+        });
+
+        if (!staticLayoutApplied && targetProgress >= n - 0.0001 && p >= n - 0.02) {
+            onStackInteractionComplete();
+        }
+    }
+
+    function rafLoop(ts) {
+        if (staticLayoutApplied) {
+            rafId = 0;
+            lastRafTs = 0;
+            return;
+        }
+        const now = typeof ts === 'number' ? ts : performance.now();
+        const dt = lastRafTs ? Math.min(0.064, (now - lastRafTs) / 1000) : 1 / 60;
+        lastRafTs = now;
+        const lerpT = 1 - Math.exp(-SMOOTH_RATE * dt);
+        smoothProgress += (targetProgress - smoothProgress) * lerpT;
+        applyStackTransforms(smoothProgress);
+        const diff = Math.abs(targetProgress - smoothProgress);
+        /* Stop when idle; avoid spinning forever at fp === n. */
+        const stillAnimating =
+            diff > 1e-4 || (targetProgress > 0 && targetProgress < n - 1e-6);
+        if (stillAnimating) {
+            rafId = requestAnimationFrame(rafLoop);
+        } else {
+            rafId = 0;
+            lastRafTs = 0;
+        }
+    }
+
+    function ensureRaf() {
+        if (!rafId && !staticLayoutApplied) {
+            rafId = requestAnimationFrame(rafLoop);
+        }
+    }
+
+    function onWheel(e) {
+        if (staticLayoutApplied) return;
+
+        /*
+         * Finished stack but static grid not shown yet: wheel up in the engagement zone
+         * pulls progress back so earlier cards can be re-read.
+         */
+        if (!isStackActive && stackInteractionComplete && isStackEngagementReady() && e.deltaY < 0) {
+            e.preventDefault();
+            e.stopImmediatePropagation();
+            stackInteractionComplete = false;
+            isStackActive = true;
+            lockBodyScroll();
+            targetProgress = Math.max(0, n + e.deltaY * DELTA_TO_PROGRESS);
+            ensureRaf();
+            return;
+        }
+
+        if (!isStackEngagementReady() && !isStackActive) return;
+
+        /* At end of stack: wheel down should scroll the page, not re-lock the deck. */
+        if (!isStackActive && stackInteractionComplete && e.deltaY > 0) {
+            return;
+        }
+
+        if (isStackActive) {
+            e.preventDefault();
+            e.stopImmediatePropagation();
+            const dy = e.deltaY;
+            targetProgress = Math.max(0, Math.min(n, targetProgress + dy * DELTA_TO_PROGRESS));
+            if (targetProgress < n - 1e-6) {
+                stackInteractionComplete = false;
+            }
+            if (targetProgress <= 0 && dy < 0) {
+                isStackActive = false;
+                unlockBodyScroll();
+            }
+            ensureRaf();
+            return;
+        }
+
+        /* Engagement zone + not yet locked: wheel down starts the stack (capture before inner overflow scroll). */
+        if (e.deltaY > 0) {
+            e.preventDefault();
+            e.stopImmediatePropagation();
+            isStackActive = true;
+            lockBodyScroll();
+            targetProgress = Math.max(0, Math.min(n, targetProgress + e.deltaY * DELTA_TO_PROGRESS));
+            ensureRaf();
+        }
+    }
+
+    function onTouchMove(e) {
+        if (!isStackActive || staticLayoutApplied) return;
+        e.preventDefault();
+    }
+
+    /** Capture phase: ensures navigation even if overlapping siblings steal hit tests. */
+    function onStackDeckClickCapture(e) {
+        if (staticLayoutApplied) return;
+        if (e.ctrlKey || e.metaKey || e.shiftKey || e.altKey) return;
+        const a = e.target.closest && e.target.closest('a[href]');
+        if (!a || !stackRoot.contains(a)) return;
+        if (a.hasAttribute('download')) return;
+        const card = a.closest('.project-card--stack-clone');
+        if (!card || !card.classList.contains('stack-clone--interactive')) return;
+        const href = a.getAttribute('href');
+        if (!href || href === '#') return;
+        if (/^(mailto:|tel:)/i.test(href)) return;
+        if (href.startsWith('#') && href.length > 1) {
+            const target = document.querySelector(href);
+            if (!target) return;
+            e.preventDefault();
+            const navbar = document.querySelector('.navbar');
+            const navbarHeight = navbar ? navbar.offsetHeight : 0;
+            const targetPosition =
+                target.getBoundingClientRect().top + window.pageYOffset - navbarHeight;
+            window.scrollTo({
+                top: targetPosition,
+                behavior: prefersReducedMotion() ? 'auto' : 'smooth',
+            });
+            return;
+        }
+        if (a.target === '_blank') {
+            e.preventDefault();
+            window.open(a.href, '_blank', 'noopener,noreferrer');
+            return;
+        }
+        e.preventDefault();
+        window.location.assign(a.href);
+    }
+
+    function onResize() {
+        if (!window.matchMedia(DESKTOP_MIN).matches && !staticLayoutApplied) {
+            if (isStackActive) {
+                isStackActive = false;
+                unlockBodyScroll();
+            }
+            disconnectSectionExitObserver();
+            teardownListeners();
+            stackRoot.style.minHeight = '';
+            revealProjectsContent();
+            return;
+        }
+        refreshCardHeights();
+        if (staticLayoutApplied) return;
+        if (stackInteractionComplete) {
+            applyStackTransforms(n);
+        } else {
+            applyStackTransforms(smoothProgress);
+        }
+    }
+
+    stackRoot.addEventListener('click', onStackDeckClickCapture, true);
+    window.addEventListener('wheel', onWheel, wheelOpts);
+    window.addEventListener('touchmove', onTouchMove, touchOpts);
+    window.addEventListener('resize', onResize);
+
+    refreshCardHeights();
+    requestAnimationFrame(() => {
+        refreshCardHeights();
+        smoothProgress = 0;
+        targetProgress = 0;
+        applyStackTransforms(0);
+    });
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     initCursorGlow();
     initMobileMenu();
     initSmoothScroll();
+    initProjectsStackScroll();
     initScrollAnimations();
     initNavbarScroll();
     initTerminalTyping();
@@ -225,10 +850,6 @@ document.addEventListener('DOMContentLoaded', () => {
     initExperienceTabs();
     initPortfolioEngagementTracking();
 });
-
-function prefersReducedMotion() {
-    return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-}
 
 /** Pill draw curve (same breakpoints as former scroll-loop-pill keyframes); duration = CYCLE_MS. */
 function pillStrokeDashOffsetAtCycleT(t) {
@@ -295,22 +916,29 @@ function measureSvgPathLength(d) {
     return typeof p.getTotalLength === 'function' ? p.getTotalLength() : 0;
 }
 
-/** One interior path (squiggle + arrow) so stroke + drop-shadow are not doubled at the fork. */
+/** One interior path (squiggle + arrow) so stroke + drop-shadow are not doubled at the fork. Drives every `.scroll-indicator`. */
 function initScrollIndicatorInterior() {
-    const pathInt = document.querySelector('.scroll-line--scroll-interior');
-    const pillPrefix = document.querySelector('.scroll-line--pill-prefix');
-    const pillSuffix = document.querySelector('.scroll-line--pill-suffix');
-    if (
-        !pathInt ||
-        !pillPrefix ||
-        !pillSuffix ||
-        typeof pathInt.getTotalLength !== 'function' ||
-        typeof pillPrefix.getTotalLength !== 'function' ||
-        typeof pillSuffix.getTotalLength !== 'function'
-    ) {
-        return;
-    }
+    if (isNoJsCompatLayout()) return;
 
+    const sets = Array.from(document.querySelectorAll('.scroll-indicator'))
+        .map((root) => ({
+            pathInt: root.querySelector('.scroll-line--scroll-interior'),
+            pillPrefix: root.querySelector('.scroll-line--pill-prefix'),
+            pillSuffix: root.querySelector('.scroll-line--pill-suffix'),
+        }))
+        .filter(
+            (s) =>
+                s.pathInt &&
+                s.pillPrefix &&
+                s.pillSuffix &&
+                typeof s.pathInt.getTotalLength === 'function' &&
+                typeof s.pillPrefix.getTotalLength === 'function' &&
+                typeof s.pillSuffix.getTotalLength === 'function'
+        );
+
+    if (sets.length === 0) return;
+
+    const { pathInt, pillPrefix, pillSuffix } = sets[0];
     const Lt = pathInt.getTotalLength();
     const Lq = measureSvgPathLength(SCROLL_INTERIOR_SQUIGGLE_D);
     const Ls = Math.max(0, Lt - Lq);
@@ -318,12 +946,14 @@ function initScrollIndicatorInterior() {
     const Lsuf = pillSuffix.getTotalLength();
 
     if (prefersReducedMotion()) {
-        pathInt.style.strokeDasharray = 'none';
-        pathInt.style.strokeDashoffset = '0';
-        pillPrefix.style.strokeDasharray = 'none';
-        pillPrefix.style.strokeDashoffset = '0';
-        pillSuffix.style.strokeDasharray = 'none';
-        pillSuffix.style.strokeDashoffset = '0';
+        sets.forEach((s) => {
+            s.pathInt.style.strokeDasharray = 'none';
+            s.pathInt.style.strokeDashoffset = '0';
+            s.pillPrefix.style.strokeDasharray = 'none';
+            s.pillPrefix.style.strokeDashoffset = '0';
+            s.pillSuffix.style.strokeDasharray = 'none';
+            s.pillSuffix.style.strokeDashoffset = '0';
+        });
         return;
     }
 
@@ -340,7 +970,7 @@ function initScrollIndicatorInterior() {
     const W_WIPE = 0.07;
     const sumW = W_SQUIGGLE + W_MORPH + W_HIDE + W_BOUNCE + W_WIPE;
     const span = 1 - tJ;
-    let acc = tJ;
+    const acc = tJ;
     const squiggleEnd = acc + (W_SQUIGGLE / sumW) * span;
     const morphEnd = acc + ((W_SQUIGGLE + W_MORPH) / sumW) * span;
     const hideEnd = acc + ((W_SQUIGGLE + W_MORPH + W_HIDE) / sumW) * span;
@@ -372,31 +1002,33 @@ function initScrollIndicatorInterior() {
         const t = (now % CYCLE_MS) / CYCLE_MS;
 
         const pillVisible = pillVisibleFractionAtCycleT(t);
-        applySplitPillGrow(pillPrefix, pillSuffix, Lp, Lsuf, pillVisible);
         /* Only gate during the pill draw segment (keyframes 0–50%); after that the outline is full until erase. */
         const pillStillDrawing = t < 0.5;
         const pillReady = pillVisible >= junctionFraction - 0.008;
         const waitForPill = t < tJ || (pillStillDrawing && !pillReady);
 
-        if (waitForPill) {
-            applyHidden(pathInt, Lt);
-        } else if (t < squiggleEnd) {
-            const p = (t - tJ) / (squiggleEnd - tJ);
-            applyGrow(pathInt, Lt, p * Lq);
-        } else if (t < morphEnd) {
-            const u = (t - squiggleEnd) / (morphEnd - squiggleEnd);
-            applyGrow(pathInt, Lt, Lq + u * Ls);
-        } else if (t < hideEnd) {
-            const u = (t - morphEnd) / (hideEnd - morphEnd);
-            const a = u * Lq;
-            applySegment(pathInt, Lt, a, Lt);
-        } else if (t < bounceEnd) {
-            applySegment(pathInt, Lt, Lq, Lt);
-        } else {
-            const p = (t - bounceEnd) / (1 - bounceEnd);
-            const end = Ls - p * Ls;
-            applySegment(pathInt, Lt, Lq, Lq + end);
-        }
+        sets.forEach(({ pathInt: pi, pillPrefix: pp, pillSuffix: ps }) => {
+            applySplitPillGrow(pp, ps, Lp, Lsuf, pillVisible);
+            if (waitForPill) {
+                applyHidden(pi, Lt);
+            } else if (t < squiggleEnd) {
+                const p = (t - tJ) / (squiggleEnd - tJ);
+                applyGrow(pi, Lt, p * Lq);
+            } else if (t < morphEnd) {
+                const u = (t - squiggleEnd) / (morphEnd - squiggleEnd);
+                applyGrow(pi, Lt, Lq + u * Ls);
+            } else if (t < hideEnd) {
+                const u = (t - morphEnd) / (hideEnd - morphEnd);
+                const a = u * Lq;
+                applySegment(pi, Lt, a, Lt);
+            } else if (t < bounceEnd) {
+                applySegment(pi, Lt, Lq, Lt);
+            } else {
+                const p = (t - bounceEnd) / (1 - bounceEnd);
+                const end = Ls - p * Ls;
+                applySegment(pi, Lt, Lq, Lq + end);
+            }
+        });
         requestAnimationFrame(tick);
     }
 
@@ -600,7 +1232,7 @@ function initSmoothScroll() {
 
 function initScrollAnimations() {
     const animateElements = document.querySelectorAll(
-        '.skill-category, .project-card:not(.project-phone-showcase-slot), .cert-cell, .papers-carousel-outer, .certifications, .about-content, .contact-content, .experience-tab'
+        '.skill-category, .project-card:not(.project-phone-showcase-slot):not(.project-card--stack-clone), .cert-cell, .papers-carousel-outer, .certifications, .about-content, .contact-content, .experience-tab'
     );
 
     if (prefersReducedMotion()) {
@@ -609,8 +1241,9 @@ function initScrollAnimations() {
     }
 
     const observerOptions = {
-        threshold: 0.1,
-        rootMargin: '0px 0px -50px 0px'
+        threshold: 0.08,
+        /* Positive bottom margin expands the root so elements intersect sooner while scrolling. */
+        rootMargin: '0px 0px 14% 0px'
     };
 
     const observer = new IntersectionObserver((entries) => {
@@ -623,9 +1256,12 @@ function initScrollAnimations() {
     }, observerOptions);
 
     animateElements.forEach(el => {
+        const soonCard = el.classList.contains('project-card--soon');
         el.style.opacity = '0';
         el.style.transform = 'translateY(30px)';
-        el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+        el.style.transition = soonCard
+            ? 'opacity 0.32s ease, transform 0.32s ease'
+            : 'opacity 0.48s ease, transform 0.48s ease';
         observer.observe(el);
     });
 }
@@ -686,6 +1322,8 @@ function initNavbarScroll() {
 }
 
 function initTerminalTyping() {
+    if (isNoJsCompatLayout()) return;
+
     const typingElement = document.querySelector('.terminal-command-animated');
     if (!typingElement) return;
     if (prefersReducedMotion()) {
@@ -1046,7 +1684,7 @@ function initDemoCtaAnalytics() {
 function initStaggerDelays() {
     if (prefersReducedMotion()) return;
 
-    document.querySelectorAll('.project-card:not(.project-phone-showcase-slot)').forEach((card, index) => {
+    document.querySelectorAll('.project-card:not(.project-phone-showcase-slot):not(.project-card--stack-clone)').forEach((card, index) => {
         card.style.transitionDelay = `${index * 0.1}s`;
     });
 
