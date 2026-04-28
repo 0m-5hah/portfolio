@@ -2295,6 +2295,14 @@ body.nav-past-hero .mobile-menu-btn {
     border-bottom: none;
 }
 
+/*
+ * Scripted “peek” hints (script.js initProjectsCompactPeekHint): briefly lift only partway so
+ * the copy strip shows through — intentionally gentler than a full hover. Disabled when hovering/focused.
+ */
+.project-card--compact-grid-hover:not(.project-card--stack-clone).project-card--peek-hint:not(:hover):not(:focus-within) .project-image {
+    transform: translateY(calc(-1 * var(--project-peek-shift, 32%)));
+}
+
 .project-card--compact-grid-hover:not(.project-card--stack-clone) .project-image img {
     width: 100%;
     height: 100%;

@@ -926,9 +926,184 @@ document.addEventListener('DOMContentLoaded', () => {
     initPapersCarouselWhenReady();
     initScrollIndicatorInterior();
     initProjectsFilter();
+    initProjectsCompactPeekHint();
     initExperienceTabs();
     initPortfolioEngagementTracking();
 });
+
+/**
+ * Occasionally lift one compact “photo over text” project card (#projects grid) slightly so viewers
+ * see there is detail beneath — one card per beat, randomized interval, skips reduced motion and hidden grid.
+ */
+function initProjectsCompactPeekHint() {
+    if (!document.body.classList.contains('home-page')) return;
+
+    let mqReduced = null;
+    try {
+        mqReduced = window.matchMedia('(prefers-reduced-motion: reduce)');
+    } catch (_) {
+        mqReduced = { matches: false, addListener: null, removeListener: null };
+    }
+    if (mqReduced.matches) return;
+
+    const grid = document.querySelector('#projects .projects-grid--with-phone');
+    if (!grid) return;
+
+    /** @type {ReturnType<typeof setTimeout>|null} */
+    let scheduleTimer = null;
+
+    /** @type {IntersectionObserver|null} */
+    let rowObserver = null;
+
+    let rowIntersecting = false;
+
+    /** @returns {HTMLElement[]} */
+    function eligibleArticles() {
+        return Array.from(
+            grid.querySelectorAll(
+                'article.project-card--compact-grid-hover:not(.project-card--stack-clone)'
+            )
+        ).filter((card) => !card.classList.contains('project-card--filter-hidden'));
+    }
+
+    function clearSchedule() {
+        if (scheduleTimer != null) {
+            clearTimeout(scheduleTimer);
+            scheduleTimer = null;
+        }
+    }
+
+    /** Grid is removed from layout while wheel/stack mode is showing deck clones — avoid animating unseen nodes. */
+    function isPeekLayoutActive() {
+        const row = grid.closest('.projects-phone-row');
+        return row ? !row.classList.contains('projects-grid--stack-pending') : true;
+    }
+
+    const peekRemoveTimers = new WeakMap();
+
+    /** @param {HTMLElement} card */
+    function clearPeekTimers(card) {
+        const rm = peekRemoveTimers.get(card);
+        if (rm != null) {
+            clearTimeout(rm);
+            peekRemoveTimers.delete(card);
+        }
+    }
+
+    /** @param {HTMLElement} card */
+    function attachPeekPulse(card) {
+        const lo = 26 + Math.floor(Math.random() * 14);
+        card.style.setProperty('--project-peek-shift', `${lo}%`);
+
+        card.classList.add('project-card--peek-hint');
+        clearPeekTimers(card);
+
+        const dwellMs =
+            450 + Math.floor(420 + Math.random() * 520) /* hold */ + 450;
+
+        const removeId = window.setTimeout(() => {
+            peekRemoveTimers.delete(card);
+            card.classList.remove('project-card--peek-hint');
+            card.style.removeProperty('--project-peek-shift');
+        }, dwellMs);
+
+        peekRemoveTimers.set(card, removeId);
+    }
+
+    /** @returns {HTMLElement[]} */
+    function pickCandidatesForPeek() {
+        return eligibleArticles().filter(
+            (c) =>
+                !c.matches(':hover') &&
+                !c.matches(':focus-within') &&
+                !(document.activeElement && c.contains(document.activeElement))
+        );
+    }
+
+    function scheduleNextPeek() {
+        clearSchedule();
+        const delayMs = Math.floor(10000 + Math.random() * 16000);
+        scheduleTimer = window.setTimeout(() => {
+            scheduleTimer = null;
+            maybeRunPeekPulse();
+        }, delayMs);
+    }
+
+    function maybeRunPeekPulse() {
+        if (
+            document.hidden ||
+            !rowIntersecting ||
+            !isPeekLayoutActive()
+        ) {
+            scheduleNextPeek();
+            return;
+        }
+
+        const candidates = pickCandidatesForPeek();
+        if (!candidates.length) {
+            scheduleNextPeek();
+            return;
+        }
+
+        const card = candidates[Math.floor(Math.random() * candidates.length)];
+        attachPeekPulse(card);
+        scheduleNextPeek();
+    }
+
+    function onPeekRowIntersection(entries) {
+        const intersects = entries.some((e) => e.isIntersecting && e.intersectionRatio > 0.06);
+        if (!intersects) {
+            rowIntersecting = false;
+            clearSchedule();
+            eligibleArticles().forEach((c) => {
+                clearPeekTimers(c);
+                c.classList.remove('project-card--peek-hint');
+                c.style.removeProperty('--project-peek-shift');
+            });
+            return;
+        }
+        rowIntersecting = true;
+        if (!scheduleTimer) scheduleNextPeek();
+    }
+
+    const phoneRow = grid.closest('.projects-phone-row');
+    if (!phoneRow) return;
+
+    rowObserver = new IntersectionObserver(onPeekRowIntersection, {
+        root: null,
+        rootMargin: '-8% 0px -28% 0px',
+        threshold: [0, 0.02, 0.08],
+    });
+    rowObserver.observe(phoneRow);
+
+    /** Pause between beats when tab in background; resume spacing when visible again. */
+    function onPeekTabVisibility() {
+        if (document.hidden) clearSchedule();
+        else if (rowIntersecting && isPeekLayoutActive()) scheduleNextPeek();
+    }
+    document.addEventListener('visibilitychange', onPeekTabVisibility);
+
+    function onReducedMotionChange() {
+        if (!mqReduced.matches) return;
+        clearSchedule();
+        rowObserver?.disconnect();
+        rowObserver = null;
+        eligibleArticles().forEach((c) => {
+            clearPeekTimers(c);
+            c.classList.remove('project-card--peek-hint');
+            c.style.removeProperty('--project-peek-shift');
+        });
+        document.removeEventListener('visibilitychange', onPeekTabVisibility);
+        if (typeof mqReduced.removeEventListener === 'function') {
+            mqReduced.removeEventListener('change', onReducedMotionChange);
+        } else if (typeof mqReduced.removeListener === 'function') {
+            mqReduced.removeListener(onReducedMotionChange);
+        }
+    }
+
+    if (typeof mqReduced.addEventListener === 'function') mqReduced.addEventListener('change', onReducedMotionChange);
+    else if (typeof mqReduced.addListener === 'function') mqReduced.addListener(onReducedMotionChange);
+}
 
 /** Pill draw curve (same breakpoints as former scroll-loop-pill keyframes); duration = CYCLE_MS. */
 function pillStrokeDashOffsetAtCycleT(t) {
