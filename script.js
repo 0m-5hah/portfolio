@@ -238,6 +238,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initPapersCarouselWhenReady();
     initScrollIndicatorInterior();
     initProjectsFilter();
+    initProjectsMobileRibbon();
     initProjectsCompactPeekHint();
     initExperienceTabs();
     initPortfolioEngagementTracking();
@@ -304,6 +305,7 @@ function initProjectsCompactPeekHint() {
 
     /** @param {HTMLElement} card */
     function attachPeekPulse(card) {
+        if (window.matchMedia('(max-width: 768px)').matches) return;
         const lo = 26 + Math.floor(Math.random() * 14);
         card.style.setProperty('--project-peek-shift', `${lo}%`);
 
@@ -342,6 +344,10 @@ function initProjectsCompactPeekHint() {
     }
 
     function maybeRunPeekPulse() {
+        if (window.matchMedia('(max-width: 768px)').matches) {
+            scheduleNextPeek();
+            return;
+        }
         if (
             document.hidden ||
             !rowIntersecting ||
@@ -601,6 +607,70 @@ function initScrollIndicatorInterior() {
     requestAnimationFrame(tick);
 }
 
+function collapseProjectsMobileExpanded() {
+    document
+        .querySelectorAll('#projects .projects-grid--with-phone > article.project-card--mobile-expanded')
+        .forEach((el) => {
+            el.classList.remove('project-card--mobile-expanded');
+            el.setAttribute('aria-expanded', 'false');
+        });
+}
+
+/**
+ * Narrow viewports: project cards show a title-only ribbon; tap to expand, tap outside to collapse.
+ */
+function initProjectsMobileRibbon() {
+    if (!document.body.classList.contains('home-page')) return;
+    const grid = document.querySelector('#projects .projects-grid--with-phone');
+    if (!grid) return;
+
+    const mq = window.matchMedia('(max-width: 768px)');
+
+    document.addEventListener(
+        'click',
+        (e) => {
+            if (!mq.matches) return;
+
+            const projCard = e.target.closest(
+                '#projects .projects-grid--with-phone > article.project-card:not(.project-card--soon)'
+            );
+
+            if (!projCard) {
+                if (e.target.closest('.project-phone-showcase-slot')) {
+                    return;
+                }
+                collapseProjectsMobileExpanded();
+                return;
+            }
+
+            if (projCard.classList.contains('project-card--mobile-expanded')) {
+                const onInteractive = e.target.closest(
+                    'a[href], button, input, textarea, select, [contenteditable="true"]'
+                );
+                if (onInteractive && projCard.contains(onInteractive)) {
+                    return;
+                }
+                return;
+            }
+
+            collapseProjectsMobileExpanded();
+            projCard.classList.add('project-card--mobile-expanded');
+            projCard.setAttribute('aria-expanded', 'true');
+        },
+        true
+    );
+
+    if (typeof mq.addEventListener === 'function') {
+        mq.addEventListener('change', () => {
+            if (!mq.matches) collapseProjectsMobileExpanded();
+        });
+    } else if (typeof mq.addListener === 'function') {
+        mq.addListener(() => {
+            if (!mq.matches) collapseProjectsMobileExpanded();
+        });
+    }
+}
+
 function initProjectsFilter() {
     const root = document.getElementById('projects-filter');
     const grid = document.querySelector('.projects-grid--with-phone');
@@ -667,6 +737,7 @@ function initProjectsFilter() {
         phoneRow?.classList.toggle('projects-phone-row--filter-ml', filterKey === 'ml');
         /* Featured Sentinel: full-width hero only on “All”; single cell like peers when a filter is active. */
         grid.classList.toggle('projects-grid--compact-featured', filterKey !== 'all');
+        collapseProjectsMobileExpanded();
     }
 
     buttons.forEach((btn) => {

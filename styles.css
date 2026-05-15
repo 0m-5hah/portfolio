@@ -5532,6 +5532,202 @@ details.demo-misconceptions[open] .demo-misconceptions-chevron::after {
 }
 
 @media (max-width: 768px) {
+    /* Fluid type + spacing: keep copy readable without oversized headings on phones */
+    html {
+        font-size: clamp(13px, 3.15vw, 15px);
+    }
+
+    body {
+        line-height: 1.58;
+    }
+
+    .container {
+        padding-left: 1.15rem;
+        padding-right: 1.15rem;
+    }
+
+    .navbar {
+        padding: 0.85rem 1.15rem;
+    }
+
+    .nav-brand {
+        font-size: 0.95rem;
+    }
+
+    .nav-links a {
+        font-size: 0.85rem;
+    }
+
+    .hero {
+        padding: 5.25rem 1.15rem 1.5rem;
+    }
+
+    .hero-tagline {
+        font-size: 0.68rem;
+    }
+
+    .scroll-indicator {
+        bottom: 1.35rem;
+        gap: 0.35rem;
+        font-size: 0.58rem;
+        letter-spacing: 0.1em;
+    }
+
+    .scroll-indicator-svg {
+        width: clamp(72px, 19.5vw, 90px);
+    }
+
+    .scroll-indicator-svg svg {
+        filter:
+            drop-shadow(0 0 1px rgba(255, 255, 255, 0.32))
+            drop-shadow(0 0 5px rgba(56, 189, 248, 0.48))
+            drop-shadow(0 0 12px rgba(52, 211, 153, 0.22))
+            drop-shadow(0 0 15px rgba(167, 139, 250, 0.28));
+    }
+
+    .btn {
+        font-size: 0.88rem;
+        padding: 0.75rem 1.35rem;
+    }
+
+    .btn-large {
+        font-size: 1rem;
+        padding: 0.88rem 1.5rem;
+    }
+
+    .section-intro {
+        font-size: 0.88rem;
+        margin: -1.25rem 0 1.5rem;
+    }
+
+    .about,
+    .experience,
+    .projects,
+    .papers,
+    .certifications,
+    .skills,
+    .contact {
+        padding: 4.25rem 0;
+    }
+
+    .about-panel {
+        padding: 1.25rem 1.15rem 1.5rem;
+    }
+
+    .about-snippet-body p {
+        font-size: 0.88rem;
+    }
+
+    .stat-number {
+        font-size: clamp(1.65rem, 7.5vw, 2rem);
+    }
+
+    .stat-label {
+        font-size: 0.65rem;
+    }
+
+    .experience-detail-title {
+        font-size: 1.12rem;
+    }
+
+    .experience-detail-company {
+        font-size: 0.92rem;
+    }
+
+    .experience-bullets li {
+        font-size: 0.72rem;
+    }
+
+    .experience-tab-title {
+        font-size: 0.82rem;
+    }
+
+    .experience-tab-company {
+        font-size: 0.7rem;
+    }
+
+    .skill-matrix-title {
+        font-size: 0.98rem;
+    }
+
+    .skill-category,
+    .cert-cell {
+        padding: 1.35rem 1rem;
+    }
+
+    .project-content {
+        padding: 1.5rem 1.15rem;
+    }
+
+    .project-title {
+        font-size: 0.98rem;
+    }
+
+    .project-description {
+        font-size: 0.72rem;
+        line-height: 1.52;
+    }
+
+    .project-tech li {
+        font-size: 0.62rem;
+        padding: 0.28rem 0.55rem;
+    }
+
+    .projects-filter-label {
+        font-size: 0.72rem;
+    }
+
+    .projects-filter-btn {
+        font-size: 0.82rem;
+    }
+
+    .projects-filter-sep {
+        font-size: 0.82rem;
+    }
+
+    .project-scope {
+        font-size: 0.58rem;
+        padding: 0.24rem 0.48rem;
+    }
+
+    .paper-title {
+        font-size: 0.95rem;
+    }
+
+    .paper-link {
+        font-size: 0.74rem;
+    }
+
+    .paper-meta {
+        font-size: 0.65rem;
+    }
+
+    .terminal-body {
+        font-size: 0.78rem;
+        padding: 1.15rem;
+    }
+
+    .terminal-title {
+        font-size: 0.68rem;
+    }
+
+    .terminal-header {
+        padding: 10px 12px;
+    }
+
+    .contact-panel {
+        padding: 1.35rem 1.15rem 1.5rem;
+    }
+
+    .footer p,
+    .footer-tagline {
+        font-size: 0.88rem;
+    }
+
+    .footer .copyright {
+        font-size: 0.72rem;
+    }
+
     .nav-links {
         display: none;
         position: absolute;
@@ -5563,16 +5759,146 @@ details.demo-misconceptions[open] .demo-misconceptions-chevron::after {
     }
 
     .hero-title.hero-title--minimal {
-        font-size: clamp(2.75rem, 12vw, 3.75rem);
+        font-size: clamp(2rem, 10vw, 2.65rem);
+        letter-spacing: -0.032em;
     }
 
     .about-stats {
         flex-wrap: wrap;
-        gap: 2rem;
+        gap: 1.5rem;
     }
 
     .section-title {
-        font-size: 1.5rem;
+        font-size: clamp(1.12rem, 4.6vw, 1.42rem);
+        margin-bottom: 2rem;
+        gap: 0.65rem;
+    }
+
+    .section-number {
+        font-size: 0.88rem;
+    }
+}
+
+/*
+ * Mobile project ribbons (≤768px): title row only until expanded; no image covers; tap outside closes.
+ */
+@media (max-width: 768px) {
+    #projects .projects-grid--with-phone > article.project-card:not(.project-card--soon) .project-image {
+        display: none !important;
+    }
+
+    #projects .projects-grid--with-phone > article.project-card.featured {
+        display: flex;
+        flex-direction: column;
+    }
+
+    #projects .projects-grid--with-phone > article.project-card:not(.project-card--soon):not(.project-card--mobile-expanded) {
+        min-height: 0 !important;
+        cursor: pointer;
+    }
+
+    #projects .projects-grid--with-phone > article.project-card:not(.project-card--soon):not(.project-card--mobile-expanded):hover {
+        transform: none;
+    }
+
+    #projects .projects-grid--with-phone > article.project-card:not(.project-card--soon):not(.project-card--mobile-expanded) .project-header {
+        margin-bottom: 0.35rem;
+    }
+
+    #projects .projects-grid--with-phone > article.project-card:not(.project-card--soon):not(.project-card--mobile-expanded) .project-title {
+        margin-bottom: 0;
+        font-size: clamp(0.9rem, 3.75vw, 1.05rem);
+        line-height: 1.35;
+    }
+
+    #projects .projects-grid--with-phone > article.project-card:not(.project-card--compact-grid-hover):not(.project-card--soon):not(.project-card--mobile-expanded)
+        .project-content
+        > .project-description,
+    #projects .projects-grid--with-phone > article.project-card:not(.project-card--compact-grid-hover):not(.project-card--soon):not(.project-card--mobile-expanded)
+        .project-content
+        > .project-tech,
+    #projects .projects-grid--with-phone > article.project-card:not(.project-card--compact-grid-hover):not(.project-card--soon):not(.project-card--mobile-expanded)
+        .project-content
+        > .project-demos-btn {
+        display: none !important;
+    }
+
+    #projects .projects-grid--with-phone > article.project-card:not(.project-card--compact-grid-hover):not(.project-card--soon):not(.project-card--mobile-expanded) .project-content {
+        padding: 0.85rem 1.1rem;
+    }
+
+    #projects .projects-grid--with-phone > article.project-card--compact-grid-hover:not(.project-card--stack-clone) .project-card--compact-grid-hover__stage {
+        display: flex;
+        flex-direction: column;
+        min-height: 0;
+        overflow: visible;
+    }
+
+    #projects
+        .projects-grid--with-phone
+        > article.project-card--compact-grid-hover:not(.project-card--mobile-expanded):not(.project-card--stack-clone)
+        .project-image {
+        display: none !important;
+        transform: none !important;
+        position: absolute;
+        width: 0;
+        height: 0;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+    }
+
+    #projects
+        .projects-grid--with-phone
+        > article.project-card--compact-grid-hover:not(.project-card--mobile-expanded):not(.project-card--stack-clone)
+        .project-content {
+        position: relative;
+        inset: auto;
+        padding: 0.85rem 1.1rem;
+        overflow: visible;
+        justify-content: flex-start;
+    }
+
+    #projects
+        .projects-grid--with-phone
+        > article.project-card--compact-grid-hover:not(.project-card--mobile-expanded):not(.project-card--stack-clone)
+        .project-content-detail {
+        display: none !important;
+    }
+
+    #projects
+        .projects-grid--with-phone
+        > article.project-card--compact-grid-hover.project-card--mobile-expanded:not(.project-card--stack-clone)
+        .project-content {
+        position: relative;
+        inset: auto;
+        padding: 1.15rem 1.15rem 1.35rem;
+        min-height: 0;
+        max-height: min(78vh, 32rem);
+        overflow-x: hidden;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+        justify-content: flex-start;
+    }
+
+    #projects
+        .projects-grid--with-phone
+        > article.project-card--compact-grid-hover.project-card--mobile-expanded:not(.project-card--stack-clone)
+        .project-content-detail {
+        display: flex !important;
+        flex-direction: column;
+        flex: 1;
+        min-height: 0;
+    }
+
+    #projects
+        .projects-grid--with-phone
+        > article.project-card--compact-grid-hover.project-card--mobile-expanded:not(.project-card--stack-clone)
+        .project-card--compact-grid-hover__stage {
+        min-height: min(78vh, 28rem);
+    }
+
+    #projects .projects-grid--with-phone > article.project-card--mobile-expanded:not(.project-card--compact-grid-hover) .project-content {
+        padding: 1.15rem 1.25rem 1.35rem;
     }
 }
 
