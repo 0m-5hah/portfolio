@@ -2125,17 +2125,17 @@ function fitContribHeatmap(container) {
     if (!heatmap || !wrap) return;
 
     heatmap.style.transform = 'none';
-    const natural = heatmap.scrollWidth;
-    const available = wrap.clientWidth - parseFloat(getComputedStyle(wrap).paddingLeft) - parseFloat(getComputedStyle(wrap).paddingRight);
+    container.style.height = '';
 
-    if (natural > available && natural > 0) {
+    const natural = heatmap.scrollWidth;
+    const cs = getComputedStyle(wrap);
+    const available = wrap.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
+
+    if (natural > 0 && Math.abs(natural - available) > 2) {
         const scale = available / natural;
         heatmap.style.transform = `scale(${scale})`;
         heatmap.style.transformOrigin = '0 0';
         container.style.height = `${Math.ceil(heatmap.scrollHeight * scale)}px`;
-    } else {
-        heatmap.style.transform = 'none';
-        container.style.height = '';
     }
 }
 
