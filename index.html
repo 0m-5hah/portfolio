@@ -24,7 +24,7 @@
     <link rel="canonical" href="https://omshahinfo.com/">
     <title>Om Shah | Cybersecurity &amp; Automation</title>
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
-    <link rel="stylesheet" href="styles.css?v=20260518">
+    <link rel="stylesheet" href="styles.css?v=20260520">
     <noscript><link rel="stylesheet" href="nojs.css" /></noscript>
     <script src="nojs-mode.js"></script>
     <!-- Import map: Three.js addons import bare "three"; hash must match script-src above (edit both if this JSON changes). -->
@@ -48,6 +48,7 @@
             <li><a href="#experience">Experience</a></li>
             <li><a href="#projects">Projects</a></li>
             <li><a href="#papers">Papers</a></li>
+            <li><a href="posts.html">Notes</a></li>
             <li><a href="#education">Education</a></li>
             <li><a href="#skills">Skills</a></li>
             <li><a href="#contact">Contact</a></li>
@@ -69,6 +70,20 @@
                         <span class="hero-name-line">Shah</span>
                     </h1>
                     <p class="hero-tagline">Cybersecurity student &amp; automation engineer</p>
+                    <ul class="hero-meta" aria-label="Location, study and availability">
+                        <li class="hero-meta-item hero-meta-item--a">
+                            <svg class="hero-meta-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 1118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                            <span>Sydney, Australia</span>
+                        </li>
+                        <li class="hero-meta-item hero-meta-item--b">
+                            <svg class="hero-meta-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 10L12 4 2 10l10 6 10-6z"/><path d="M6 12v5c3 2 9 2 12 0v-5"/></svg>
+                            <span>UTS Cybersecurity, '26</span>
+                        </li>
+                        <li class="hero-meta-item hero-meta-item--c">
+                            <svg class="hero-meta-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+                            <span>Available for opportunities</span>
+                        </li>
+                    </ul>
                 </div>
                 <div class="hero-visual">
                     <div class="terminal-window terminal-window--matrix">
@@ -397,15 +412,21 @@
                             </div>
                             <h3 class="project-title">Document Completeness Check &amp; Form Pre-fill Tool</h3>
                             <p class="project-description">
-                                A Migrate Zone automation tool that reads uploaded case documents, flags
-                                anything missing or out of date, and automatically pre-fills the relevant
-                                Excel forms with verified data, cutting out the manual checking that
-                                previously had to be done before each visa application was submitted.
+                                A Migrate Zone automation tool used in production across multiple visa
+                                subclasses. It reads uploaded case documents with OCR and text recognition,
+                                validates each against the required checklist for the visa type being
+                                lodged, and flags anything missing, expired, or inconsistent with the
+                                passport and biographic data already on file. Once a case clears those
+                                checks, the tool maps the verified fields into the team's Excel lodgement
+                                templates, removing the repeated manual cross-checking that previously
+                                gated every submission and keeping a per-case log of which items were
+                                auto-filled versus manually overridden.
                             </p>
                             <ul class="project-tech">
                                 <li>Python</li>
                                 <li>OCR</li>
                                 <li>Excel</li>
+                                <li>JSON schemas</li>
                             </ul>
                         </div>
                     </article>
@@ -627,51 +648,6 @@
                 </div>
                 </div>
 
-                <div class="projects-coming-soon" id="coming-soon-projects">
-                    <h3 class="projects-coming-soon-heading">Coming soon</h3>
-                    <p class="projects-coming-soon-lead">Write-ups and deployment notes for these builds are in progress.</p>
-                    <div class="projects-coming-soon-grid">
-                        <article class="project-card project-card--soon project-card--accent-c">
-                            <div class="project-content">
-                                <div class="project-header">
-                                    <div class="project-header-main">
-                                        <span class="skill-matrix-icon project-header-matrix-icon" aria-hidden="true">
-                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 10h-1.26A8 8 0 109 20h9a5 5 0 000-10z"/></svg>
-                                        </span>
-                                        <span class="project-scope project-scope--soon">Coming soon</span>
-                                    </div>
-                                </div>
-                                <h3 class="project-title">Real-World 3-Tier Web App Deployment on AWS</h3>
-                                <p class="project-description">
-                                    End-to-end deployment walkthrough: networking, compute, and data tiers with production-style constraints.
-                                </p>
-                                <ul class="project-tech">
-                                    <li>AWS</li>
-                                </ul>
-                            </div>
-                        </article>
-                        <article class="project-card project-card--soon project-card--accent-d">
-                            <div class="project-content">
-                                <div class="project-header">
-                                    <div class="project-header-main">
-                                        <span class="skill-matrix-icon project-header-matrix-icon" aria-hidden="true">
-                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 10h-1.26A8 8 0 109 20h9a5 5 0 000-10z"/></svg>
-                                        </span>
-                                        <span class="project-scope project-scope--soon">Coming soon</span>
-                                    </div>
-                                </div>
-                                <h3 class="project-title">Serverless Lead Capture on AWS</h3>
-                                <p class="project-description">
-                                    Serverless pipeline for capturing and storing leads with minimal operational overhead.
-                                </p>
-                                <ul class="project-tech">
-                                    <li>AWS</li>
-                                    <li>Serverless</li>
-                                </ul>
-                            </div>
-                        </article>
-                    </div>
-                </div>
             </div>
         </section>
 
@@ -896,9 +872,8 @@
                         <div class="skill-snippet">
                             <span class="skill-snippet-open">description: |</span>
                             <ul class="skill-list skill-list--snippet">
-                                <li>Digital forensics</li>
-                                <li>Cryptography</li>
-                                <li>Cloud security (AWS)</li>
+                                <li>Threat modeling (STRIDE)</li>
+                                <li>Cryptography fundamentals</li>
                                 <li>Routing &amp; switching</li>
                                 <li>Information security management</li>
                             </ul>
@@ -997,7 +972,7 @@
 
     <script src="spam-api-base.js"></script>
     <script type="module" src="phone-showcase-loader.js"></script>
-    <script src="script.js?v=20260516"></script>
+    <script src="script.js?v=20260520"></script>
     <script data-goatcounter="https://omshah.goatcounter.com/count" async src="https://gc.zgo.at/count.js" integrity="sha384-2UjvVpptg4JlEVgJI2PdscrjOjPcil/4F1ZvIMJ81CShQnEDSlPI+l4PfogvTLYi" crossorigin="anonymous"></script>
 </body>
 </html>

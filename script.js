@@ -246,7 +246,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
 /**
  * Occasionally lift one compact “photo over text” project card (#projects grid) slightly so viewers
- * see there is detail beneath — one card per beat, randomized interval, skips reduced motion and hidden grid.
+ * see there is detail beneath — one card per beat, randomized interval. Skips reduced motion,
+ * non-hover/touch UIs (no photo-cover layer), and hidden grid.
  */
 function initProjectsCompactPeekHint() {
     if (!document.body.classList.contains('home-page')) return;
@@ -258,6 +259,15 @@ function initProjectsCompactPeekHint() {
         mqReduced = { matches: false, addListener: null, removeListener: null };
     }
     if (mqReduced.matches) return;
+
+    /** Coarse pointer / touch: photo-cover CSS is off; never animate peek. */
+    let mqFineHover = null;
+    try {
+        mqFineHover = window.matchMedia('(hover: hover) and (pointer: fine)');
+    } catch (_) {
+        mqFineHover = { matches: false, addEventListener: null, removeEventListener: null };
+    }
+    if (!mqFineHover.matches) return;
 
     const grid = document.querySelector('#projects .projects-grid--with-phone');
     if (!grid) return;
@@ -305,7 +315,6 @@ function initProjectsCompactPeekHint() {
 
     /** @param {HTMLElement} card */
     function attachPeekPulse(card) {
-        if (window.matchMedia('(max-width: 768px)').matches) return;
         const lo = 26 + Math.floor(Math.random() * 14);
         card.style.setProperty('--project-peek-shift', `${lo}%`);
 
@@ -344,10 +353,6 @@ function initProjectsCompactPeekHint() {
     }
 
     function maybeRunPeekPulse() {
-        if (window.matchMedia('(max-width: 768px)').matches) {
-            scheduleNextPeek();
-            return;
-        }
         if (
             document.hidden ||
             !rowIntersecting ||
@@ -1339,3 +1344,326 @@ function initStaggerDelays() {
         });
     });
 }
+
+/* ==============================================================
+ * Performance-tiered visual polish (added 2026-05).
+ * detectPerfTier() runs first and tags <body> with perf-low/mid/high.
+ * Heavy effects (aurora, magnetic CTA, card spotlight) only attach to
+ * perf-high.  perf-low keeps almost everything except a 2px scroll bar
+ * and one-shot reveals, so very low-RAM devices stay responsive.
+ * ============================================================== */
+
+/**
+ * Classify the device into one of three tiers.  Conservative: when
+ * deviceMemory / hardwareConcurrency are unknown (Safari, iOS) we stay
+ * at "mid" — never assume "high" without explicit evidence.
+ * @returns {'low'|'mid'|'high'}
+ */
+function detectPerfTier() {
+    const body = document.body;
+    if (!body) return 'mid';
+
+    let mqReduced = false;
+    let mqCoarse = false;
+    let mqFineHover = false;
+    let mqSmall = false;
+    try { mqReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (_) {}
+    try { mqCoarse = window.matchMedia('(pointer: coarse)').matches; } catch (_) {}
+    try { mqFineHover = window.matchMedia('(hover: hover) and (pointer: fine)').matches; } catch (_) {}
+    try { mqSmall = window.matchMedia('(max-width: 768px)').matches; } catch (_) {}
+
+    const memory = (typeof navigator !== 'undefined' && typeof navigator.deviceMemory === 'number') ? navigator.deviceMemory : null;
+    const cpu = (typeof navigator !== 'undefined' && typeof navigator.hardwareConcurrency === 'number') ? navigator.hardwareConcurrency : null;
+    const saveData = !!(navigator.connection && navigator.connection.saveData);
+
+    const knownLowMem = memory !== null && memory <= 2;
+    const knownLowCpu = cpu !== null && cpu <= 4;
+
+    let tier;
+    if (mqReduced || saveData || knownLowMem || knownLowCpu) {
+        tier = 'low';
+    } else {
+        const knownHighMem = memory !== null && memory >= 8;
+        const knownHighCpu = cpu !== null && cpu >= 8;
+        if (knownHighMem && knownHighCpu && mqFineHover && !mqSmall) {
+            tier = 'high';
+        } else {
+            tier = 'mid';
+        }
+    }
+
+    body.classList.add(`perf-${tier}`);
+    body.dataset.perfTier = tier;
+    return tier;
+}
+
+/** Returns 'low' | 'mid' | 'high'. */
+function currentPerfTier() {
+    if (!document.body) return 'mid';
+    if (document.body.classList.contains('perf-low')) return 'low';
+    if (document.body.classList.contains('perf-high')) return 'high';
+    return 'mid';
+}
+
+/** Single transform:scaleX bar at the top of the viewport, rAF-throttled. */
+function initScrollProgress() {
+    if (document.querySelector('.scroll-progress')) return;
+    const bar = document.createElement('div');
+    bar.className = 'scroll-progress';
+    bar.setAttribute('aria-hidden', 'true');
+    document.body.appendChild(bar);
+
+    let ticking = false;
+    function update() {
+        const doc = document.documentElement;
+        const total = doc.scrollHeight - window.innerHeight;
+        const ratio = total > 0 ? Math.min(1, Math.max(0, window.scrollY / total)) : 0;
+        bar.style.transform = `scaleX(${ratio})`;
+        ticking = false;
+    }
+    window.addEventListener('scroll', () => {
+        if (!ticking) {
+            requestAnimationFrame(update);
+            ticking = true;
+        }
+    }, { passive: true });
+    window.addEventListener('resize', () => {
+        if (!ticking) {
+            requestAnimationFrame(update);
+            ticking = true;
+        }
+    });
+    update();
+}
+
+/** Count-up the .stat-number values when the About section enters view. One-shot per element. */
+function initStatCounters() {
+    if (prefersReducedMotion()) return;
+    const nums = document.querySelectorAll('#about .stat-number');
+    if (!nums.length) return;
+    if (!('IntersectionObserver' in window)) return;
+
+    const records = [];
+    nums.forEach((el) => {
+        const original = (el.textContent || '').trim();
+        const m = original.match(/^([\d.,]+)(.*)$/);
+        if (!m) return;
+        const target = parseFloat(m[1].replace(/,/g, ''));
+        if (!isFinite(target)) return;
+        records.push({ el, target, suffix: m[2] || '', original });
+        el.textContent = '0' + (m[2] || '');
+    });
+    if (!records.length) return;
+
+    const duration = currentPerfTier() === 'low' ? 600 : 950;
+
+    const obs = new IntersectionObserver((entries, ob) => {
+        entries.forEach((entry) => {
+            if (!entry.isIntersecting) return;
+            const rec = records.find((r) => r.el === entry.target);
+            ob.unobserve(entry.target);
+            if (!rec) return;
+
+            const start = performance.now();
+            function tick(now) {
+                const t = Math.min(1, (now - start) / duration);
+                const eased = 1 - Math.pow(1 - t, 3);
+                const v = Math.round(rec.target * eased);
+                rec.el.textContent = v + rec.suffix;
+                if (t < 1) requestAnimationFrame(tick);
+                else rec.el.textContent = rec.original;
+            }
+            requestAnimationFrame(tick);
+        });
+    }, { threshold: 0.45 });
+
+    records.forEach((r) => obs.observe(r.el));
+}
+
+/** Wrap each visible character of the hero name in its own span so CSS can
+ *  cascade-reveal them. Preserves the parent's aria-label (screen readers
+ *  still read "Om Shah" as a single phrase). */
+function initHeroNameCascade() {
+    if (!document.body.classList.contains('home-page')) return;
+    const title = document.querySelector('.hero-title.hero-title--minimal');
+    if (!title || title.classList.contains('has-letter-split')) return;
+    if (!title.hasAttribute('aria-label')) {
+        title.setAttribute('aria-label', (title.textContent || '').trim() || 'Om Shah');
+    }
+
+    const lines = title.querySelectorAll('.hero-name-line');
+    if (!lines.length) return;
+
+    let counter = 0;
+    lines.forEach((line) => {
+        const text = (line.textContent || '');
+        const frag = document.createDocumentFragment();
+        for (const ch of text) {
+            const span = document.createElement('span');
+            if (ch === ' ') {
+                span.className = 'hero-name-letter hero-name-letter--space';
+                span.innerHTML = '&nbsp;';
+            } else {
+                span.className = 'hero-name-letter';
+                span.textContent = ch;
+            }
+            span.setAttribute('aria-hidden', 'true');
+            span.style.setProperty('--i', String(counter++));
+            frag.appendChild(span);
+        }
+        line.textContent = '';
+        line.appendChild(frag);
+    });
+    title.classList.add('has-letter-split');
+}
+
+/** Inject the multi-blob aurora layer behind the hero content (mid+ only).
+ *  Reuses the existing `.hero` overflow:hidden + z-index stack. */
+function initHeroAurora() {
+    if (!document.body.classList.contains('home-page')) return;
+    if (currentPerfTier() === 'low') return;
+    if (prefersReducedMotion()) return;
+    const hero = document.querySelector('.hero');
+    if (!hero) return;
+    if (hero.querySelector('.hero-aurora')) return;
+
+    const layer = document.createElement('div');
+    layer.className = 'hero-aurora';
+    layer.setAttribute('aria-hidden', 'true');
+    layer.innerHTML = `
+        <div class="hero-aurora__blob hero-aurora__blob--a"></div>
+        <div class="hero-aurora__blob hero-aurora__blob--b"></div>
+        <div class="hero-aurora__blob hero-aurora__blob--c"></div>
+    `;
+    hero.insertBefore(layer, hero.firstChild);
+
+    /* On perf-high with a fine pointer, drift the aurora a few pixels
+       toward the cursor. Single rAF per move; only active while hero is
+       intersecting (cheap IntersectionObserver gate). */
+    if (currentPerfTier() !== 'high') return;
+    if (!window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
+
+    let active = false;
+    let raf = null;
+    let pendingX = 0;
+    let pendingY = 0;
+
+    const apply = () => {
+        layer.style.setProperty('--aurora-px', String(pendingX));
+        layer.style.setProperty('--aurora-py', String(pendingY));
+        raf = null;
+    };
+
+    const onMove = (e) => {
+        if (!active) return;
+        const w = window.innerWidth || 1;
+        const h = window.innerHeight || 1;
+        pendingX = (e.clientX / w) - 0.5;
+        pendingY = (e.clientY / h) - 0.5;
+        if (raf == null) raf = requestAnimationFrame(apply);
+    };
+
+    try {
+        const io = new IntersectionObserver((entries) => {
+            const vis = entries.some((e) => e.isIntersecting);
+            if (vis && !active) {
+                active = true;
+                window.addEventListener('mousemove', onMove, { passive: true });
+            } else if (!vis && active) {
+                active = false;
+                window.removeEventListener('mousemove', onMove);
+            }
+        }, { threshold: 0 });
+        io.observe(hero);
+    } catch (_) { /* old browsers: just skip the parallax */ }
+}
+
+/** Subtle magnetic pull on the primary CTA in #contact. perf-high only. */
+function initMagneticCTA() {
+    if (currentPerfTier() !== 'high') return;
+    if (prefersReducedMotion()) return;
+    if (!window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
+
+    const buttons = document.querySelectorAll('.contact-actions .btn-primary');
+    if (!buttons.length) return;
+
+    buttons.forEach((btn) => {
+        let raf = null;
+        const onMove = (e) => {
+            const rect = btn.getBoundingClientRect();
+            const x = e.clientX - (rect.left + rect.width / 2);
+            const y = e.clientY - (rect.top + rect.height / 2);
+            if (raf != null) cancelAnimationFrame(raf);
+            raf = requestAnimationFrame(() => {
+                const k = 0.22;
+                btn.style.setProperty('--mx', `${(x * k).toFixed(2)}px`);
+                btn.style.setProperty('--my', `${(y * k).toFixed(2)}px`);
+                raf = null;
+            });
+        };
+        const reset = () => {
+            if (raf != null) cancelAnimationFrame(raf);
+            raf = null;
+            btn.style.setProperty('--mx', '0px');
+            btn.style.setProperty('--my', '0px');
+        };
+        btn.addEventListener('mousemove', onMove);
+        btn.addEventListener('mouseleave', reset);
+        btn.addEventListener('blur', reset);
+    });
+}
+
+/** Pointer-following gradient spotlight on featured project cards. perf-high only.
+ *  Skips compact / phone / soon cards to stay clear of their existing overlays. */
+function initProjectCardSpotlight() {
+    if (currentPerfTier() !== 'high') return;
+    if (prefersReducedMotion()) return;
+    if (!window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
+
+    const cards = document.querySelectorAll(
+        '#projects .projects-grid .project-card:not(.project-card--soon):not(.project-card--phone-showcase):not(.project-phone-showcase-slot):not(.project-card--stack-clone):not(.project-card--compact-grid-hover)'
+    );
+    if (!cards.length) return;
+
+    cards.forEach((card) => {
+        let raf = null;
+        const onMove = (e) => {
+            const rect = card.getBoundingClientRect();
+            const x = ((e.clientX - rect.left) / rect.width) * 100;
+            const y = ((e.clientY - rect.top) / rect.height) * 100;
+            if (raf != null) cancelAnimationFrame(raf);
+            raf = requestAnimationFrame(() => {
+                card.style.setProperty('--spot-x', `${x.toFixed(1)}%`);
+                card.style.setProperty('--spot-y', `${y.toFixed(1)}%`);
+                card.style.setProperty('--spot-on', '1');
+                raf = null;
+            });
+        };
+        const off = () => {
+            if (raf != null) cancelAnimationFrame(raf);
+            raf = null;
+            card.style.setProperty('--spot-on', '0');
+        };
+        card.addEventListener('mouseenter', onMove);
+        card.addEventListener('mousemove', onMove);
+        card.addEventListener('mouseleave', off);
+    });
+}
+
+/** Wire up all perf-tiered polish at the right moment.  Runs as its own
+ *  DOMContentLoaded listener so it never breaks the existing init chain
+ *  if any new function throws. */
+document.addEventListener('DOMContentLoaded', () => {
+    try {
+        detectPerfTier();
+    } catch (_) { /* fall back to no tier class */ }
+
+    /* Wrap each init in try/catch: one broken feature must not take down
+       the rest of the page or block other initialisers. */
+    try { initScrollProgress(); } catch (_) {}
+    try { initHeroNameCascade(); } catch (_) {}
+    try { initHeroAurora(); } catch (_) {}
+    try { initStatCounters(); } catch (_) {}
+    try { initMagneticCTA(); } catch (_) {}
+    try { initProjectCardSpotlight(); } catch (_) {}
+});

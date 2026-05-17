@@ -4,7 +4,9 @@
     --bg-tertiary: #1a1a25;
     --text-primary: #e4e4e7;
     --text-secondary: #a1a1aa;
-    --text-muted: #71717a;
+    /* 2026-05: was #71717a (≈3.8:1 on --bg-secondary, failing AA for small text).
+       #8c8c95 measures ≈5.3:1 on --bg-secondary and ≈4.9:1 on --bg-tertiary. */
+    --text-muted: #8c8c95;
     --accent-primary: #00ff88;
     --accent-secondary: #00d4ff;
     --accent-tertiary: #8b5cf6;
@@ -2261,58 +2263,155 @@ body.nav-past-hero .mobile-menu-btn {
 }
 
 /*
- * Static grid SMS card = one “window” (__stage): overflow clips everything.
- * Default: .project-image covers the top 75%; .project-content fills the window underneath
- * (absolute inset 0) with header+title pinned to the visible bottom strip (flex-end).
- * Hover: the whole .project-image layer translates up by 100% of its height and exits; text
- * stays one layer (no flex-collapse vs inner <img> race, no double scrollbar in default state).
+ * Compact grid “photo cover”: peel animation only for real hover (mouse / trackpad).
+ * Touch or coarse pointers: hide the screenshot layer so detail is visible without tap-to-hover.
  * Stack: __stage uses display:contents (deck rules) — these rules are :not(.stack-clone) only.
  */
-.project-card--compact-grid-hover__stage {
-    position: relative;
-    flex: 1;
-    min-height: 0;
-    overflow: hidden;
+@media (hover: none), (pointer: coarse) {
+    .project-card--compact-grid-hover:not(.project-card--stack-clone) .project-card--compact-grid-hover__stage {
+        display: flex;
+        flex-direction: column;
+        min-height: 0;
+        overflow: visible;
+    }
+
+    .project-card--compact-grid-hover:not(.project-card--stack-clone) .project-image {
+        display: none !important;
+    }
+
+    .project-card--compact-grid-hover:not(.project-card--stack-clone) .project-content {
+        position: relative;
+        inset: auto;
+        padding: 1.25rem 1.5rem 1.5rem;
+        overflow: visible;
+        justify-content: flex-start;
+        display: flex;
+        flex-direction: column;
+        min-height: 0;
+    }
+
+    .project-card--compact-grid-hover:not(.project-card--stack-clone) .project-content-detail {
+        display: flex !important;
+        flex-direction: column;
+        flex: 1;
+        min-height: 0;
+    }
+
+    .project-card--compact-grid-hover:not(.project-card--stack-clone) .project-header {
+        margin-bottom: 0.65rem;
+    }
+
+    .project-card--compact-grid-hover:not(.project-card--stack-clone) .project-title {
+        margin-bottom: 0.75rem;
+    }
 }
 
-.project-card--compact-grid-hover:not(.project-card--stack-clone) .project-image {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 75%;
-    z-index: 2;
-    border-right: none;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-    overflow: hidden;
-    transition: transform 0.45s cubic-bezier(0.4, 0, 0.2, 1);
-    will-change: transform;
+@media (hover: hover) and (pointer: fine) {
+    .project-card--compact-grid-hover__stage {
+        position: relative;
+        flex: 1;
+        min-height: 0;
+        overflow: hidden;
+    }
+
+    .project-card--compact-grid-hover:not(.project-card--stack-clone) .project-image {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 75%;
+        z-index: 2;
+        border-right: none;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        overflow: hidden;
+        transition: transform 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+        will-change: transform;
+    }
+
+    .project-card--compact-grid-hover:not(.project-card--stack-clone):hover .project-image,
+    .project-card--compact-grid-hover:not(.project-card--stack-clone):focus-within .project-image {
+        transform: translateY(-100%);
+        border-bottom: none;
+    }
+
+    /*
+     * Scripted “peek” hints (script.js initProjectsCompactPeekHint): briefly lift only partway so
+     * the copy strip shows through — intentionally gentler than a full hover. Disabled when hovering/focused.
+     */
+    .project-card--compact-grid-hover:not(.project-card--stack-clone).project-card--peek-hint:not(:hover):not(:focus-within)
+        .project-image {
+        transform: translateY(calc(-1 * var(--project-peek-shift, 32%)));
+    }
+
+    .project-card--compact-grid-hover:not(.project-card--stack-clone) .project-image img {
+        width: 100%;
+        height: 100%;
+        min-height: 0;
+        object-fit: cover;
+        object-position: center top;
+        display: block;
+    }
+
+    .project-card--compact-grid-hover:not(.project-card--stack-clone) .project-content {
+        position: absolute;
+        inset: 0;
+        z-index: 1;
+        min-height: 0;
+        overflow: hidden;
+        /* Collapsed strip: match horizontal inset of other cards; keep vertical tight for the peek row */
+        padding: 0.75rem 2rem 1rem;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
+        box-sizing: border-box;
+    }
+
+    .project-card--compact-grid-hover:not(.project-card--stack-clone):hover .project-content,
+    .project-card--compact-grid-hover:not(.project-card--stack-clone):focus-within .project-content {
+        /* Same as .project-content on other grid cards (header row lines up with Production / toolkit cards) */
+        padding: 2rem;
+        justify-content: flex-start;
+        overflow-x: hidden;
+        overflow-y: auto;
+        border-radius: 0 0 12px 12px;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .project-card--compact-grid-hover:not(.project-card--stack-clone) .project-content-detail {
+        display: none;
+    }
+
+    .project-card--compact-grid-hover:not(.project-card--stack-clone):hover .project-content-detail,
+    .project-card--compact-grid-hover:not(.project-card--stack-clone):focus-within .project-content-detail {
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+        min-height: 0;
+    }
+
+    /* Icon rows live inside .project-content-detail on compact cards (not .project-content > .project-demos-btn) */
+    .project-card--compact-grid-hover:not(.project-card--stack-clone) .project-content-detail .project-demos-btn {
+        margin-top: auto;
+        padding-top: 1.25rem;
+    }
+
+    .projects-stack-deck .project-card--compact-grid-hover .project-content-detail {
+        display: flex !important;
+        flex-direction: column;
+        flex: 1;
+        min-height: 0;
+    }
+
+    .project-card--compact-grid-hover:not(.project-card--stack-clone):not(:hover):not(:focus-within) .project-header {
+        margin-bottom: 0.5rem;
+    }
+
+    .project-card--compact-grid-hover:not(.project-card--stack-clone):not(:hover):not(:focus-within) .project-title {
+        margin-bottom: 0;
+    }
 }
 
-.project-card--compact-grid-hover:not(.project-card--stack-clone):hover .project-image,
-.project-card--compact-grid-hover:not(.project-card--stack-clone):focus-within .project-image {
-    transform: translateY(-100%);
-    border-bottom: none;
-}
-
-/*
- * Scripted “peek” hints (script.js initProjectsCompactPeekHint): briefly lift only partway so
- * the copy strip shows through — intentionally gentler than a full hover. Disabled when hovering/focused.
- */
-.project-card--compact-grid-hover:not(.project-card--stack-clone).project-card--peek-hint:not(:hover):not(:focus-within) .project-image {
-    transform: translateY(calc(-1 * var(--project-peek-shift, 32%)));
-}
-
-.project-card--compact-grid-hover:not(.project-card--stack-clone) .project-image img {
-    width: 100%;
-    height: 100%;
-    min-height: 0;
-    object-fit: cover;
-    object-position: center top;
-    display: block;
-}
-
-@media (prefers-reduced-motion: reduce) {
+@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: reduce) {
     .project-card--compact-grid-hover:not(.project-card--stack-clone) .project-image,
     .project-card--compact-grid-hover:not(.project-card--stack-clone) .project-content {
         transition: none;
@@ -2325,64 +2424,6 @@ body.nav-past-hero .mobile-menu-btn {
         visibility: hidden;
         pointer-events: none;
     }
-}
-
-.project-card--compact-grid-hover:not(.project-card--stack-clone) .project-content {
-    position: absolute;
-    inset: 0;
-    z-index: 1;
-    min-height: 0;
-    overflow: hidden;
-    /* Collapsed strip: match horizontal inset of other cards; keep vertical tight for the peek row */
-    padding: 0.75rem 2rem 1rem;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-end;
-    box-sizing: border-box;
-}
-
-.project-card--compact-grid-hover:not(.project-card--stack-clone):hover .project-content,
-.project-card--compact-grid-hover:not(.project-card--stack-clone):focus-within .project-content {
-    /* Same as .project-content on other grid cards (header row lines up with Production / toolkit cards) */
-    padding: 2rem;
-    justify-content: flex-start;
-    overflow-x: hidden;
-    overflow-y: auto;
-    border-radius: 0 0 12px 12px;
-    -webkit-overflow-scrolling: touch;
-}
-
-.project-card--compact-grid-hover:not(.project-card--stack-clone) .project-content-detail {
-    display: none;
-}
-
-.project-card--compact-grid-hover:not(.project-card--stack-clone):hover .project-content-detail,
-.project-card--compact-grid-hover:not(.project-card--stack-clone):focus-within .project-content-detail {
-    display: flex;
-    flex-direction: column;
-    flex: 1;
-    min-height: 0;
-}
-
-/* Icon rows live inside .project-content-detail on compact cards (not .project-content > .project-demos-btn) */
-.project-card--compact-grid-hover:not(.project-card--stack-clone) .project-content-detail .project-demos-btn {
-    margin-top: auto;
-    padding-top: 1.25rem;
-}
-
-.projects-stack-deck .project-card--compact-grid-hover .project-content-detail {
-    display: flex !important;
-    flex-direction: column;
-    flex: 1;
-    min-height: 0;
-}
-
-.project-card--compact-grid-hover:not(.project-card--stack-clone):not(:hover):not(:focus-within) .project-header {
-    margin-bottom: 0.5rem;
-}
-
-.project-card--compact-grid-hover:not(.project-card--stack-clone):not(:hover):not(:focus-within) .project-title {
-    margin-bottom: 0;
 }
 
 .project-card.featured {
@@ -6002,4 +6043,749 @@ details.demo-misconceptions[open] .demo-misconceptions-chevron::after {
 .terminal-window {
     animation: fadeInUp 0.8s ease 0.45s forwards;
     opacity: 0;
+}
+
+/* =============================================================
+   Performance-tiered polish (added 2026-05).
+   Body class is set by initPerfTier() in script.js before paint:
+       perf-low  -> low RAM / few CPU cores / save-data / reduced-motion
+       perf-mid  -> default
+       perf-high -> fast desktop with fine pointer
+   Heavy effects below are gated; perf-low never pays for them.
+   ============================================================= */
+
+/* Scroll progress bar — single transform:scaleX, trivial on every tier. */
+.scroll-progress {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    transform: scaleX(0);
+    transform-origin: 0 50%;
+    background: linear-gradient(90deg, var(--accent-primary) 0%, var(--accent-secondary) 50%, var(--accent-tertiary) 100%);
+    z-index: 1100;
+    pointer-events: none;
+    will-change: transform;
+    opacity: 0.9;
+    box-shadow: 0 0 10px rgba(0, 255, 136, 0.25);
+}
+
+.perf-low .scroll-progress {
+    box-shadow: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .scroll-progress {
+        transition: none !important;
+    }
+}
+
+/* Hero aurora — soft drifting radial glows behind the hero content.
+   No CSS filter:blur (which can fall back to CPU on weak GPUs); gradients
+   fade naturally with transparent stops so cost is essentially a single
+   GPU-composited transform per blob. Hidden entirely on perf-low. */
+.hero-aurora {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+    z-index: 0;
+    contain: strict;
+}
+
+.hero-aurora__blob {
+    position: absolute;
+    border-radius: 50%;
+    will-change: transform;
+    transform: translate3d(0, 0, 0);
+}
+
+.hero-aurora__blob--a {
+    width: 70vmax;
+    height: 70vmax;
+    top: -30vmax;
+    left: -20vmax;
+    background: radial-gradient(circle, rgba(0, 255, 136, 0.18) 0%, rgba(0, 255, 136, 0) 60%);
+    animation: hero-aurora-a 22s ease-in-out infinite alternate;
+}
+
+.hero-aurora__blob--b {
+    width: 60vmax;
+    height: 60vmax;
+    bottom: -25vmax;
+    right: -22vmax;
+    background: radial-gradient(circle, rgba(0, 212, 255, 0.16) 0%, rgba(0, 212, 255, 0) 60%);
+    animation: hero-aurora-b 28s ease-in-out infinite alternate;
+}
+
+.hero-aurora__blob--c {
+    width: 45vmax;
+    height: 45vmax;
+    top: 30%;
+    left: 55%;
+    background: radial-gradient(circle, rgba(139, 92, 246, 0.13) 0%, rgba(139, 92, 246, 0) 62%);
+    animation: hero-aurora-c 34s ease-in-out infinite alternate;
+}
+
+@keyframes hero-aurora-a {
+    from { transform: translate3d(0, 0, 0) scale(1); }
+    to   { transform: translate3d(8vw, 6vh, 0) scale(1.12); }
+}
+
+@keyframes hero-aurora-b {
+    from { transform: translate3d(0, 0, 0) scale(1); }
+    to   { transform: translate3d(-7vw, -5vh, 0) scale(1.08); }
+}
+
+@keyframes hero-aurora-c {
+    from { transform: translate3d(0, 0, 0) scale(0.95); }
+    to   { transform: translate3d(-6vw, 4vh, 0) scale(1.1); }
+}
+
+/* Aurora only exists on perf-mid and perf-high. */
+.perf-low .hero-aurora,
+.perf-low .hero-aurora__blob {
+    display: none !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .hero-aurora__blob {
+        animation: none !important;
+        transform: translate3d(0, 0, 0) !important;
+    }
+}
+
+/* Cursor parallax on the aurora — script writes --aurora-px/--aurora-py.
+   Only nudges position by a few pixels; cheap. */
+.perf-high .hero-aurora__blob--a { translate: calc(var(--aurora-px, 0) * -8px) calc(var(--aurora-py, 0) * -6px); }
+.perf-high .hero-aurora__blob--b { translate: calc(var(--aurora-px, 0) *  6px) calc(var(--aurora-py, 0) *  4px); }
+.perf-high .hero-aurora__blob--c { translate: calc(var(--aurora-px, 0) *  4px) calc(var(--aurora-py, 0) * -3px); }
+
+/* Hero name letter cascade — JS splits "Om Shah" into per-character spans,
+   each gets a stagger via --i.  One-shot CSS animation; no JS frames. */
+.hero-name-letter {
+    display: inline-block;
+    opacity: 0;
+    transform: translateY(0.6em);
+    animation: hero-letter-rise 0.65s cubic-bezier(0.2, 0.7, 0.2, 1) forwards;
+    animation-delay: calc(0.1s + var(--i, 0) * 0.045s);
+    will-change: transform, opacity;
+}
+
+.hero-name-letter--space {
+    width: 0.35em;
+}
+
+@keyframes hero-letter-rise {
+    0% {
+        opacity: 0;
+        transform: translateY(0.6em);
+        filter: blur(4px);
+    }
+    60% {
+        opacity: 1;
+        filter: blur(0);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+        filter: blur(0);
+    }
+}
+
+/* Skip the per-letter blur on perf-low (filter is the costly bit). */
+.perf-low .hero-name-letter {
+    animation: hero-letter-rise-cheap 0.45s ease forwards;
+    animation-delay: calc(var(--i, 0) * 0.025s);
+}
+
+@keyframes hero-letter-rise-cheap {
+    from { opacity: 0; transform: translateY(0.4em); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .hero-name-letter {
+        animation: none !important;
+        opacity: 1 !important;
+        transform: none !important;
+        filter: none !important;
+    }
+}
+
+/* When letters split, suppress the wrapper-level fadeInUp on the h1 so
+   the per-letter animation isn’t fighting an opacity:0 parent. */
+.hero-text > h1.has-letter-split {
+    animation: none;
+    opacity: 1;
+}
+
+/* Stat counter readouts — keep digit columns from jiggling during count-up. */
+.about-stats .stat-number {
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: "tnum" 1;
+}
+
+/* Magnetic CTA — script sets --mx/--my from cursor offset; tiny translate.
+   Only active on perf-high; preserves the existing hover lift (-2px). */
+.perf-high .contact-actions .btn-primary {
+    transform: translate3d(var(--mx, 0px), var(--my, 0px), 0);
+    transition: transform 0.18s cubic-bezier(0.16, 1, 0.3, 1), box-shadow var(--transition-normal), background var(--transition-normal);
+}
+
+.perf-high .contact-actions .btn-primary:hover {
+    transform: translate3d(var(--mx, 0px), calc(var(--my, 0px) - 2px), 0);
+}
+
+/* Project card spotlight — JS publishes pointer position as --spot-x/--spot-y.
+   Pure CSS overlay (radial gradient); inert when --spot-on is 0.
+   Applied to simpler text/icon cards only — compact peel cards and the
+   phone-showcase slot have their own pointer interactions. */
+.perf-high .projects-grid .project-card:not(.project-card--soon):not(.project-card--phone-showcase):not(.project-card--compact-grid-hover):not(.project-phone-showcase-slot) {
+    position: relative;
+}
+
+.perf-high .projects-grid .project-card:not(.project-card--soon):not(.project-card--phone-showcase):not(.project-card--compact-grid-hover):not(.project-phone-showcase-slot)::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    background: radial-gradient(
+        260px circle at var(--spot-x, 50%) var(--spot-y, 50%),
+        rgba(0, 255, 136, 0.10),
+        rgba(0, 212, 255, 0.06) 35%,
+        transparent 60%
+    );
+    opacity: var(--spot-on, 0);
+    transition: opacity 0.25s ease;
+    z-index: 2;
+    mix-blend-mode: screen;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .perf-high .projects-grid .project-card::after {
+        display: none !important;
+    }
+}
+
+/* Save-data hint: also clip cursor glow even if pointer reports fine. */
+.perf-low .cursor-glow {
+    display: none !important;
+}
+
+/* =============================================================
+   Hero meta line — location, study, availability.
+   Recruiters scan for these three things; the trio replaces the
+   "ask in DMs" guessing game.
+   ============================================================= */
+.hero-meta {
+    margin: 0.4rem 0 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.85rem 1.4rem;
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 0.78rem;
+    color: var(--text-secondary);
+    letter-spacing: 0.01em;
+    max-width: 30rem;
+    /* Match the staggered fadeInUp on .hero-text > * so this slots in cleanly. */
+    animation: fadeInUp 0.8s ease 0.32s forwards;
+    opacity: 0;
+}
+
+.hero-meta-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    line-height: 1.4;
+}
+
+.hero-meta-icon {
+    width: 14px;
+    height: 14px;
+    flex-shrink: 0;
+    color: var(--accent-primary);
+}
+
+.hero-meta-item--b .hero-meta-icon { color: var(--accent-secondary); }
+.hero-meta-item--c .hero-meta-icon { color: var(--accent-tertiary); }
+
+@media (prefers-reduced-motion: reduce) {
+    .hero-meta {
+        animation: none !important;
+        opacity: 1 !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .hero-meta {
+        font-size: 0.74rem;
+        gap: 0.5rem 1rem;
+    }
+}
+
+/* =============================================================
+   Resume highlights — quick-scan panel above the embedded PDF
+   so recruiters on flaky networks can still get the gist.
+   ============================================================= */
+.resume-highlights {
+    margin: 1.5rem 0 2.25rem;
+}
+
+.resume-highlights-panel {
+    background:
+        radial-gradient(ellipse 95% 70% at 0% 0%, rgba(0, 212, 255, 0.06) 0%, transparent 38%),
+        linear-gradient(165deg, rgba(22, 27, 34, 0.94) 0%, rgba(14, 17, 22, 0.98) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-left: 2px solid var(--accent-primary);
+    border-radius: 12px;
+    padding: 1.5rem 1.75rem 1.6rem;
+    box-shadow:
+        0 1px 0 rgba(255, 255, 255, 0.04) inset,
+        0 12px 32px rgba(0, 0, 0, 0.22);
+}
+
+.resume-highlights-head {
+    margin-bottom: 1rem;
+}
+
+.resume-highlights-eyebrow {
+    display: block;
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.04em;
+    color: rgba(181, 168, 220, 0.62);
+    margin-bottom: 0.45rem;
+}
+
+.resume-highlights-name {
+    margin: 0;
+    font-size: 1.6rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: var(--text-primary);
+    line-height: 1.1;
+}
+
+.resume-highlights-role {
+    margin: 0.2rem 0 0;
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+.resume-highlights-meta {
+    list-style: none;
+    margin: 0 0 1.1rem;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem 1.4rem;
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+}
+
+.resume-highlights-meta-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+}
+
+.resume-highlights-meta-item svg {
+    width: 14px;
+    height: 14px;
+    flex-shrink: 0;
+}
+
+.resume-highlights-meta-item:nth-child(1) svg { color: var(--accent-primary); }
+.resume-highlights-meta-item:nth-child(2) svg { color: var(--accent-secondary); }
+.resume-highlights-meta-item:nth-child(3) svg { color: var(--accent-tertiary); }
+
+.resume-highlights-bullets {
+    list-style: none;
+    margin: 0;
+    padding: 0.25rem 0 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-size: 0.95rem;
+    color: var(--text-secondary);
+    line-height: 1.55;
+}
+
+.resume-highlights-bullets li {
+    position: relative;
+    padding: 0.55rem 0 0.55rem 1.1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.resume-highlights-bullets li:last-child {
+    border-bottom: none;
+}
+
+.resume-highlights-bullets li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 1em;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--accent-primary);
+    box-shadow: 0 0 8px rgba(0, 255, 136, 0.45);
+}
+
+.resume-highlights-bullets li:nth-child(2)::before { background: var(--accent-secondary); box-shadow: 0 0 8px rgba(0, 212, 255, 0.45); }
+.resume-highlights-bullets li:nth-child(3)::before { background: var(--matrix-d); box-shadow: 0 0 8px rgba(167, 139, 250, 0.45); }
+.resume-highlights-bullets li:nth-child(4)::before { background: var(--matrix-c); box-shadow: 0 0 8px rgba(251, 146, 60, 0.45); }
+
+.resume-highlights-bullets strong {
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
+.resume-highlights-footnote {
+    margin: 0.9rem 0 0;
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+}
+
+@media (max-width: 640px) {
+    .resume-highlights-panel {
+        padding: 1.25rem 1.25rem 1.4rem;
+    }
+    .resume-highlights-name {
+        font-size: 1.35rem;
+    }
+    .resume-highlights-bullets {
+        font-size: 0.9rem;
+    }
+}
+
+/* =============================================================
+   Notes / posts page (posts.html).
+   Reuses navbar + footer chrome; just adds typography for the
+   article body + a minimal code block style.
+   ============================================================= */
+body.posts-page {
+    background-color: var(--bg-primary);
+}
+
+.posts-main {
+    padding: 7rem 0 5rem;
+    min-height: 100vh;
+}
+
+.posts-container {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 0 1.5rem;
+}
+
+.posts-header {
+    margin-bottom: 3rem;
+    padding-bottom: 1.75rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.posts-eyebrow {
+    margin: 0 0 0.5rem;
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 0.78rem;
+    color: var(--accent-secondary);
+    letter-spacing: 0.04em;
+}
+
+.posts-title {
+    margin: 0 0 0.85rem;
+    font-size: clamp(1.9rem, 4.5vw, 2.6rem);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: var(--text-primary);
+    line-height: 1.1;
+}
+
+.posts-intro {
+    margin: 0;
+    color: var(--text-secondary);
+    font-size: 1.02rem;
+    line-height: 1.6;
+    max-width: 56ch;
+}
+
+.posts-intro a {
+    color: var(--accent-secondary);
+    text-decoration: none;
+    border-bottom: 1px solid rgba(0, 212, 255, 0.4);
+    transition: color var(--transition-fast), border-color var(--transition-fast);
+}
+
+.posts-intro a:hover {
+    color: var(--accent-primary);
+    border-bottom-color: var(--accent-primary);
+}
+
+/* Individual post block (one inline today; split into per-file later). */
+.post {
+    padding: 0 0 3rem;
+    margin: 0 0 3rem;
+    border-bottom: 1px dashed rgba(255, 255, 255, 0.07);
+}
+
+.post:last-of-type {
+    border-bottom: none;
+    margin-bottom: 1.5rem;
+}
+
+.post-header {
+    margin-bottom: 1.75rem;
+}
+
+.post-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem 0.75rem;
+    margin-bottom: 0.85rem;
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.04em;
+}
+
+.post-date {
+    color: var(--text-muted);
+}
+
+.post-tag {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.18rem 0.55rem;
+    border-radius: 99px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    color: var(--text-secondary);
+    background: rgba(255, 255, 255, 0.02);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-size: 0.66rem;
+    font-weight: 500;
+}
+
+.post-tag--a {
+    color: var(--accent-primary);
+    border-color: rgba(0, 255, 136, 0.35);
+    background: rgba(0, 255, 136, 0.06);
+}
+
+.post-tag--b {
+    color: var(--accent-secondary);
+    border-color: rgba(0, 212, 255, 0.35);
+    background: rgba(0, 212, 255, 0.06);
+}
+
+.post-title {
+    margin: 0 0 0.65rem;
+    font-size: clamp(1.5rem, 3.6vw, 2rem);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: var(--text-primary);
+    line-height: 1.15;
+}
+
+.post-lede {
+    margin: 0;
+    color: var(--text-secondary);
+    font-size: 1.05rem;
+    line-height: 1.6;
+    font-weight: 400;
+}
+
+.post-body {
+    color: var(--text-secondary);
+    line-height: 1.7;
+    font-size: 1rem;
+}
+
+.post-body p {
+    margin: 0 0 1.15rem;
+}
+
+.post-body em {
+    color: var(--text-primary);
+    font-style: italic;
+}
+
+.post-body strong {
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
+.post-body code {
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 0.88em;
+    padding: 0.12em 0.4em;
+    border-radius: 4px;
+    background: rgba(0, 212, 255, 0.07);
+    color: #d8e9f5;
+    border: 1px solid rgba(0, 212, 255, 0.18);
+}
+
+.post-h3 {
+    margin: 2.2rem 0 0.85rem;
+    font-size: 1.18rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    letter-spacing: -0.01em;
+    line-height: 1.3;
+}
+
+.post-h3::before {
+    content: '#';
+    color: var(--accent-primary);
+    margin-right: 0.45rem;
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-weight: 600;
+    opacity: 0.7;
+}
+
+.post-list {
+    margin: 0 0 1.2rem;
+    padding-left: 1.4rem;
+}
+
+.post-list li {
+    margin-bottom: 0.45rem;
+}
+
+.post-list li::marker {
+    color: var(--accent-secondary);
+}
+
+/* Code block: monospace, scrollable, gradient left border. */
+.post-code {
+    margin: 0.4rem 0 1.5rem;
+    padding: 1rem 1.25rem;
+    background: linear-gradient(180deg, rgba(10, 14, 20, 0.95), rgba(8, 11, 16, 0.95));
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-left: 3px solid var(--accent-primary);
+    border-radius: 8px;
+    overflow-x: auto;
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 0.85rem;
+    line-height: 1.55;
+    color: #d4e3ee;
+    /* scrollbar styling: hide on platforms that support it */
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.1) transparent;
+}
+
+.post-code code {
+    background: none;
+    border: none;
+    padding: 0;
+    font-size: inherit;
+    color: inherit;
+    white-space: pre;
+    display: block;
+}
+
+.post-code::-webkit-scrollbar { height: 6px; }
+.post-code::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 3px;
+}
+
+/* Table for compatibility matrices. */
+.post-table-wrap {
+    margin: 0.5rem 0 1.5rem;
+    overflow-x: auto;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.post-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.92rem;
+}
+
+.post-table th,
+.post-table td {
+    padding: 0.65rem 0.9rem;
+    text-align: left;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.post-table th {
+    background: rgba(255, 255, 255, 0.025);
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-weight: 500;
+}
+
+.post-table th:not(:first-child),
+.post-table td:not(:first-child) {
+    text-align: center;
+    width: 5.5rem;
+}
+
+.post-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.post-table tbody tr:hover td {
+    background: rgba(0, 212, 255, 0.025);
+}
+
+.post-outro {
+    margin-top: 1.5rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+    color: var(--text-muted);
+    font-size: 0.94rem;
+    font-style: italic;
+}
+
+.posts-footer-note {
+    margin: 2rem 0 0;
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    line-height: 1.6;
+    text-align: center;
+}
+
+.posts-footer-note a {
+    color: var(--accent-secondary);
+    text-decoration: none;
+    border-bottom: 1px solid rgba(0, 212, 255, 0.3);
+}
+
+.posts-footer-note a:hover {
+    color: var(--accent-primary);
+    border-bottom-color: var(--accent-primary);
+}
+
+@media (max-width: 640px) {
+    .posts-main {
+        padding: 6rem 0 3rem;
+    }
+    .posts-container {
+        padding: 0 1.1rem;
+    }
+    .post-code {
+        font-size: 0.78rem;
+        padding: 0.85rem 1rem;
+    }
 }
