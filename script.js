@@ -2112,6 +2112,31 @@ function renderContribGraph(container, data) {
     if (totalEl && total != null) {
         totalEl.innerHTML = `<strong>${escapeHtml(String(total))}</strong> contributions in the last year`;
     }
+
+    /* Fit the heatmap to its container width by scaling it down.
+       Runs once on render + on resize so it always fits. */
+    fitContribHeatmap(container);
+    window.addEventListener('resize', () => fitContribHeatmap(container));
+}
+
+function fitContribHeatmap(container) {
+    const heatmap = container.querySelector('.contrib-heatmap');
+    const wrap = container.closest('.contrib-graph-wrap');
+    if (!heatmap || !wrap) return;
+
+    heatmap.style.transform = 'none';
+    const natural = heatmap.scrollWidth;
+    const available = wrap.clientWidth - parseFloat(getComputedStyle(wrap).paddingLeft) - parseFloat(getComputedStyle(wrap).paddingRight);
+
+    if (natural > available && natural > 0) {
+        const scale = available / natural;
+        heatmap.style.transform = `scale(${scale})`;
+        heatmap.style.transformOrigin = '0 0';
+        container.style.height = `${Math.ceil(heatmap.scrollHeight * scale)}px`;
+    } else {
+        heatmap.style.transform = 'none';
+        container.style.height = '';
+    }
 }
 
 async function initContribGraph() {

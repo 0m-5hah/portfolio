@@ -7148,6 +7148,12 @@ body.posts-page {
     border: 1px solid rgba(255, 255, 255, 0.05);
     border-radius: 8px;
     box-shadow: none;
+    overflow-x: hidden;
+}
+
+/* Scale the heatmap to fit the about-panel width instead of overflowing. */
+.contrib-graph-wrap--about .contrib-heatmap {
+    transform-origin: 0 0;
 }
 
 .contrib-graph-wrap::-webkit-scrollbar { height: 5px; }
