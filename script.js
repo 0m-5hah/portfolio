@@ -1666,4 +1666,489 @@ document.addEventListener('DOMContentLoaded', () => {
     try { initStatCounters(); } catch (_) {}
     try { initMagneticCTA(); } catch (_) {}
     try { initProjectCardSpotlight(); } catch (_) {}
+    try { initOpenSourceSection(); } catch (_) {}
+    try { initContribGraph(); } catch (_) {}
 });
+
+/* ==============================================================
+ * Open source section — live GitHub repos via the public REST API.
+ * Lazy: only fires when the section approaches the viewport.
+ * Caches the response in localStorage for 6h so re-renders and
+ * back-button navigation are free (and we don't burn the 60/hour
+ * unauthenticated rate limit on a single visitor).  Renders escape-
+ * safe (no innerHTML for untrusted strings).
+ * ============================================================== */
+
+const GITHUB_USER = '0m-5hah';
+const REPOS_CACHE_KEY = 'omGithubReposCache_v1';
+const REPOS_CACHE_TTL_MS = 6 * 60 * 60 * 1000;
+const REPOS_MAX_DISPLAY = 9;
+
+/* GitHub's standard language colours, subset.  Unknown → muted gray. */
+const REPO_LANG_COLORS = {
+    'Python': '#3572A5',
+    'JavaScript': '#f1e05a',
+    'TypeScript': '#3178c6',
+    'HTML': '#e34c26',
+    'CSS': '#563d7c',
+    'Shell': '#89e051',
+    'Go': '#00ADD8',
+    'Rust': '#dea584',
+    'Java': '#b07219',
+    'Kotlin': '#A97BFF',
+    'C++': '#f34b7d',
+    'C': '#555555',
+    'C#': '#178600',
+    'Ruby': '#701516',
+    'PHP': '#4F5D95',
+    'Swift': '#F05138',
+    'Jupyter Notebook': '#DA5B0B',
+    'Dockerfile': '#384d54',
+    'YAML': '#cb171e',
+    'Vue': '#41b883',
+    'Astro': '#ff5d01'
+};
+
+/**
+ * Escape any string going into innerHTML.  GitHub repo descriptions and
+ * topics are user-controlled — never inject them raw.
+ * @param {string|number|null|undefined} s
+ */
+function escapeHtml(s) {
+    return String(s == null ? '' : s)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+}
+
+/**
+ * Validate a URL only allows http(s) before we put it in href.  Anything else
+ * (javascript:, data:, etc.) is dropped to GitHub home.
+ * @param {string} url
+ */
+function safeRepoUrl(url) {
+    try {
+        const u = new URL(url);
+        if (u.protocol === 'https:' || u.protocol === 'http:') return u.toString();
+    } catch (_) { /* fall through */ }
+    return `https://github.com/${GITHUB_USER}`;
+}
+
+function relativeRepoTime(iso) {
+    const t = new Date(iso).getTime();
+    if (!isFinite(t)) return '';
+    const diff = Math.max(0, Date.now() - t);
+    const min = 60 * 1000;
+    const hr  = 60 * min;
+    const day = 24 * hr;
+    if (diff < min)        return 'just now';
+    if (diff < hr)         return Math.floor(diff / min) + 'm ago';
+    if (diff < day)        return Math.floor(diff / hr) + 'h ago';
+    if (diff < 30 * day)   return Math.floor(diff / day) + 'd ago';
+    if (diff < 365 * day)  return Math.floor(diff / (30 * day)) + 'mo ago';
+    return Math.floor(diff / (365 * day)) + 'y ago';
+}
+
+function readReposCache() {
+    try {
+        const raw = localStorage.getItem(REPOS_CACHE_KEY);
+        if (!raw) return null;
+        const obj = JSON.parse(raw);
+        if (!obj || typeof obj.t !== 'number' || !Array.isArray(obj.repos)) return null;
+        if (Date.now() - obj.t > REPOS_CACHE_TTL_MS) return null;
+        return obj.repos;
+    } catch (_) {
+        return null;
+    }
+}
+
+function writeReposCache(repos) {
+    try {
+        /* Strip the cache payload to fields we actually render — keeps
+           localStorage well under typical 5 MB quotas. */
+        const trimmed = repos.map((r) => ({
+            id: r.id,
+            name: r.name,
+            full_name: r.full_name,
+            html_url: r.html_url,
+            description: r.description,
+            language: r.language,
+            stargazers_count: r.stargazers_count,
+            forks_count: r.forks_count,
+            updated_at: r.updated_at,
+            pushed_at: r.pushed_at,
+            topics: Array.isArray(r.topics) ? r.topics.slice(0, 6) : [],
+            fork: !!r.fork,
+            archived: !!r.archived,
+            private: !!r.private,
+            disabled: !!r.disabled
+        }));
+        localStorage.setItem(REPOS_CACHE_KEY, JSON.stringify({ t: Date.now(), repos: trimmed }));
+    } catch (_) { /* quota exceeded / disabled: silently skip cache */ }
+}
+
+async function fetchGithubRepos() {
+    /* sort=updated and per_page=100 lets us pick what to highlight client-side
+       without paging.  At a glance the API caps responses at 100 anyway. */
+    const url = `https://api.github.com/users/${encodeURIComponent(GITHUB_USER)}/repos?per_page=100&sort=updated&type=owner`;
+    const res = await fetch(url, {
+        headers: { 'Accept': 'application/vnd.github+json' },
+        /* Don't send credentials, don't follow auth redirects: stays
+           unauthenticated and CORS-friendly. */
+        credentials: 'omit',
+        mode: 'cors'
+    });
+    if (!res.ok) {
+        const remaining = res.headers.get('x-ratelimit-remaining');
+        const status = res.status;
+        const err = new Error(`GitHub API ${status}${remaining === '0' ? ' (rate limited)' : ''}`);
+        err.status = status;
+        err.rateLimited = remaining === '0';
+        throw err;
+    }
+    return res.json();
+}
+
+function rankRepos(all) {
+    return all
+        .filter((r) => r && !r.fork && !r.private && !r.archived && !r.disabled)
+        /* Primary: stars desc.  Tiebreak: most recently pushed/updated. */
+        .sort((a, b) => {
+            const s = (b.stargazers_count || 0) - (a.stargazers_count || 0);
+            if (s !== 0) return s;
+            const at = new Date(a.pushed_at || a.updated_at || 0).getTime();
+            const bt = new Date(b.pushed_at || b.updated_at || 0).getTime();
+            return bt - at;
+        });
+}
+
+function renderRepoCard(repo, idx) {
+    const url = safeRepoUrl(repo.html_url);
+    const name = escapeHtml(repo.name || 'unnamed');
+    const desc = repo.description
+        ? `<p class="repo-desc">${escapeHtml(repo.description)}</p>`
+        : '<p class="repo-desc repo-desc--empty">No description.</p>';
+
+    const topics = Array.isArray(repo.topics) ? repo.topics.slice(0, 5) : [];
+    const topicsHtml = topics.length
+        ? `<ul class="repo-topics">${topics.map((t) => `<li class="repo-topic">${escapeHtml(t)}</li>`).join('')}</ul>`
+        : '';
+
+    const langColor = REPO_LANG_COLORS[repo.language] || '#7d8590';
+    const langHtml = repo.language
+        ? `<span class="repo-lang"><span class="repo-lang-dot" style="background:${escapeHtml(langColor)}"></span>${escapeHtml(repo.language)}</span>`
+        : '';
+
+    const stars = Number(repo.stargazers_count || 0);
+    const forks = Number(repo.forks_count || 0);
+    const starsHtml = stars > 0
+        ? `<span class="repo-stat repo-stat--stars" title="${stars} star${stars === 1 ? '' : 's'}">
+                <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 17.27 18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                ${stars}
+            </span>`
+        : '';
+    const forksHtml = forks > 0
+        ? `<span class="repo-stat repo-stat--forks" title="${forks} fork${forks === 1 ? '' : 's'}">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="6" cy="3" r="2"/><circle cx="6" cy="18" r="2"/><circle cx="18" cy="6" r="2"/><path d="M6 5v13M18 8a5 5 0 01-5 5h-1.5"/></svg>
+                ${forks}
+            </span>`
+        : '';
+    const updated = relativeRepoTime(repo.pushed_at || repo.updated_at);
+    const updatedHtml = updated
+        ? `<span class="repo-stat repo-stat--updated" title="Last pushed ${escapeHtml(repo.pushed_at || repo.updated_at || '')}">Updated ${escapeHtml(updated)}</span>`
+        : '';
+
+    return `
+        <article class="repo-card repo-card--live" style="--rci:${idx}">
+            <header class="repo-card-head">
+                <svg class="repo-card-icon" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M2 2.5A2.5 2.5 0 014.5 0h8.75a.75.75 0 01.75.75v12.5a.75.75 0 01-.75.75h-2.5a.75.75 0 010-1.5h1.75v-2h-8a1 1 0 00-.714 1.7.75.75 0 01-1.072 1.05A2.495 2.495 0 012 11.5v-9zm10.5-1h-8A1.5 1.5 0 003 3v7.255A2.99 2.99 0 014 10h8.5V1.5z"/></svg>
+                <a class="repo-name" href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer">${name}</a>
+            </header>
+            ${desc}
+            ${topicsHtml}
+            <footer class="repo-card-foot">
+                ${langHtml}
+                ${starsHtml}
+                ${forksHtml}
+                ${updatedHtml}
+            </footer>
+        </article>
+    `;
+}
+
+function paintRepos(grid, statusEl, repos, fromCache) {
+    const ranked = rankRepos(repos);
+    const top = ranked.slice(0, REPOS_MAX_DISPLAY);
+
+    if (!top.length) {
+        grid.innerHTML = '';
+        if (statusEl) statusEl.textContent = 'No public repositories yet.';
+        grid.setAttribute('aria-busy', 'false');
+        return;
+    }
+
+    grid.innerHTML = top.map((r, i) => renderRepoCard(r, i)).join('');
+    grid.setAttribute('aria-busy', 'false');
+
+    if (statusEl) {
+        const total = ranked.length;
+        const shown = top.length;
+        statusEl.textContent = shown < total
+            ? `Showing ${shown} of ${total} public repos${fromCache ? ' · cached' : ' · live'}.`
+            : `${shown} public repos${fromCache ? ' · cached' : ' · live'}.`;
+    }
+}
+
+async function initOpenSourceSection() {
+    if (!document.body.classList.contains('home-page')) return;
+
+    const section = document.getElementById('open-source');
+    const grid = document.getElementById('repos-grid');
+    const statusEl = document.getElementById('repos-status');
+    if (!section || !grid) return;
+
+    /* If we already have a fresh cache, render immediately without waiting
+       for the section to scroll into view.  IntersectionObserver only used
+       for the cold-fetch path below. */
+    const cached = readReposCache();
+    if (cached) {
+        paintRepos(grid, statusEl, cached, true);
+        return;
+    }
+
+    if (statusEl) statusEl.textContent = 'Fetching repositories from GitHub…';
+
+    /* Cold fetch only fires when the section approaches the viewport, so
+       visitors who never scroll never pay the network cost. */
+    const trigger = async () => {
+        try {
+            const fresh = await fetchGithubRepos();
+            writeReposCache(fresh);
+            paintRepos(grid, statusEl, fresh, false);
+        } catch (e) {
+            const rateLimited = e && e.rateLimited;
+            if (statusEl) {
+                statusEl.classList.add('repos-status--error');
+                statusEl.textContent = rateLimited
+                    ? 'GitHub rate-limited this browser. Showing nothing for now — see them on GitHub.'
+                    : 'Could not reach the GitHub API. See repositories on GitHub instead.';
+            }
+            /* Drop the skeletons so the section doesn't look stuck. */
+            grid.innerHTML = '';
+            grid.setAttribute('aria-busy', 'false');
+        }
+    };
+
+    if (!('IntersectionObserver' in window)) {
+        trigger();
+        return;
+    }
+
+    const io = new IntersectionObserver((entries, obs) => {
+        if (entries.some((e) => e.isIntersecting)) {
+            obs.disconnect();
+            trigger();
+        }
+    }, { rootMargin: '400px 0px' });
+    io.observe(section);
+}
+
+/* ==============================================================
+ * GitHub contribution heatmap (calendar heat-grid).
+ * Fetches from the jogruber.de contribution API (unauthenticated,
+ * CORS-friendly) and renders a custom grid matching the portfolio
+ * theme.  Cached in localStorage for 6h like the repos.
+ * ============================================================== */
+
+const CONTRIB_CACHE_KEY = 'omGithubContribCache_v1';
+const CONTRIB_CACHE_TTL_MS = 6 * 60 * 60 * 1000;
+const CONTRIB_API_URL = `https://github-contributions-api.jogruber.de/v4/${encodeURIComponent(GITHUB_USER)}?y=last`;
+
+const MONTH_LABELS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+const DAY_LABELS = ['', 'Mon', '', 'Wed', '', 'Fri', ''];
+
+function readContribCache() {
+    try {
+        const raw = localStorage.getItem(CONTRIB_CACHE_KEY);
+        if (!raw) return null;
+        const obj = JSON.parse(raw);
+        if (!obj || typeof obj.t !== 'number' || !obj.data) return null;
+        if (Date.now() - obj.t > CONTRIB_CACHE_TTL_MS) return null;
+        return obj.data;
+    } catch (_) { return null; }
+}
+
+function writeContribCache(data) {
+    try {
+        localStorage.setItem(CONTRIB_CACHE_KEY, JSON.stringify({ t: Date.now(), data }));
+    } catch (_) { /* quota exceeded: silently skip */ }
+}
+
+async function fetchContribData() {
+    const res = await fetch(CONTRIB_API_URL, { credentials: 'omit', mode: 'cors' });
+    if (!res.ok) throw new Error(`Contrib API ${res.status}`);
+    return res.json();
+}
+
+/**
+ * Organise flat contributions into a week-column structure:
+ *   [ { cells: [ {date, count, level, dow}, ... (7 entries) ] }, ... ]
+ * Also returns month boundaries for the month-label row.
+ */
+function buildWeekColumns(contributions) {
+    if (!contributions || !contributions.length) return { weeks: [], months: [] };
+
+    const sorted = contributions.slice().sort((a, b) => a.date.localeCompare(b.date));
+
+    /* JS getDay: 0=Sun → we want Sun at row 0 (matches GitHub). */
+    const firstDate = new Date(sorted[0].date + 'T00:00:00');
+    const firstDow = firstDate.getDay();
+
+    const weeks = [];
+    let currentWeek = [];
+
+    /* Pad the first week with empty cells if it doesn't start on Sunday. */
+    for (let i = 0; i < firstDow; i++) {
+        currentWeek.push(null);
+    }
+
+    sorted.forEach((day) => {
+        const d = new Date(day.date + 'T00:00:00');
+        const dow = d.getDay();
+        if (dow === 0 && currentWeek.length > 0) {
+            while (currentWeek.length < 7) currentWeek.push(null);
+            weeks.push(currentWeek);
+            currentWeek = [];
+        }
+        currentWeek.push({
+            date: day.date,
+            count: day.count || 0,
+            level: day.level || 0,
+            dow,
+            month: d.getMonth()
+        });
+    });
+    if (currentWeek.length) {
+        while (currentWeek.length < 7) currentWeek.push(null);
+        weeks.push(currentWeek);
+    }
+
+    /* Build month labels: find the first week index where each month appears. */
+    const months = [];
+    let prevMonth = -1;
+    weeks.forEach((week, wi) => {
+        const firstReal = week.find((c) => c != null);
+        if (firstReal && firstReal.month !== prevMonth) {
+            months.push({ label: MONTH_LABELS[firstReal.month], weekIdx: wi });
+            prevMonth = firstReal.month;
+        }
+    });
+
+    return { weeks, months };
+}
+
+function renderContribGraph(container, data) {
+    const contributions = data.contributions || [];
+    const total = data.total && (data.total.lastYear != null ? data.total.lastYear : data.total);
+    const { weeks, months } = buildWeekColumns(contributions);
+
+    if (!weeks.length) {
+        container.innerHTML = '<p style="color:var(--text-muted);font-size:0.85rem">No contribution data available.</p>';
+        container.setAttribute('aria-busy', 'false');
+        return;
+    }
+
+    const cellSize = 11;
+    const cellGap = 3;
+    const colWidth = cellSize + cellGap;
+
+    /* Day labels column (left side) */
+    let dayLabelsHtml = '<div class="contrib-heatmap-day-labels">';
+    DAY_LABELS.forEach((lbl) => {
+        dayLabelsHtml += `<div class="contrib-heatmap-day-label">${escapeHtml(lbl)}</div>`;
+    });
+    dayLabelsHtml += '</div>';
+
+    /* Month labels row */
+    let monthsHtml = '<div class="contrib-heatmap-months">';
+    let prevEnd = 0;
+    months.forEach((m, mi) => {
+        const nextStart = mi < months.length - 1 ? months[mi + 1].weekIdx : weeks.length;
+        const span = nextStart - m.weekIdx;
+        const widthPx = span * colWidth - cellGap;
+        const gapBefore = m.weekIdx - prevEnd;
+        if (gapBefore > 0) {
+            monthsHtml += `<span class="contrib-heatmap-month" style="width:${gapBefore * colWidth}px"></span>`;
+        }
+        monthsHtml += `<span class="contrib-heatmap-month" style="width:${widthPx}px">${escapeHtml(m.label)}</span>`;
+        prevEnd = nextStart;
+    });
+    monthsHtml += '</div>';
+
+    /* Grid of week-columns × 7 day-rows */
+    let gridHtml = '<div class="contrib-heatmap-grid">';
+    weeks.forEach((week) => {
+        gridHtml += '<div class="contrib-heatmap-col">';
+        week.forEach((cell) => {
+            if (!cell) {
+                gridHtml += `<span class="contrib-heatmap-cell" data-level="0" style="visibility:hidden"></span>`;
+            } else {
+                const tip = `${cell.count} contribution${cell.count === 1 ? '' : 's'} on ${escapeHtml(cell.date)}`;
+                gridHtml += `<span class="contrib-heatmap-cell" data-level="${cell.level}" title="${escapeHtml(tip)}" tabindex="-1"></span>`;
+            }
+        });
+        gridHtml += '</div>';
+    });
+    gridHtml += '</div>';
+
+    const bodyHtml = `<div class="contrib-heatmap-body">${monthsHtml}${gridHtml}</div>`;
+    container.innerHTML = `<div class="contrib-heatmap">${dayLabelsHtml}${bodyHtml}</div>`;
+    container.setAttribute('aria-busy', 'false');
+
+    /* Update the total count text */
+    const totalEl = document.getElementById('contrib-graph-total');
+    if (totalEl && total != null) {
+        totalEl.innerHTML = `<strong>${escapeHtml(String(total))}</strong> contributions in the last year`;
+    }
+}
+
+async function initContribGraph() {
+    if (!document.body.classList.contains('home-page')) return;
+
+    const wrap = document.getElementById('contrib-graph-wrap');
+    const graphEl = document.getElementById('contrib-graph');
+    if (!wrap || !graphEl) return;
+
+    const cached = readContribCache();
+    if (cached) {
+        renderContribGraph(graphEl, cached);
+        return;
+    }
+
+    /* Lazy: only fetch when section is near the viewport. */
+    const trigger = async () => {
+        try {
+            const fresh = await fetchContribData();
+            writeContribCache(fresh);
+            renderContribGraph(graphEl, fresh);
+        } catch (e) {
+            graphEl.innerHTML = '<p style="color:var(--text-muted);font-size:0.82rem;font-family:JetBrains Mono,monospace">Could not load contribution graph. <a href="https://github.com/' + escapeHtml(GITHUB_USER) + '" style="color:var(--accent-secondary)" target="_blank" rel="noopener noreferrer">View on GitHub</a>.</p>';
+            graphEl.setAttribute('aria-busy', 'false');
+        }
+    };
+
+    if (!('IntersectionObserver' in window)) {
+        trigger();
+        return;
+    }
+
+    const io = new IntersectionObserver((entries, obs) => {
+        if (entries.some((e) => e.isIntersecting)) {
+            obs.disconnect();
+            trigger();
+        }
+    }, { rootMargin: '400px 0px' });
+    io.observe(wrap);
+}

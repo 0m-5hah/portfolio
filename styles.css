@@ -6789,3 +6789,573 @@ body.posts-page {
         padding: 0.85rem 1rem;
     }
 }
+
+/* =============================================================
+   Open source section — live GitHub repos rendered as cards.
+   Fed by initOpenSourceSection() in script.js.  Designed to fit
+   between Projects and Papers without renumbering anything else.
+   ============================================================= */
+.open-source {
+    padding: 8rem 2rem;
+    background:
+        radial-gradient(ellipse 55% 40% at 12% 30%, rgba(0, 212, 255, 0.04) 0%, transparent 55%),
+        radial-gradient(ellipse 45% 38% at 92% 75%, rgba(167, 139, 250, 0.04) 0%, transparent 55%),
+        var(--bg-primary);
+}
+
+.repos-intro-link {
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    color: var(--accent-secondary);
+    text-decoration: none;
+    border-bottom: 1px solid rgba(0, 212, 255, 0.4);
+    transition: color var(--transition-fast), border-color var(--transition-fast);
+}
+
+.repos-intro-link:hover {
+    color: var(--accent-primary);
+    border-bottom-color: var(--accent-primary);
+}
+
+.repos-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem 1.5rem;
+    margin: -0.5rem 0 1.75rem;
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 0.78rem;
+}
+
+.repos-status {
+    margin: 0;
+    color: var(--text-muted);
+    letter-spacing: 0.02em;
+}
+
+.repos-status.repos-status--error {
+    color: #f87171;
+}
+
+.repos-view-all {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    color: var(--accent-secondary);
+    text-decoration: none;
+    border-bottom: 1px solid rgba(0, 212, 255, 0.35);
+    padding-bottom: 1px;
+    transition: color var(--transition-fast), border-color var(--transition-fast), transform var(--transition-fast);
+}
+
+.repos-view-all svg {
+    width: 14px;
+    height: 14px;
+    flex-shrink: 0;
+    transition: transform var(--transition-normal);
+}
+
+.repos-view-all:hover {
+    color: var(--accent-primary);
+    border-bottom-color: var(--accent-primary);
+}
+
+.repos-view-all:hover svg {
+    transform: translateX(3px);
+}
+
+.repos-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 22rem), 1fr));
+    gap: 1.25rem;
+}
+
+.repo-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    padding: 1.25rem 1.35rem 1.1rem;
+    background:
+        linear-gradient(165deg, rgba(22, 27, 34, 0.92) 0%, rgba(14, 17, 22, 0.98) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-radius: 12px;
+    box-shadow:
+        0 1px 0 rgba(255, 255, 255, 0.04) inset,
+        0 8px 24px rgba(0, 0, 0, 0.18);
+    transition:
+        border-color var(--transition-normal),
+        transform var(--transition-normal),
+        box-shadow var(--transition-normal);
+    min-height: 13.5rem;
+}
+
+.repo-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 2px;
+    height: 100%;
+    background: linear-gradient(180deg, var(--accent-primary), var(--accent-secondary));
+    opacity: 0.55;
+    border-radius: 12px 0 0 12px;
+}
+
+.repo-card:hover {
+    border-color: rgba(0, 212, 255, 0.25);
+    transform: translateY(-3px);
+    box-shadow:
+        0 1px 0 rgba(255, 255, 255, 0.04) inset,
+        0 16px 36px rgba(0, 212, 255, 0.10);
+}
+
+.repo-card:hover::before {
+    opacity: 1;
+}
+
+.repo-card-head {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    margin-bottom: 0.6rem;
+}
+
+.repo-card-icon {
+    width: 16px;
+    height: 16px;
+    color: var(--accent-primary);
+    flex-shrink: 0;
+}
+
+.repo-name {
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    text-decoration: none;
+    letter-spacing: -0.005em;
+    word-break: break-word;
+    transition: color var(--transition-fast);
+}
+
+.repo-name:hover,
+.repo-name:focus-visible {
+    color: var(--accent-primary);
+}
+
+.repo-name:focus-visible {
+    outline: 2px solid var(--accent-secondary);
+    outline-offset: 3px;
+    border-radius: 3px;
+}
+
+.repo-card-badges {
+    margin-left: auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    flex-shrink: 0;
+}
+
+.repo-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.18rem;
+    padding: 0.1rem 0.5rem;
+    border-radius: 99px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.02);
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 0.64rem;
+    font-weight: 500;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+}
+
+.repo-badge--fork { border-color: rgba(167, 139, 250, 0.32); color: #c4b4f6; }
+.repo-badge--archived { border-color: rgba(251, 146, 60, 0.32); color: #fbbf85; }
+
+.repo-desc {
+    margin: 0 0 0.85rem;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    line-height: 1.55;
+    flex-grow: 1;
+}
+
+.repo-desc--empty {
+    color: var(--text-muted);
+    font-style: italic;
+}
+
+.repo-topics {
+    list-style: none;
+    margin: 0 0 0.85rem;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+}
+
+.repo-topic {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.18rem 0.6rem;
+    border-radius: 99px;
+    background: rgba(0, 212, 255, 0.06);
+    border: 1px solid rgba(0, 212, 255, 0.20);
+    color: #98ddf2;
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 0.66rem;
+    letter-spacing: 0.02em;
+}
+
+.repo-card-foot {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.45rem 1rem;
+    padding-top: 0.7rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 0.72rem;
+    color: var(--text-muted);
+}
+
+.repo-lang {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    color: var(--text-secondary);
+}
+
+.repo-lang-dot {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: var(--text-muted);
+    box-shadow: 0 0 6px rgba(255, 255, 255, 0.05);
+    flex-shrink: 0;
+}
+
+.repo-stat {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+}
+
+.repo-stat svg {
+    width: 12px;
+    height: 12px;
+    flex-shrink: 0;
+}
+
+.repo-stat--stars { color: #facc15; }
+.repo-stat--forks { color: var(--accent-tertiary); }
+.repo-stat--updated { margin-left: auto; }
+
+/* Skeleton state shown until the API call resolves.  Pure CSS shimmer; one
+   transform per frame (cheap even on perf-low). */
+.repo-card--skeleton {
+    pointer-events: none;
+    min-height: 13.5rem;
+    overflow: hidden;
+}
+
+.repo-card--skeleton::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+        100deg,
+        transparent 20%,
+        rgba(255, 255, 255, 0.045) 50%,
+        transparent 80%
+    );
+    transform: translateX(-100%);
+    animation: repo-skeleton-shimmer 1.5s ease-in-out infinite;
+}
+
+@keyframes repo-skeleton-shimmer {
+    from { transform: translateX(-100%); }
+    to   { transform: translateX(120%); }
+}
+
+.perf-low .repo-card--skeleton::after {
+    animation: none;
+    opacity: 0.4;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .repo-card--skeleton::after {
+        animation: none;
+        opacity: 0.4;
+    }
+}
+
+/* Fade-in for live cards once JS hands over.  --rci is the card index. */
+.repo-card--live {
+    animation: repo-card-rise 0.5s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+    animation-delay: calc(var(--rci, 0) * 0.05s);
+}
+
+@keyframes repo-card-rise {
+    from { opacity: 0; transform: translateY(14px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .repo-card--live { animation: none; }
+}
+
+.repos-noscript {
+    color: var(--text-secondary);
+    font-size: 0.92rem;
+}
+
+.repos-noscript a {
+    color: var(--accent-secondary);
+    text-decoration: none;
+    border-bottom: 1px solid rgba(0, 212, 255, 0.4);
+}
+
+/* =============================================================
+   GitHub contribution graph (heatmap).
+   Custom-rendered from contribution API data.  The grid is
+   52+ columns (weeks) × 7 rows (days) of tiny squares.
+   ============================================================= */
+.contrib-graph-wrap {
+    margin-bottom: 2.5rem;
+    padding: 1.35rem 1.5rem 1rem;
+    background:
+        linear-gradient(165deg, rgba(22, 27, 34, 0.92) 0%, rgba(14, 17, 22, 0.98) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-radius: 12px;
+    box-shadow:
+        0 1px 0 rgba(255, 255, 255, 0.04) inset,
+        0 8px 24px rgba(0, 0, 0, 0.18);
+    overflow-x: auto;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.08) transparent;
+}
+
+/* When nested inside the about-panel, inherit the panel chrome instead. */
+.contrib-graph-wrap--about {
+    margin: 1.5rem 0 0;
+    padding: 1.1rem 1.25rem 0.75rem;
+    background: rgba(0, 0, 0, 0.18);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    box-shadow: none;
+}
+
+.contrib-graph-wrap::-webkit-scrollbar { height: 5px; }
+.contrib-graph-wrap::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 3px;
+}
+
+.contrib-graph-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.65rem 1.5rem;
+    margin-bottom: 1rem;
+}
+
+.contrib-graph-total {
+    margin: 0;
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 0.92rem;
+    color: var(--text-secondary);
+    letter-spacing: 0.01em;
+}
+
+.contrib-graph-total strong {
+    color: var(--text-primary);
+    font-weight: 700;
+}
+
+.contrib-graph {
+    position: relative;
+    min-height: 120px;
+}
+
+/* The rendered heatmap table */
+.contrib-heatmap {
+    display: flex;
+    gap: 0;
+    min-width: min-content;
+}
+
+.contrib-heatmap-day-labels {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    margin-right: 6px;
+    flex-shrink: 0;
+}
+
+.contrib-heatmap-day-label {
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 0.6rem;
+    color: var(--text-muted);
+    height: 13px;
+    line-height: 13px;
+    text-align: right;
+    user-select: none;
+}
+
+.contrib-heatmap-body {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+
+.contrib-heatmap-months {
+    display: flex;
+    gap: 0;
+    margin-bottom: 3px;
+    height: 14px;
+}
+
+.contrib-heatmap-month {
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 0.6rem;
+    color: var(--text-muted);
+    user-select: none;
+    line-height: 14px;
+    overflow: hidden;
+    text-overflow: clip;
+    white-space: nowrap;
+}
+
+.contrib-heatmap-grid {
+    display: flex;
+    gap: 3px;
+}
+
+.contrib-heatmap-col {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.contrib-heatmap-cell {
+    width: 11px;
+    height: 11px;
+    border-radius: 2px;
+    outline: 1px solid rgba(255, 255, 255, 0.04);
+    position: relative;
+}
+
+.contrib-heatmap-cell[data-level="0"] { background: rgba(255, 255, 255, 0.04); }
+.contrib-heatmap-cell[data-level="1"] { background: #0e4429; outline-color: rgba(0, 255, 136, 0.08); }
+.contrib-heatmap-cell[data-level="2"] { background: #006d32; outline-color: rgba(0, 255, 136, 0.12); }
+.contrib-heatmap-cell[data-level="3"] { background: #26a641; outline-color: rgba(0, 255, 136, 0.16); }
+.contrib-heatmap-cell[data-level="4"] { background: #39d353; outline-color: rgba(0, 255, 136, 0.22); box-shadow: 0 0 6px rgba(0, 255, 136, 0.15); }
+
+.contrib-heatmap-cell[data-level="0"]:hover { outline-color: rgba(255, 255, 255, 0.18); }
+.contrib-heatmap-cell:not([data-level="0"]):hover { outline-color: rgba(0, 255, 136, 0.5); }
+
+/* Native tooltip via title attr; this adds a subtle focus ring for a11y. */
+.contrib-heatmap-cell:focus-visible {
+    outline: 2px solid var(--accent-secondary);
+    outline-offset: 1px;
+    z-index: 1;
+}
+
+/* Legend row below the graph */
+.contrib-graph-legend {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 4px;
+    margin-top: 0.6rem;
+    padding-top: 0.5rem;
+}
+
+.contrib-graph-legend-label {
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 0.6rem;
+    color: var(--text-muted);
+    margin: 0 3px;
+    user-select: none;
+}
+
+.contrib-graph-legend-swatch {
+    width: 11px;
+    height: 11px;
+    border-radius: 2px;
+}
+
+.contrib-graph-legend-swatch[data-level="0"] { background: rgba(255, 255, 255, 0.04); outline: 1px solid rgba(255, 255, 255, 0.06); }
+.contrib-graph-legend-swatch[data-level="1"] { background: #0e4429; }
+.contrib-graph-legend-swatch[data-level="2"] { background: #006d32; }
+.contrib-graph-legend-swatch[data-level="3"] { background: #26a641; }
+.contrib-graph-legend-swatch[data-level="4"] { background: #39d353; }
+
+/* Skeleton state */
+.contrib-graph-skeleton {
+    width: 100%;
+    height: 120px;
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.02);
+    position: relative;
+    overflow: hidden;
+}
+
+.contrib-graph-skeleton::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(100deg, transparent 20%, rgba(255, 255, 255, 0.035) 50%, transparent 80%);
+    animation: repo-skeleton-shimmer 1.5s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .contrib-graph-skeleton::after {
+        animation: none;
+        opacity: 0.4;
+    }
+}
+
+.perf-low .contrib-graph-skeleton::after {
+    animation: none;
+    opacity: 0.4;
+}
+
+@media (max-width: 640px) {
+    .open-source {
+        padding: 5.5rem 1.25rem;
+    }
+    .repos-grid {
+        grid-template-columns: 1fr;
+    }
+    .repo-card {
+        min-height: 0;
+        padding: 1.1rem 1.15rem 1rem;
+    }
+    .repos-toolbar {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    .contrib-graph-wrap {
+        padding: 1rem 1rem 0.75rem;
+    }
+    .contrib-heatmap-cell {
+        width: 10px;
+        height: 10px;
+    }
+    .contrib-heatmap-grid {
+        gap: 2px;
+    }
+    .contrib-heatmap-col {
+        gap: 2px;
+    }
+    .contrib-heatmap-day-labels {
+        display: none;
+    }
+}
