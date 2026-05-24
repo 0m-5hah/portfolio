@@ -349,11 +349,7 @@
                             </div>
                             <h3 class="project-title">Sentinel: Automated Network Security Scanner</h3>
                             <p class="project-description">
-                                Sentinel is a Python-based network security tool developed as a major independent
-                                project at UTS. It scans networks, identifies devices and services, and checks them
-                                against the NVD vulnerability database. It maps results to software identifiers
-                                and known CVEs, then groups findings by asset and priority to highlight the
-                                highest-risk issues and how to verify them.
+                                Python network scanner that identifies devices and services, checks them against the NVD vulnerability database, maps findings to known CVEs, and prioritises results by risk. Major independent project at UTS.
                             </p>
                             <ul class="project-tech">
                                 <li>Python</li>
@@ -374,7 +370,21 @@
                         </div>
                     </article>
 
-                    <article class="project-card project-card--accent-c" data-project-tags="security">
+                    <article
+                        class="project-card project-card--accent-c project-card--compact-grid-hover"
+                        data-project-tags="security"
+                        data-stack-image="scrollinganimation_cardshots/dns-tunnel.png?v=1"
+                        tabindex="0">
+                        <div class="project-card--compact-grid-hover__stage">
+                        <div class="project-image">
+                            <img
+                                src="scrollinganimation_cardshots/dns-tunnel.png?v=1"
+                                alt="DNS tunnel PCAP visualization showing network topology and packet timeline"
+                                loading="lazy"
+                                decoding="async"
+                                width="800"
+                                height="450">
+                        </div>
                         <div class="project-content">
                             <div class="project-header">
                                 <div class="project-header-main">
@@ -385,34 +395,29 @@
                                 </div>
                             </div>
                             <h3 class="project-title">Covert Channel: DNS Exfiltration via DLL Sideloading</h3>
-                            <p class="project-description">
-                                End-to-end red team engagement on a fully-patched Windows 11 Enterprise
-                                endpoint with all defenses active - zero security alerts. Attack
-                                chain: HTML smuggling delivers an ISO container (MOTW bypass),
-                                colorcpl.exe (Microsoft-signed) sideloads a native C DLL that tunnels
-                                file data as base32-encoded DNS TXT queries. Developed iteratively:
-                                earlier PowerShell-based versions were caught by Defender, informing the
-                                shift to native code. Paired with a blue team detector using Shannon
-                                entropy analysis to flag tunneling activity. Isolated VMware lab;
-                                MITRE ATT&amp;CK mapped.
-                            </p>
-                            <ul class="project-tech">
-                                <li>C</li>
-                                <li>Python</li>
-                                <li>DNS tunneling</li>
-                                <li>DLL sideloading</li>
-                                <li>Wireshark</li>
-                            </ul>
-                            <div class="project-demos-btn project-demos-btn--row">
-                                <div class="project-icon-actions" role="group" aria-label="DNS tunnel resources">
-                                    <a href="dns-tunnel-demo.html" class="project-link project-link--tile project-link--tile-live" title="Interactive PCAP visualization" aria-label="Open DNS tunnel PCAP visualization">
-                                        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>
-                                    </a>
-                                    <a href="v2_capture.pcap" download class="project-link project-link--tile" title="Download PCAP evidence (open in Wireshark)" aria-label="Download DNS tunnel PCAP capture">
-                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
-                                    </a>
+                            <div class="project-content-detail">
+                                <p class="project-description">
+                                    Objective: extract a file from a fully-patched Windows 11 endpoint with no security detections. Only alert: a standard "Open File" dialog on the ISO, not a security detection. HTML smuggling, DLL sideloading via a Microsoft-signed binary, and a native C DNS tunnel. Includes a blue team detector. Isolated VMware lab.
+                                </p>
+                                <ul class="project-tech">
+                                    <li>C</li>
+                                    <li>Python</li>
+                                    <li>DNS tunneling</li>
+                                    <li>DLL sideloading</li>
+                                    <li>Wireshark</li>
+                                </ul>
+                                <div class="project-demos-btn project-demos-btn--row">
+                                    <div class="project-icon-actions" role="group" aria-label="DNS tunnel resources">
+                                        <a href="dns-tunnel-demo.html" class="project-link project-link--tile project-link--tile-live" title="Interactive PCAP visualization" aria-label="Open DNS tunnel PCAP visualization">
+                                            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>
+                                        </a>
+                                        <a href="v2_capture.pcap" download class="project-link project-link--tile" title="Download PCAP evidence (open in Wireshark)" aria-label="Download DNS tunnel PCAP capture">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+                                        </a>
+                                    </div>
                                 </div>
                             </div>
+                        </div>
                         </div>
                     </article>
 
@@ -443,13 +448,7 @@
                             <h3 class="project-title">Immigration Case Workflow Automation Toolkit</h3>
                             <div class="project-content-detail">
                                 <p class="project-description">
-                                    A team-built automation toolkit used at Migrate Zone to process immigration
-                                    case files. Staff upload documents and the tool merges them into a single PDF,
-                                    reads and extracts the text automatically (using OCR, text recognition
-                                    technology), and checks that every required document is present based on
-                                    the specific visa type. Missing or outdated items are flagged, and the
-                                    results are bundled into summary reports and review-ready PDF packages
-                                    for the team.
+                                    Production toolkit at Migrate Zone. Staff upload case documents; the tool merges, OCR-reads, and validates them against visa-specific checklists. Missing or outdated items are flagged and results are bundled into review-ready packages.
                                 </p>
                                 <ul class="project-tech">
                                     <li>Python</li>
@@ -491,10 +490,7 @@
                             <h3 class="project-title">SMS bulk-style detector (machine learning)</h3>
                             <div class="project-content-detail">
                                 <p class="project-description">
-                                    An applied ML build: a neural network on SMS text that outputs <strong>P(bulk-style)</strong>
-                                    (dataset spam/not-spam labels): how much the wording resembles bulk or automated
-                                    messaging, not whether a message is dangerous. Deployed as a backend API with a
-                                    live demo.
+                                    Neural network trained on SMS text that scores how much a message resembles bulk or automated wording. Deployed as a live API with an interactive demo.
                                 </p>
                                 <ul class="project-tech">
                                     <li>Python</li>
@@ -546,15 +542,7 @@
                             </div>
                             <h3 class="project-title">Document Completeness Check &amp; Form Pre-fill Tool</h3>
                             <p class="project-description">
-                                A Migrate Zone automation tool used in production across multiple visa
-                                subclasses. It reads uploaded case documents with OCR and text recognition,
-                                validates each against the required checklist for the visa type being
-                                lodged, and flags anything missing, expired, or inconsistent with the
-                                passport and biographic data already on file. Once a case clears those
-                                checks, the tool maps the verified fields into the team's Excel lodgement
-                                templates, removing the repeated manual cross-checking that previously
-                                gated every submission and keeping a per-case log of which items were
-                                auto-filled versus manually overridden.
+                                Production tool at Migrate Zone. OCR-reads case documents, validates against visa-specific checklists, flags missing or expired items, then auto-fills verified data into Excel lodgement templates.
                             </p>
                             <ul class="project-tech">
                                 <li>Python</li>
@@ -577,7 +565,7 @@
                             </div>
                             <h3 class="project-title">Intrusion Detection System (IDS)</h3>
                             <p class="project-description">
-                                Built a multi-class intrusion detection workflow on CIC-style network flow data in Python: train and test splits, label cleanup, then Random Forest and MLP models with proper scaling for the neural net. Measured accuracy, macro-F1, per-class reports, confusion matrices, and optional feature importance for the forest. Outputs are saved as clear figures and tables, with honest scope (benchmark data, not a live NIDS deployment).
+                                Multi-class intrusion detection pipeline using Random Forest and MLP models on network flow data. Includes train/test splits, scaling, confusion matrices, and per-class evaluation. Benchmark scope, not a live deployment.
                             </p>
                             <ul class="project-tech">
                                 <li>Python</li>
@@ -599,10 +587,7 @@
                             </div>
                             <h3 class="project-title">PDF Invoicing & Document Tools</h3>
                             <p class="project-description">
-                                ITonKey internship project. Python-based invoicing tool that turns 
-                                structured data into branded, multi-page PDF invoices with templated 
-                                layouts. Also developed inventory management systems with stock 
-                                tracking and reporting.
+                                ITonKey internship. Converts structured business data into branded, multi-page PDF invoices. Also built inventory tracking and reporting features.
                             </p>
                             <ul class="project-tech">
                                 <li>Python</li>
@@ -639,7 +624,7 @@
                             <h3 class="project-title">TLS Interception Lab with mitmproxy</h3>
                             <div class="project-content-detail">
                                 <p class="project-description">
-                                    Lab demonstration: a <strong>man-in-the-middle</strong> attack using mitmproxy in a controlled environment. I installed a rogue certificate authority on a Windows 10 VM to intercept and decrypt HTTPS in real time, including form submissions and login flows, when trust in the certificate chain is exploited. Shown only in an isolated lab, not for use outside authorized settings.
+                                    Man-in-the-middle attack using mitmproxy in an isolated lab. Installed a rogue CA on a Windows 10 VM to intercept and decrypt HTTPS traffic in real time, including login flows. Lab environment only.
                                 </p>
                                 <ul class="project-tech">
                                     <li>Kali Linux</li>
@@ -689,7 +674,7 @@
                             <h3 class="project-title">Notification listener - Android demo (Wellness Pulse)</h3>
                             <div class="project-content-detail">
                                 <p class="project-description">
-                                    Android demo using a fake wellness-style UI to teach notification listener risk: what permission really means, what notification-derived data can look like on-device, and why &ldquo;tap allow&rdquo; matters. Personal portfolio project; demo run only on my own device/emulator.
+                                    Android app with a wellness-style UI that demonstrates notification listener risk: what the permission actually exposes and why "tap allow" matters. Tested on my own device/emulator only.
                                 </p>
                                 <ul class="project-tech">
                                     <li>Android</li>

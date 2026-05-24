@@ -334,7 +334,14 @@
                 <span class="dns-hero-label">PCAP evidence &middot; Red team</span>
                 <h1 class="dns-hero-title">Covert Channel: DNS Exfiltration via DLL Sideloading</h1>
                 <div class="dns-hero-sub">
-                    <p>This page shows a <strong>real network capture</strong> from an isolated lab test. The goal: steal a file from a fully-protected Windows 11 computer without triggering any security alerts. The data was hidden inside ordinary-looking DNS requests  - the same type of traffic your browser sends every time you visit a website. Every packet below is from the actual test. <strong>Zero alerts were triggered.</strong></p>
+                    <p><strong>Objective:</strong> extract a file from a fully-protected Windows 11 computer without triggering security alerts. The only warning was a standard "Open File" dialog when mounting the ISO (shown below), not a security detection. No antivirus flags, no firewall blocks. The stolen data was smuggled out by hiding it inside ordinary DNS requests, the same type of traffic your browser sends every time you visit a website. Every packet below is from the actual lab test.</p>
+                </div>
+                <div style="margin-top:1.2rem;padding:1rem 1.2rem;border-radius:10px;background:rgba(252,211,77,0.06);border:1px solid rgba(252,211,77,0.2);display:flex;align-items:center;gap:1.2rem;flex-wrap:wrap">
+                    <img src="scrollinganimation_cardshots/iso-warning.png" alt="Windows Open File security warning dialog when mounting the ISO" style="width:280px;border-radius:6px;border:1px solid rgba(255,255,255,0.08)" loading="lazy">
+                    <div style="flex:1;min-width:200px">
+                        <p style="font-size:0.82rem;color:#fcd34d;font-weight:600;margin:0 0 0.3rem">Only alert triggered</p>
+                        <p style="font-size:0.8rem;color:#a1a1aa;margin:0;line-height:1.6">A standard Windows "Open File" dialog when the user opens the downloaded ISO. This is not a security detection. No SmartScreen warning, no Defender alert, no firewall block.</p>
+                    </div>
                 </div>
                 <div class="mitre-strip">
                     <span class="mitre-tag" title="Malicious file assembled inside the browser, invisible to network scanners">T1566.002 HTML Smuggling</span>
@@ -351,7 +358,7 @@
                     <span class="dns-section-num">01.</span>
                     <h2 class="dns-section-title">Network topology</h2>
                 </div>
-                <p style="font-size:0.85rem;color:#a1a1aa;margin-bottom:1rem;line-height:1.6">The lab setup: two machines on an isolated network. The victim (left) is a fully-patched Windows 11 PC with all security features enabled. The attacker (right) receives the stolen data by listening for DNS requests on port 53  - the same port every computer uses to look up website addresses.</p>
+                <p style="font-size:0.85rem;color:#a1a1aa;margin-bottom:1rem;line-height:1.6">The lab setup: two machines on an isolated network. The victim (left) is a fully-patched Windows 11 PC with all security features enabled. The attacker (right) receives the stolen data by listening for DNS requests on port 53, the same port every computer uses to look up website addresses.</p>
                 <div class="topo-wrap">
                     <div class="topo-node topo-node--victim">
                         <svg class="topo-node-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
@@ -380,7 +387,7 @@
                     <span class="dns-section-num">02.</span>
                     <h2 class="dns-section-title">Packet timeline</h2>
                 </div>
-                <p style="font-size:0.85rem;color:#a1a1aa;margin-bottom:1rem;line-height:1.6">Every dot is a single DNS request captured from the network. <strong style="color:#34d399">Green dots</strong> are normal Windows traffic (Bing, Microsoft updates). <strong style="color:#f0a0a0">Red dots</strong> are the hidden tunnel carrying stolen file data. Notice the tight burst of red dots around the 17&ndash;20 second mark  - that's the entire file being exfiltrated in about 3 seconds. Higher on the chart = more random-looking = more suspicious. Press play to watch it happen in real time.</p>
+                <p style="font-size:0.85rem;color:#a1a1aa;margin-bottom:1rem;line-height:1.6">Every dot is a single DNS request captured from the network. <strong style="color:#34d399">Green dots</strong> are normal Windows traffic (Bing, Microsoft updates). <strong style="color:#f0a0a0">Red dots</strong> are the hidden tunnel carrying stolen file data. Notice the tight burst of red dots around the 17 to 20 second mark. That's the entire file being exfiltrated in about 3 seconds. Higher on the chart = more random-looking = more suspicious. Press play to watch it happen in real time.</p>
                 <div class="timeline-controls">
                     <button class="timeline-btn" id="timeline-play" type="button">&#9654; Play</button>
                     <button class="timeline-btn" id="timeline-reset" type="button">Reset</button>
@@ -401,12 +408,12 @@
             <section class="dns-section">
                 <div class="dns-section-head">
                     <span class="dns-section-num">03.</span>
-                    <h2 class="dns-section-title">Randomness analysis  - how defenders catch this</h2>
+                    <h2 class="dns-section-title">Randomness analysis: how defenders catch this</h2>
                 </div>
-                <p style="font-size:0.85rem;color:#a1a1aa;margin-bottom:1rem;line-height:1.6">This is the <strong style="color:#e4e4e7">defensive perspective</strong>. Normal website names like "www" or "assets" are readable English  - they have low randomness. The tunnel traffic uses encoded data that looks like keyboard mashing: "emqeg33qpfzgsz3i..."  - much higher randomness. A security team doesn't need to decode the data. They just measure <strong style="color:#e4e4e7">how random each domain name looks</strong> (called Shannon entropy). If it's consistently above ~3.5, something is hiding data in DNS.</p>
+                <p style="font-size:0.85rem;color:#a1a1aa;margin-bottom:1rem;line-height:1.6">This is the <strong style="color:#e4e4e7">defensive perspective</strong>. Normal website names like "www" or "assets" are readable English with low randomness. The tunnel traffic uses encoded data that looks like keyboard mashing ("emqeg33qpfzgsz3i..."), which scores much higher. A security team doesn't need to decode the data. They just measure <strong style="color:#e4e4e7">how random each domain name looks</strong> (called Shannon entropy). If it's consistently above ~3.5, something is hiding data in DNS.</p>
                 <div class="entropy-grid" id="entropy-grid"></div>
                 <div class="entropy-verdict entropy-verdict--detect" style="margin-top:1.2rem">
-                    <strong>How a defender catches this:</strong> The tunnel domains score <code id="tunnel-avg">~4.0</code> on the randomness scale vs <code id="normal-avg">~1.8</code> for normal traffic  - more than double. Combined with the fact that every tunnel domain is exactly 45 characters long, they all arrive in rapid 110ms bursts, and none of them ever repeat (normal DNS gets cached and reused), a monitoring tool would flag this within seconds.
+                    <strong>How a defender catches this:</strong> The tunnel domains score <code id="tunnel-avg">~4.0</code> on the randomness scale vs <code id="normal-avg">~1.8</code> for normal traffic, more than double. Combined with the fact that every tunnel domain is exactly 45 characters long, they all arrive in rapid 110ms bursts, and none of them ever repeat (normal DNS gets cached and reused), a monitoring tool would flag this within seconds.
                 </div>
             </section>
 
@@ -416,7 +423,7 @@
                     <span class="dns-section-num">04.</span>
                     <h2 class="dns-section-title">Packet inspector</h2>
                 </div>
-                <p style="font-size:0.85rem;color:#a1a1aa;margin-bottom:1rem;line-height:1.6">Raw log of every DNS packet from the capture. <strong style="color:#f0a0a0">Red rows</strong> are tunnel traffic carrying stolen data. <strong style="color:#fcd34d">Yellow rows</strong> are the END signal sent three times to confirm the transfer completed. The "Entropy" column shows the randomness score for each domain name  - higher values stand out as suspicious.</p>
+                <p style="font-size:0.85rem;color:#a1a1aa;margin-bottom:1rem;line-height:1.6">Raw log of every DNS packet from the capture. <strong style="color:#f0a0a0">Red rows</strong> are tunnel traffic carrying stolen data. <strong style="color:#fcd34d">Yellow rows</strong> are the END signal sent three times to confirm the transfer completed. The "Entropy" column shows the randomness score for each domain name. Higher values stand out as suspicious.</p>
                 <div class="pkt-table-wrap">
                     <table class="pkt-table" id="pkt-table">
                         <thead>
