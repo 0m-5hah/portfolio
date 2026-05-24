@@ -374,6 +374,48 @@
                         </div>
                     </article>
 
+                    <article class="project-card project-card--accent-c" data-project-tags="security">
+                        <div class="project-content">
+                            <div class="project-header">
+                                <div class="project-header-main">
+                                    <span class="skill-matrix-icon project-header-matrix-icon" aria-hidden="true">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"/></svg>
+                                    </span>
+                                    <span class="project-scope project-scope--redteam">Red teaming</span>
+                                </div>
+                            </div>
+                            <h3 class="project-title">Covert Channel: DNS Exfiltration via DLL Sideloading</h3>
+                            <p class="project-description">
+                                End-to-end red team engagement on a fully-patched Windows 11 Enterprise
+                                endpoint with all defenses active - zero security alerts. Attack
+                                chain: HTML smuggling delivers an ISO container (MOTW bypass),
+                                colorcpl.exe (Microsoft-signed) sideloads a native C DLL that tunnels
+                                file data as base32-encoded DNS TXT queries. Developed iteratively:
+                                earlier PowerShell-based versions were caught by Defender, informing the
+                                shift to native code. Paired with a blue team detector using Shannon
+                                entropy analysis to flag tunneling activity. Isolated VMware lab;
+                                MITRE ATT&amp;CK mapped.
+                            </p>
+                            <ul class="project-tech">
+                                <li>C</li>
+                                <li>Python</li>
+                                <li>DNS tunneling</li>
+                                <li>DLL sideloading</li>
+                                <li>Wireshark</li>
+                            </ul>
+                            <div class="project-demos-btn project-demos-btn--row">
+                                <div class="project-icon-actions" role="group" aria-label="DNS tunnel resources">
+                                    <a href="dns-tunnel-demo.html" class="project-link project-link--tile project-link--tile-live" title="Interactive PCAP visualization" aria-label="Open DNS tunnel PCAP visualization">
+                                        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>
+                                    </a>
+                                    <a href="v2_capture.pcap" download class="project-link project-link--tile" title="Download PCAP evidence (open in Wireshark)" aria-label="Download DNS tunnel PCAP capture">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </article>
+
                     <article
                         class="project-card project-card--accent-a project-card--compact-grid-hover"
                         data-project-tags="automation"
@@ -420,37 +462,6 @@
                         </div>
                     </article>
 
-
-                    <article class="project-card project-card--accent-b" data-project-tags="automation">
-                        <div class="project-content">
-                            <div class="project-header">
-                                <div class="project-header-main">
-                                    <span class="skill-matrix-icon project-header-matrix-icon" aria-hidden="true">
-                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h16a2 2 0 002-2V8a2 2 0 00-2-2h-7.93a2 2 0 01-1.66-.9l-.82-1.2A2 2 0 006.93 3H4a2 2 0 00-2 2v13a2 2 0 002 2z"/></svg>
-                                    </span>
-                                    <span class="project-scope project-scope--production">Production</span>
-                                </div>
-                            </div>
-                            <h3 class="project-title">Document Completeness Check &amp; Form Pre-fill Tool</h3>
-                            <p class="project-description">
-                                A Migrate Zone automation tool used in production across multiple visa
-                                subclasses. It reads uploaded case documents with OCR and text recognition,
-                                validates each against the required checklist for the visa type being
-                                lodged, and flags anything missing, expired, or inconsistent with the
-                                passport and biographic data already on file. Once a case clears those
-                                checks, the tool maps the verified fields into the team's Excel lodgement
-                                templates, removing the repeated manual cross-checking that previously
-                                gated every submission and keeping a per-case log of which items were
-                                auto-filled versus manually overridden.
-                            </p>
-                            <ul class="project-tech">
-                                <li>Python</li>
-                                <li>OCR</li>
-                                <li>Excel</li>
-                                <li>JSON schemas</li>
-                            </ul>
-                        </div>
-                    </article>
 
                     <article
                         class="project-card project-card--live-demo project-card--accent-c project-card--compact-grid-hover"
@@ -522,6 +533,37 @@
                             </div>
                         </div>
                     </div>
+
+                    <article class="project-card project-card--accent-b" data-project-tags="automation">
+                        <div class="project-content">
+                            <div class="project-header">
+                                <div class="project-header-main">
+                                    <span class="skill-matrix-icon project-header-matrix-icon" aria-hidden="true">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h16a2 2 0 002-2V8a2 2 0 00-2-2h-7.93a2 2 0 01-1.66-.9l-.82-1.2A2 2 0 006.93 3H4a2 2 0 00-2 2v13a2 2 0 002 2z"/></svg>
+                                    </span>
+                                    <span class="project-scope project-scope--production">Production</span>
+                                </div>
+                            </div>
+                            <h3 class="project-title">Document Completeness Check &amp; Form Pre-fill Tool</h3>
+                            <p class="project-description">
+                                A Migrate Zone automation tool used in production across multiple visa
+                                subclasses. It reads uploaded case documents with OCR and text recognition,
+                                validates each against the required checklist for the visa type being
+                                lodged, and flags anything missing, expired, or inconsistent with the
+                                passport and biographic data already on file. Once a case clears those
+                                checks, the tool maps the verified fields into the team's Excel lodgement
+                                templates, removing the repeated manual cross-checking that previously
+                                gated every submission and keeping a per-case log of which items were
+                                auto-filled versus manually overridden.
+                            </p>
+                            <ul class="project-tech">
+                                <li>Python</li>
+                                <li>OCR</li>
+                                <li>Excel</li>
+                                <li>JSON schemas</li>
+                            </ul>
+                        </div>
+                    </article>
 
                     <article class="project-card project-card--accent-d" data-project-tags="security ml">
                         <div class="project-content">

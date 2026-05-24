@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Interactive DNS tunnel traffic analysis from a red team engagement: PCAP visualization, Shannon entropy comparison, and packet replay.">
+    <meta name="theme-color" content="#0a0a0f">
+    <title>security.portfolio/dns_tunnel · Covert Channel | Om Shah</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        .dns-page { padding-top: 5rem; padding-bottom: 4rem; }
+
+        /* ── hero ── */
+        .dns-hero { max-width: 820px; margin: 0 auto 3rem; }
+        .dns-hero-label {
+            display: inline-block; font-size: 0.72rem; font-weight: 700;
+            text-transform: uppercase; letter-spacing: 0.1em;
+            color: #f0a0a0; background: rgba(240,160,160,0.12);
+            padding: 0.25rem 0.7rem; border-radius: 6px; margin-bottom: 1rem;
+        }
+        .dns-hero-title {
+            font-family: 'Inter', sans-serif; font-size: clamp(1.5rem, 4vw, 2.2rem);
+            font-weight: 800; color: #fafafa; margin: 0 0 1rem; line-height: 1.2;
+        }
+        .dns-hero-sub {
+            font-size: 0.92rem; line-height: 1.7; color: #a1a1aa; max-width: 680px;
+        }
+        .dns-hero-sub strong { color: #e4e4e7; font-weight: 600; }
+
+        /* ── mitre strip ── */
+        .mitre-strip {
+            display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 1.2rem;
+        }
+        .mitre-tag {
+            font-family: 'JetBrains Mono', monospace; font-size: 0.68rem;
+            padding: 0.2rem 0.55rem; border-radius: 4px;
+            background: rgba(240,160,160,0.08); border: 1px solid rgba(240,160,160,0.2);
+            color: #f0a0a0;
+        }
+
+        /* ── section titles ── */
+        .dns-section { max-width: 960px; margin: 0 auto 3.5rem; }
+        .dns-section-head {
+            display: flex; align-items: center; gap: 0.6rem;
+            margin-bottom: 1.2rem; padding-bottom: 0.6rem;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+        }
+        .dns-section-num {
+            font-family: 'JetBrains Mono', monospace; font-size: 0.78rem;
+            color: #00ff88; font-weight: 600;
+        }
+        .dns-section-title {
+            font-family: 'Inter', sans-serif; font-size: 1.15rem;
+            font-weight: 700; color: #fafafa; margin: 0;
+        }
+
+        /* ── topology ── */
+        .topo-wrap {
+            display: grid; grid-template-columns: 1fr auto 1fr;
+            align-items: center; gap: 1rem; padding: 1.5rem;
+            background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 12px;
+        }
+        .topo-node {
+            text-align: center; padding: 1.2rem;
+            border-radius: 10px; background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.08);
+        }
+        .topo-node-icon {
+            width: 40px; height: 40px; margin: 0 auto 0.6rem;
+            color: #a1a1aa;
+        }
+        .topo-node--victim { border-color: rgba(56,189,248,0.3); }
+        .topo-node--victim .topo-node-icon { color: #38bdf8; }
+        .topo-node--attacker { border-color: rgba(240,160,160,0.3); }
+        .topo-node--attacker .topo-node-icon { color: #f0a0a0; }
+        .topo-node-label {
+            font-family: 'Inter', sans-serif; font-size: 0.82rem;
+            font-weight: 600; color: #e4e4e7; margin-bottom: 0.25rem;
+        }
+        .topo-node-ip {
+            font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; color: #71717a;
+        }
+        .topo-node-os {
+            font-size: 0.7rem; color: #52525b; margin-top: 0.2rem;
+        }
+        .topo-arrow {
+            display: flex; flex-direction: column; align-items: center; gap: 0.4rem;
+            color: #52525b; min-width: 80px;
+        }
+        .topo-arrow-line {
+            width: 100%; height: 2px;
+            background: linear-gradient(90deg, rgba(56,189,248,0.4), rgba(240,160,160,0.4));
+            position: relative;
+        }
+        .topo-arrow-line::after {
+            content: ''; position: absolute; right: -1px; top: -4px;
+            border: 5px solid transparent; border-left-color: rgba(240,160,160,0.5);
+        }
+        .topo-arrow-label {
+            font-family: 'JetBrains Mono', monospace; font-size: 0.65rem;
+            color: #71717a; white-space: nowrap;
+        }
+
+        /* ── stats row ── */
+        .dns-stats {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem; margin-top: 1.5rem;
+        }
+        .dns-stat {
+            padding: 1rem; border-radius: 10px;
+            background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06);
+            text-align: center;
+        }
+        .dns-stat-value {
+            font-family: 'JetBrains Mono', monospace; font-size: 1.6rem;
+            font-weight: 700; line-height: 1.2;
+        }
+        .dns-stat-value--green { color: #00ff88; }
+        .dns-stat-value--red { color: #f0a0a0; }
+        .dns-stat-value--blue { color: #38bdf8; }
+        .dns-stat-value--purple { color: #c4b5fd; }
+        .dns-stat-label {
+            font-size: 0.72rem; color: #71717a; margin-top: 0.3rem;
+            text-transform: uppercase; letter-spacing: 0.05em;
+        }
+
+        /* ── entropy comparison ── */
+        .entropy-grid {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;
+        }
+        .entropy-card {
+            padding: 1.2rem; border-radius: 10px;
+            background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06);
+        }
+        .entropy-card-head {
+            display: flex; align-items: center; justify-content: space-between;
+            margin-bottom: 1rem;
+        }
+        .entropy-card-title { font-size: 0.82rem; font-weight: 600; color: #e4e4e7; }
+        .entropy-card-avg {
+            font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; font-weight: 600;
+        }
+        .entropy-card--normal .entropy-card-avg { color: #34d399; }
+        .entropy-card--tunnel .entropy-card-avg { color: #f0a0a0; }
+        .entropy-bar-wrap { margin-bottom: 0.5rem; }
+        .entropy-bar-label {
+            display: flex; justify-content: space-between; align-items: baseline;
+            margin-bottom: 0.25rem;
+        }
+        .entropy-bar-domain {
+            font-family: 'JetBrains Mono', monospace; font-size: 0.65rem;
+            color: #a1a1aa; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+            max-width: 70%;
+        }
+        .entropy-bar-val {
+            font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; color: #71717a;
+        }
+        .entropy-bar-track {
+            height: 6px; background: rgba(255,255,255,0.04); border-radius: 3px;
+            overflow: hidden;
+        }
+        .entropy-bar-fill {
+            height: 100%; border-radius: 3px;
+            transition: width 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+        .entropy-card--normal .entropy-bar-fill { background: linear-gradient(90deg, #059669, #34d399); }
+        .entropy-card--tunnel .entropy-bar-fill { background: linear-gradient(90deg, #dc2626, #f0a0a0); }
+        .entropy-verdict {
+            margin-top: 1.5rem; padding: 1rem 1.2rem; border-radius: 8px;
+            font-size: 0.82rem; line-height: 1.6; color: #e4e4e7;
+        }
+        .entropy-verdict--detect {
+            background: rgba(240,160,160,0.06); border: 1px solid rgba(240,160,160,0.2);
+        }
+        .entropy-verdict strong { color: #f0a0a0; }
+        .entropy-verdict code {
+            font-family: 'JetBrains Mono', monospace; font-size: 0.76rem;
+            background: rgba(255,255,255,0.06); padding: 0.1rem 0.35rem; border-radius: 3px;
+        }
+
+        /* ── timeline ── */
+        .timeline-controls {
+            display: flex; align-items: center; gap: 0.75rem;
+            margin-bottom: 1rem; flex-wrap: wrap;
+        }
+        .timeline-btn {
+            font-family: 'JetBrains Mono', monospace; font-size: 0.76rem;
+            padding: 0.45rem 1rem; border-radius: 6px; cursor: pointer;
+            border: 1px solid rgba(0,255,136,0.3); background: rgba(0,255,136,0.08);
+            color: #00ff88; transition: background 0.2s;
+        }
+        .timeline-btn:hover { background: rgba(0,255,136,0.16); }
+        .timeline-btn--active { background: rgba(0,255,136,0.2); }
+        .timeline-progress {
+            flex: 1; min-width: 120px; height: 4px;
+            background: rgba(255,255,255,0.06); border-radius: 2px; overflow: hidden;
+        }
+        .timeline-progress-fill {
+            height: 100%; width: 0%; border-radius: 2px;
+            background: linear-gradient(90deg, #00ff88, #38bdf8);
+            transition: width 0.15s linear;
+        }
+        .timeline-time {
+            font-family: 'JetBrains Mono', monospace; font-size: 0.72rem;
+            color: #71717a; min-width: 60px; text-align: right;
+        }
+        .timeline-canvas-wrap {
+            position: relative; width: 100%; height: 200px;
+            background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 10px; overflow: hidden;
+        }
+        .timeline-canvas { width: 100%; height: 100%; display: block; }
+        .timeline-legend {
+            display: flex; gap: 1.5rem; margin-top: 0.75rem;
+            font-size: 0.72rem; color: #71717a;
+        }
+        .timeline-legend-dot {
+            display: inline-block; width: 8px; height: 8px;
+            border-radius: 50%; margin-right: 0.35rem; vertical-align: middle;
+        }
+
+        /* ── packet table ── */
+        .pkt-table-wrap {
+            max-height: 420px; overflow-y: auto; border-radius: 10px;
+            border: 1px solid rgba(255,255,255,0.06);
+        }
+        .pkt-table-wrap::-webkit-scrollbar { width: 6px; }
+        .pkt-table-wrap::-webkit-scrollbar-track { background: transparent; }
+        .pkt-table-wrap::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 3px; }
+        .pkt-table {
+            width: 100%; border-collapse: collapse;
+            font-family: 'JetBrains Mono', monospace; font-size: 0.72rem;
+        }
+        .pkt-table thead { position: sticky; top: 0; z-index: 2; }
+        .pkt-table th {
+            padding: 0.6rem 0.8rem; text-align: left;
+            background: #12121a; color: #71717a; font-weight: 600;
+            text-transform: uppercase; letter-spacing: 0.05em; font-size: 0.65rem;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+        }
+        .pkt-table td {
+            padding: 0.45rem 0.8rem; color: #a1a1aa;
+            border-bottom: 1px solid rgba(255,255,255,0.03);
+        }
+        .pkt-table tr:hover td { background: rgba(255,255,255,0.02); }
+        .pkt-table .pkt-row--tunnel td { color: #f0a0a0; }
+        .pkt-table .pkt-row--tunnel td:first-child { position: relative; }
+        .pkt-table .pkt-row--tunnel td:first-child::before {
+            content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 2px;
+            background: #f0a0a0;
+        }
+        .pkt-table .pkt-row--end td { color: #fcd34d; }
+        .pkt-domain {
+            max-width: 340px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+        }
+        .pkt-badge {
+            display: inline-block; font-size: 0.6rem; padding: 0.1rem 0.35rem;
+            border-radius: 3px; font-weight: 600;
+        }
+        .pkt-badge--q { background: rgba(56,189,248,0.12); color: #38bdf8; }
+        .pkt-badge--r { background: rgba(113,113,122,0.12); color: #71717a; }
+        .pkt-badge--tunnel { background: rgba(240,160,160,0.12); color: #f0a0a0; }
+        .pkt-badge--normal { background: rgba(52,211,153,0.12); color: #34d399; }
+
+        /* ── download ── */
+        .dns-download {
+            display: flex; align-items: center; gap: 1rem;
+            padding: 1.2rem 1.5rem; border-radius: 10px;
+            background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06);
+        }
+        .dns-download-icon { color: #00ff88; flex-shrink: 0; }
+        .dns-download-text { flex: 1; }
+        .dns-download-title {
+            font-size: 0.88rem; font-weight: 600; color: #e4e4e7; margin-bottom: 0.15rem;
+        }
+        .dns-download-sub { font-size: 0.75rem; color: #71717a; }
+        .dns-download-link {
+            font-family: 'JetBrains Mono', monospace; font-size: 0.76rem;
+            padding: 0.5rem 1.1rem; border-radius: 6px;
+            background: rgba(0,255,136,0.1); border: 1px solid rgba(0,255,136,0.3);
+            color: #00ff88; text-decoration: none; white-space: nowrap;
+            transition: background 0.2s;
+        }
+        .dns-download-link:hover { background: rgba(0,255,136,0.2); }
+
+        /* ── responsive ── */
+        @media (max-width: 700px) {
+            .topo-wrap { grid-template-columns: 1fr; gap: 0.75rem; }
+            .topo-arrow { flex-direction: row; min-width: auto; }
+            .topo-arrow-line {
+                width: 2px; height: 30px;
+                background: linear-gradient(180deg, rgba(56,189,248,0.4), rgba(240,160,160,0.4));
+            }
+            .topo-arrow-line::after {
+                right: auto; top: auto; bottom: -1px; left: -4px;
+                border: 5px solid transparent; border-top-color: rgba(240,160,160,0.5);
+                border-left-color: transparent;
+            }
+            .entropy-grid { grid-template-columns: 1fr; }
+            .pkt-domain { max-width: 160px; }
+            .dns-download { flex-direction: column; text-align: center; }
+        }
+    </style>
+</head>
+<body class="page-demo">
+    <div class="cursor-glow" aria-hidden="true"></div>
+    <nav class="navbar" aria-label="Main navigation">
+        <a href="index.html" class="nav-brand" title="security.portfolio - home">
+            <span class="terminal-prompt">&gt;_</span>
+            <span class="brand-text">security<span class="accent">.portfolio</span><span class="brand-path" aria-hidden="true">/dns_tunnel</span></span>
+        </a>
+        <ul class="nav-links" id="nav-links-primary">
+            <li><a href="index.html#home">Home</a></li>
+            <li><a href="index.html#projects">Projects</a></li>
+            <li><a href="index.html#papers">Papers</a></li>
+            <li><a href="index.html#contact">Contact</a></li>
+            <li><a href="resume.html" class="nav-resume">Resume</a></li>
+        </ul>
+        <button type="button" class="mobile-menu-btn" aria-label="Toggle menu" aria-expanded="false" aria-controls="nav-links-primary">
+            <span></span><span></span><span></span>
+        </button>
+    </nav>
+
+    <main class="demo-main dns-page">
+        <div class="container">
+
+            <!-- ── Hero ── -->
+            <section class="dns-hero">
+                <span class="dns-hero-label">PCAP evidence &middot; Red team</span>
+                <h1 class="dns-hero-title">Covert Channel: DNS Exfiltration via DLL Sideloading</h1>
+                <div class="dns-hero-sub">
+                    <p>This page shows a <strong>real network capture</strong> from an isolated lab test. The goal: steal a file from a fully-protected Windows 11 computer without triggering any security alerts. The data was hidden inside ordinary-looking DNS requests  - the same type of traffic your browser sends every time you visit a website. Every packet below is from the actual test. <strong>Zero alerts were triggered.</strong></p>
+                </div>
+                <div class="mitre-strip">
+                    <span class="mitre-tag" title="Malicious file assembled inside the browser, invisible to network scanners">T1566.002 HTML Smuggling</span>
+                    <span class="mitre-tag" title="Bypassed Windows safety warnings on downloaded files">T1553.005 MOTW Bypass</span>
+                    <span class="mitre-tag" title="Loaded malicious code by piggybacking on a trusted Microsoft program">T1574.002 DLL Sideloading</span>
+                    <span class="mitre-tag" title="Used low-level C code to avoid script-based detection">T1027.009 Native Code</span>
+                    <span class="mitre-tag" title="Smuggled stolen data out disguised as normal DNS traffic">T1048.003 DNS Tunneling</span>
+                </div>
+            </section>
+
+            <!-- ── 01 Network Topology ── -->
+            <section class="dns-section">
+                <div class="dns-section-head">
+                    <span class="dns-section-num">01.</span>
+                    <h2 class="dns-section-title">Network topology</h2>
+                </div>
+                <p style="font-size:0.85rem;color:#a1a1aa;margin-bottom:1rem;line-height:1.6">The lab setup: two machines on an isolated network. The victim (left) is a fully-patched Windows 11 PC with all security features enabled. The attacker (right) receives the stolen data by listening for DNS requests on port 53  - the same port every computer uses to look up website addresses.</p>
+                <div class="topo-wrap">
+                    <div class="topo-node topo-node--victim">
+                        <svg class="topo-node-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+                        <div class="topo-node-label">Victim</div>
+                        <div class="topo-node-ip">10.0.0.10</div>
+                        <div class="topo-node-os">Windows 11 Enterprise</div>
+                    </div>
+                    <div class="topo-arrow">
+                        <div class="topo-arrow-label">DNS TXT queries</div>
+                        <div class="topo-arrow-line"></div>
+                        <div class="topo-arrow-label">UDP :53</div>
+                    </div>
+                    <div class="topo-node topo-node--attacker">
+                        <svg class="topo-node-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>
+                        <div class="topo-node-label">Attacker (tunnel server)</div>
+                        <div class="topo-node-ip">10.0.0.20</div>
+                        <div class="topo-node-os">Kali Linux</div>
+                    </div>
+                </div>
+                <div class="dns-stats" id="dns-stats"></div>
+            </section>
+
+            <!-- ── 02 Packet Timeline ── -->
+            <section class="dns-section">
+                <div class="dns-section-head">
+                    <span class="dns-section-num">02.</span>
+                    <h2 class="dns-section-title">Packet timeline</h2>
+                </div>
+                <p style="font-size:0.85rem;color:#a1a1aa;margin-bottom:1rem;line-height:1.6">Every dot is a single DNS request captured from the network. <strong style="color:#34d399">Green dots</strong> are normal Windows traffic (Bing, Microsoft updates). <strong style="color:#f0a0a0">Red dots</strong> are the hidden tunnel carrying stolen file data. Notice the tight burst of red dots around the 17&ndash;20 second mark  - that's the entire file being exfiltrated in about 3 seconds. Higher on the chart = more random-looking = more suspicious. Press play to watch it happen in real time.</p>
+                <div class="timeline-controls">
+                    <button class="timeline-btn" id="timeline-play" type="button">&#9654; Play</button>
+                    <button class="timeline-btn" id="timeline-reset" type="button">Reset</button>
+                    <div class="timeline-progress"><div class="timeline-progress-fill" id="timeline-fill"></div></div>
+                    <span class="timeline-time" id="timeline-time">0.00s</span>
+                </div>
+                <div class="timeline-canvas-wrap">
+                    <canvas class="timeline-canvas" id="timeline-canvas"></canvas>
+                </div>
+                <div class="timeline-legend">
+                    <span><span class="timeline-legend-dot" style="background:#34d399"></span>Normal DNS</span>
+                    <span><span class="timeline-legend-dot" style="background:#f0a0a0"></span>Tunnel DNS</span>
+                    <span><span class="timeline-legend-dot" style="background:#fcd34d"></span>END signal</span>
+                </div>
+            </section>
+
+            <!-- ── 03 Entropy Analysis ── -->
+            <section class="dns-section">
+                <div class="dns-section-head">
+                    <span class="dns-section-num">03.</span>
+                    <h2 class="dns-section-title">Randomness analysis  - how defenders catch this</h2>
+                </div>
+                <p style="font-size:0.85rem;color:#a1a1aa;margin-bottom:1rem;line-height:1.6">This is the <strong style="color:#e4e4e7">defensive perspective</strong>. Normal website names like "www" or "assets" are readable English  - they have low randomness. The tunnel traffic uses encoded data that looks like keyboard mashing: "emqeg33qpfzgsz3i..."  - much higher randomness. A security team doesn't need to decode the data. They just measure <strong style="color:#e4e4e7">how random each domain name looks</strong> (called Shannon entropy). If it's consistently above ~3.5, something is hiding data in DNS.</p>
+                <div class="entropy-grid" id="entropy-grid"></div>
+                <div class="entropy-verdict entropy-verdict--detect" style="margin-top:1.2rem">
+                    <strong>How a defender catches this:</strong> The tunnel domains score <code id="tunnel-avg">~4.0</code> on the randomness scale vs <code id="normal-avg">~1.8</code> for normal traffic  - more than double. Combined with the fact that every tunnel domain is exactly 45 characters long, they all arrive in rapid 110ms bursts, and none of them ever repeat (normal DNS gets cached and reused), a monitoring tool would flag this within seconds.
+                </div>
+            </section>
+
+            <!-- ── 04 Packet Inspector ── -->
+            <section class="dns-section">
+                <div class="dns-section-head">
+                    <span class="dns-section-num">04.</span>
+                    <h2 class="dns-section-title">Packet inspector</h2>
+                </div>
+                <p style="font-size:0.85rem;color:#a1a1aa;margin-bottom:1rem;line-height:1.6">Raw log of every DNS packet from the capture. <strong style="color:#f0a0a0">Red rows</strong> are tunnel traffic carrying stolen data. <strong style="color:#fcd34d">Yellow rows</strong> are the END signal sent three times to confirm the transfer completed. The "Entropy" column shows the randomness score for each domain name  - higher values stand out as suspicious.</p>
+                <div class="pkt-table-wrap">
+                    <table class="pkt-table" id="pkt-table">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Time</th>
+                                <th>Dir</th>
+                                <th>Source</th>
+                                <th>Dest</th>
+                                <th>Domain</th>
+                                <th>Type</th>
+                                <th>Randomness</th>
+                            </tr>
+                        </thead>
+                        <tbody id="pkt-tbody"></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- ── 05 Download ── -->
+            <section class="dns-section">
+                <div class="dns-section-head">
+                    <span class="dns-section-num">05.</span>
+                    <h2 class="dns-section-title">Evidence download</h2>
+                </div>
+                <div class="dns-download">
+                    <svg class="dns-download-icon" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+                    <div class="dns-download-text">
+                        <div class="dns-download-title">v2_capture.pcap</div>
+                        <div class="dns-download-sub">Full packet capture &middot; 17 KB &middot; Open in Wireshark (free network analysis tool) to inspect every packet yourself</div>
+                    </div>
+                    <a href="v2_capture.pcap" download class="dns-download-link">Download PCAP</a>
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <footer class="footer">
+        <p class="footer-tagline"><a href="index.html#projects" style="color:inherit;text-decoration:none">&larr; Back to projects</a></p>
+        <p class="copyright">&copy; 2026 Om Shah. All rights reserved.</p>
+    </footer>
+
+    <script>
+    (function () {
+        "use strict";
+
+        var PACKETS = [{"t":0,"src":"192.168.180.156","dst":"192.168.180.2","qr":"Q","domain":"www.bing.com","tunnel":false,"entropy":0,"len":72},{"t":0.000162,"src":"192.168.180.156","dst":"192.168.180.2","qr":"Q","domain":"www.bing.com","tunnel":false,"entropy":0,"len":72},{"t":0.006632,"src":"192.168.180.2","dst":"192.168.180.156","qr":"R","domain":"www.bing.com","tunnel":false,"entropy":0,"len":225},{"t":1.297804,"src":"192.168.180.156","dst":"192.168.180.2","qr":"Q","domain":"functional.events.data.microsoft.com","tunnel":false,"entropy":3.122,"len":96},{"t":1.298027,"src":"192.168.180.156","dst":"192.168.180.2","qr":"Q","domain":"functional.events.data.microsoft.com","tunnel":false,"entropy":3.122,"len":96},{"t":1.30279,"src":"192.168.180.2","dst":"192.168.180.156","qr":"R","domain":"functional.events.data.microsoft.com","tunnel":false,"entropy":3.122,"len":271},{"t":1.30279,"src":"192.168.180.2","dst":"192.168.180.156","qr":"R","domain":"functional.events.data.microsoft.com","tunnel":false,"entropy":3.122,"len":226},{"t":6.111494,"src":"192.168.180.2","dst":"192.168.180.156","qr":"R","domain":"www.bing.com","tunnel":false,"entropy":0,"len":254},{"t":7.39269,"src":"192.168.180.156","dst":"192.168.180.2","qr":"Q","domain":"assets.msn.com","tunnel":false,"entropy":1.792,"len":74},{"t":7.42478,"src":"192.168.180.2","dst":"192.168.180.156","qr":"R","domain":"assets.msn.com","tunnel":false,"entropy":1.792,"len":294},{"t":10.53281,"src":"192.168.180.156","dst":"192.168.180.2","qr":"Q","domain":"telem-edge.smartscreen.microsoft.com","tunnel":false,"entropy":2.522,"len":96},{"t":10.533026,"src":"192.168.180.156","dst":"192.168.180.2","qr":"Q","domain":"telem-edge.smartscreen.microsoft.com","tunnel":false,"entropy":2.522,"len":96},{"t":10.543105,"src":"192.168.180.2","dst":"192.168.180.156","qr":"R","domain":"telem-edge.smartscreen.microsoft.com","tunnel":false,"entropy":2.522,"len":225},{"t":10.543106,"src":"192.168.180.2","dst":"192.168.180.156","qr":"R","domain":"telem-edge.smartscreen.microsoft.com","tunnel":false,"entropy":2.522,"len":269},{"t":10.704999,"src":"192.168.180.156","dst":"192.168.180.2","qr":"Q","domain":"app-edge.smartscreen.microsoft.com","tunnel":false,"entropy":2.5,"len":94},{"t":10.705332,"src":"192.168.180.156","dst":"192.168.180.2","qr":"Q","domain":"app-edge.smartscreen.microsoft.com","tunnel":false,"entropy":2.5,"len":94},{"t":10.712975,"src":"192.168.180.2","dst":"192.168.180.156","qr":"R","domain":"app-edge.smartscreen.microsoft.com","tunnel":false,"entropy":2.5,"len":220},{"t":11.053041,"src":"192.168.180.156","dst":"192.168.180.2","qr":"Q","domain":"wdcp.microsoft.com","tunnel":false,"entropy":2,"len":78},{"t":11.060372,"src":"192.168.180.2","dst":"192.168.180.156","qr":"R","domain":"wdcp.microsoft.com","tunnel":false,"entropy":2,"len":214},{"t":12.723555,"src":"192.168.180.2","dst":"192.168.180.156","qr":"R","domain":"app-edge.smartscreen.microsoft.com","tunnel":false,"entropy":2.5,"len":283},{"t":16.365421,"src":"192.168.180.156","dst":"192.168.180.2","qr":"Q","domain":"checkappexec.microsoft.com","tunnel":false,"entropy":2.626,"len":86},{"t":16.400419,"src":"192.168.180.2","dst":"192.168.180.156","qr":"R","domain":"checkappexec.microsoft.com","tunnel":false,"entropy":2.626,"len":217},{"t":16.66127,"src":"10.0.0.10","dst":"10.0.0.20","qr":"Q","domain":"emqeg33qpfzgsz3ioqqcqyzjeaytsojtfuzdambzebgws.0.38a9f260.tunnel.local","tunnel":true,"entropy":4.126,"len":129,"seq":0,"sid":"38a9f260"},{"t":16.661464,"src":"10.0.0.20","dst":"10.0.0.10","qr":"R","domain":"emqeg33qpfzgsz3ioqqcqyzjeaytsojtfuzdambzebgws.0.38a9f260.tunnel.local","tunnel":true,"entropy":4.126,"len":145,"seq":0,"sid":"38a9f260"},{"t":16.768727,"src":"10.0.0.10","dst":"10.0.0.20","qr":"Q","domain":"y3sn5zw6ztuebbw64tqfygquiynbirsavdinfzsa2lteb.1.38a9f260.tunnel.local","tunnel":true,"entropy":4.369,"len":129,"seq":1,"sid":"38a9f260"},{"t":16.768892,"src":"10.0.0.20","dst":"10.0.0.10","qr":"R","domain":"y3sn5zw6ztuebbw64tqfygquiynbirsavdinfzsa2lteb.1.38a9f260.tunnel.local","tunnel":true,"entropy":4.369,"len":145,"seq":1,"sid":"38a9f260"},{"t":16.880695,"src":"10.0.0.10","dst":"10.0.0.20","qr":"Q","domain":"qsa43bnvygyzjajbhvgvctebtgs3dfeb2xgzleebrhsic.2.38a9f260.tunnel.local","tunnel":true,"entropy":4.311,"len":129,"seq":2,"sid":"38a9f260"},{"t":16.880855,"src":"10.0.0.20","dst":"10.0.0.10","qr":"R","domain":"qsa43bnvygyzjajbhvgvctebtgs3dfeb2xgzleebrhsic.2.38a9f260.tunnel.local","tunnel":true,"entropy":4.311,"len":145,"seq":2,"sid":"38a9f260"},{"t":16.992191,"src":"10.0.0.10","dst":"10.0.0.20","qr":"Q","domain":"nnfrxe33tn5thiicuinic6skqebtg64rak5uw4zdpo5zs.3.38a9f260.tunnel.local","tunnel":true,"entropy":4.481,"len":129,"seq":3,"sid":"38a9f260"},{"t":16.992404,"src":"10.0.0.20","dst":"10.0.0.10","qr":"R","domain":"nnfrxe33tn5thiicuinic6skqebtg64rak5uw4zdpo5zs.3.38a9f260.tunnel.local","tunnel":true,"entropy":4.481,"len":145,"seq":3,"sid":"38a9f260"},{"t":17.101834,"src":"10.0.0.10","dst":"10.0.0.20","qr":"Q","domain":"4dikemgquizakrugs4zamzuwyzjamnxw45dbnfxhgidun.4.38a9f260.tunnel.local","tunnel":true,"entropy":4.263,"len":129,"seq":4,"sid":"38a9f260"},{"t":17.101992,"src":"10.0.0.20","dst":"10.0.0.10","qr":"R","domain":"4dikemgquizakrugs4zamzuwyzjamnxw45dbnfxhgidun.4.38a9f260.tunnel.local","tunnel":true,"entropy":4.263,"len":145,"seq":4,"sid":"38a9f260"},{"t":17.210645,"src":"10.0.0.10","dst":"10.0.0.20","qr":"Q","domain":"bssa3lbobygs3thomqg6zrajficaylemrzgk43tmvzsa5.5.38a9f260.tunnel.local","tunnel":true,"entropy":4.386,"len":129,"seq":5,"sid":"38a9f260"},{"t":17.210773,"src":"10.0.0.20","dst":"10.0.0.10","qr":"R","domain":"bssa3lbobygs3thomqg6zrajficaylemrzgk43tmvzsa5.5.38a9f260.tunnel.local","tunnel":true,"entropy":4.386,"len":145,"seq":5,"sid":"38a9f260"},{"t":17.319379,"src":"10.0.0.10","dst":"10.0.0.20","qr":"Q","domain":"dpebug643uebxgc3lfomxcarlbmnua2crdebsw45dspeq.6.38a9f260.tunnel.local","tunnel":true,"entropy":4.375,"len":129,"seq":6,"sid":"38a9f260"},{"t":17.319531,"src":"10.0.0.20","dst":"10.0.0.10","qr":"R","domain":"dpebug643uebxgc3lfomxcarlbmnua2crdebsw45dspeq.6.38a9f260.tunnel.local","tunnel":true,"entropy":4.375,"len":145,"seq":6,"sid":"38a9f260"},{"t":17.429454,"src":"10.0.0.10","dst":"10.0.0.20","qr":"Q","domain":"hg2dpovwgiidcmuqgwzlqoqqg63ramfxca2lomruxm2le.7.38a9f260.tunnel.local","tunnel":true,"entropy":4.286,"len":129,"seq":7,"sid":"38a9f260"},{"t":17.429625,"src":"10.0.0.20","dst":"10.0.0.10","qr":"R","domain":"hg2dpovwgiidcmuqgwzlqoqqg63ramfxca2lomruxm2le.7.38a9f260.tunnel.local","tunnel":true,"entropy":4.286,"len":145,"seq":7,"sid":"38a9f260"},{"t":17.53801,"src":"10.0.0.10","dst":"10.0.0.20","qr":"Q","domain":"ovqwyidmnfxgklrakrugkicjkaqgczdeojsxg4zaonug6.8.38a9f260.tunnel.local","tunnel":true,"entropy":4.263,"len":129,"seq":8,"sid":"38a9f260"},{"t":17.538142,"src":"10.0.0.20","dst":"10.0.0.10","qr":"R","domain":"ovqwyidmnfxgklrakrugkicjkaqgczdeojsxg4zaonug6.8.38a9f260.tunnel.local","tunnel":true,"entropy":4.263,"len":145,"seq":8,"sid":"38a9f260"},{"t":17.647988,"src":"10.0.0.10","dst":"10.0.0.20","qr":"Q","domain":"5lmmqgquizamjssa4dmmfrwkzbanfxca5dimuqgm2lson.9.38a9f260.tunnel.local","tunnel":true,"entropy":4.17,"len":129,"seq":9,"sid":"38a9f260"},{"t":17.648116,"src":"10.0.0.20","dst":"10.0.0.10","qr":"R","domain":"5lmmqgquizamjssa4dmmfrwkzbanfxca5dimuqgm2lson.9.38a9f260.tunnel.local","tunnel":true,"entropy":4.17,"len":145,"seq":9,"sid":"38a9f260"},{"t":17.757252,"src":"10.0.0.10","dst":"10.0.0.20","qr":"Q","domain":"2cay3pnr2w23ramzxwy3dpo5swiidcpeqhi2dfebrw64t.10.38a9f260.tunnel.local","tunnel":true,"entropy":4.22,"len":130,"seq":10,"sid":"38a9f260"},{"t":17.757405,"src":"10.0.0.20","dst":"10.0.0.10","qr":"R","domain":"2cay3pnr2w23ramzxwy3dpo5swiidcpeqhi2dfebrw64t.10.38a9f260.tunnel.local","tunnel":true,"entropy":4.22,"len":146,"seq":10,"sid":"38a9f260"},{"t":17.868001,"src":"10.0.0.10","dst":"10.0.0.20","qr":"Q","domain":"smvzxa33omruw4zzanbxxg5banzqw2zjobufcgicunbss.11.38a9f260.tunnel.local","tunnel":true,"entropy":4.16,"len":130,"seq":11,"sid":"38a9f260"},{"t":17.868161,"src":"10.0.0.20","dst":"10.0.0.10","qr":"R","domain":"smvzxa33omruw4zzanbxxg5banzqw2zjobufcgicunbss.11.38a9f260.tunnel.local","tunnel":true,"entropy":4.16,"len":146,"seq":11,"sid":"38a9f260"},{"t":17.978103,"src":"10.0.0.10","dst":"10.0.0.20","qr":"Q","domain":"askqebqwizdsmvzxgidbnzsca5dimuqgq33toqqg4ylnm.12.38a9f260.tunnel.local","tunnel":true,"entropy":4.17,"len":130,"seq":12,"sid":"38a9f260"},{"t":17.978276,"src":"10.0.0.20","dst":"10.0.0.10","qr":"R","domain":"askqebqwizdsmvzxgidbnzsca5dimuqgq33toqqg4ylnm.12.38a9f260.tunnel.local","tunnel":true,"entropy":4.17,"len":146,"seq":12,"sid":"38a9f260"},{"t":18.086959,"src":"10.0.0.10","dst":"10.0.0.20","qr":"Q","domain":"uqhg2dpovwgiidcmuqhgzlqmfzgc5dfmqqge6jamf2ca3.13.38a9f260.tunnel.local","tunnel":true,"entropy":4.122,"len":130,"seq":13,"sid":"38a9f260"},{"t":18.087143,"src":"10.0.0.20","dst":"10.0.0.10","qr":"R","domain":"uqhg2dpovwgiidcmuqhgzlqmfzgc5dfmqqge6jamf2ca3.13.38a9f260.tunnel.local","tunnel":true,"entropy":4.122,"len":146,"seq":13,"sid":"38a9f260"},{"t":18.196539,"src":"10.0.0.10","dst":"10.0.0.20","qr":"Q","domain":"dfmfzxiidpnzsq2crdebzxayldmuxa2crdbufcgicbmrs.14.38a9f260.tunnel.local","tunnel":true,"entropy":4.122,"len":130,"seq":14,"sid":"38a9f260"},{"t":18.196702,"src":"10.0.0.20","dst":"10.0.0.10","qr":"R","domain":"dfmfzxiidpnzsq2crdebzxayldmuxa2crdbufcgicbmrs.14.38a9f260.tunnel.local","tunnel":true,"entropy":4.122,"len":146,"seq":14,"sid":"38a9f260"},{"t":18.307145,"src":"10.0.0.10","dst":"10.0.0.20","qr":"Q","domain":"gs5djn5xgc3dmpewcay3pnvwwk3tuomqcq43vmnucaylt.15.38a9f260.tunnel.local","tunnel":true,"entropy":4.152,"len":130,"seq":15,"sid":"38a9f260"},{"t":18.307304,"src":"10.0.0.20","dst":"10.0.0.10","qr":"R","domain":"gs5djn5xgc3dmpewcay3pnvwwk3tuomqcq43vmnucaylt.15.38a9f260.tunnel.local","tunnel":true,"entropy":4.152,"len":146,"seq":15,"sid":"38a9f260"},{"t":18.41655,"src":"10.0.0.10","dst":"10.0.0.20","qr":"Q","domain":"eb2gqzltmuusa3lbpeqgezjanfxhgzlsorswiidpnyqgs.16.38a9f260.tunnel.local","tunnel":true,"entropy":4.403,"len":130,"seq":16,"sid":"38a9f260"},{"t":18.416696,"src":"10.0.0.20","dst":"10.0.0.10","qr":"R","domain":"eb2gqzltmuusa3lbpeqgezjanfxhgzlsorswiidpnyqgs.16.38a9f260.tunnel.local","tunnel":true,"entropy":4.403,"len":146,"seq":16,"sid":"38a9f260"},{"t":18.52629,"src":"10.0.0.10","dst":"10.0.0.20","qr":"Q","domain":"y3sn5zw6ztuebbw64tqfygquiynbirsavdinfzsa2lteb.17.38a9f260.tunnel.local","tunnel":true,"entropy":4.369,"len":130,"seq":17,"sid":"38a9f260"},{"t":18.526432,"src":"10.0.0.20","dst":"10.0.0.10","qr":"R","domain":"y3sn5zw6ztuebbw64tqfygquiynbirsavdinfzsa2lteb.17.38a9f260.tunnel.local","tunnel":true,"entropy":4.369,"len":146,"seq":17,"sid":"38a9f260"},{"t":18.634893,"src":"10.0.0.10","dst":"10.0.0.20","qr":"Q","domain":"uw4zzaorugkidnmfrwq2lomuqg4ylnmuqgizlon52gkzb.18.38a9f260.tunnel.local","tunnel":true,"entropy":4.329,"len":130,"seq":18,"sid":"38a9f260"},{"t":18.635025,"src":"10.0.0.20","dst":"10.0.0.10","qr":"R","domain":"uw4zzaorugkidnmfrwq2lomuqg4ylnmuqgizlon52gkzb.18.38a9f260.tunnel.local","tunnel":true,"entropy":4.329,"len":146,"seq":18,"sid":"38a9f260"},{"t":18.752085,"src":"10.0.0.10","dst":"10.0.0.20","qr":"Q","domain":"amj4sayjae4rsoidtpfwwe33mfygquiynbirsartpoiqg.19.38a9f260.tunnel.local","tunnel":true,"entropy":4.286,"len":130,"seq":19,"sid":"38a9f260"},{"t":18.752247,"src":"10.0.0.20","dst":"10.0.0.10","qr":"R","domain":"amj4sayjae4rsoidtpfwwe33mfygquiynbirsartpoiqg.19.38a9f260.tunnel.local","tunnel":true,"entropy":4.286,"len":146,"seq":19,"sid":"38a9f260"},{"t":18.860189,"src":"10.0.0.10","dst":"10.0.0.20","qr":"Q","domain":"k6dbnvygyzj2bufcgdikemqcaibaeaqdcmbsfy2tilrzg.20.38a9f260.tunnel.local","tunnel":true,"entropy":4.369,"len":130,"seq":20,"sid":"38a9f260"},{"t":18.860357,"src":"10.0.0.20","dst":"10.0.0.10","qr":"R","domain":"k6dbnvygyzj2bufcgdikemqcaibaeaqdcmbsfy2tilrzg.20.38a9f260.tunnel.local","tunnel":true,"entropy":4.369,"len":146,"seq":20,"sid":"38a9f260"},{"t":18.970312,"src":"10.0.0.10","dst":"10.0.0.20","qr":"Q","domain":"qxdsnzaeaqcaidsnbuw43zomfrw2zjomnxw2ibaeaqcai.21.38a9f260.tunnel.local","tunnel":true,"entropy":4.219,"len":130,"seq":21,"sid":"38a9f260"},{"t":18.970493,"src":"10.0.0.20","dst":"10.0.0.10","qr":"R","domain":"qxdsnzaeaqcaidsnbuw43zomfrw2zjomnxw2ibaeaqcai.21.38a9f260.tunnel.local","tunnel":true,"entropy":4.219,"len":146,"seq":21,"sid":"38a9f260"},{"t":19.081435,"src":"10.0.0.10","dst":"10.0.0.20","qr":"Q","domain":"baeaqcaizaonxxk4tdmuqhgzlsozsxedikemqcaibaeaq.22.38a9f260.tunnel.local","tunnel":true,"entropy":4.071,"len":130,"seq":22,"sid":"38a9f260"},{"t":19.081631,"src":"10.0.0.20","dst":"10.0.0.10","qr":"R","domain":"baeaqcaizaonxxk4tdmuqhgzlsozsxedikemqcaibaeaq.22.38a9f260.tunnel.local","tunnel":true,"entropy":4.071,"len":146,"seq":22,"sid":"38a9f260"},{"t":19.190975,"src":"10.0.0.10","dst":"10.0.0.20","qr":"Q","domain":"camzyfyzdklrwgmxdcmbaeaqcaidyfzqwg3lffzrw63ja.23.38a9f260.tunnel.local","tunnel":true,"entropy":4.128,"len":130,"seq":23,"sid":"38a9f260"},{"t":19.191204,"src":"10.0.0.20","dst":"10.0.0.10","qr":"R","domain":"camzyfyzdklrwgmxdcmbaeaqcaidyfzqwg3lffzrw63ja.23.38a9f260.tunnel.local","tunnel":true,"entropy":4.128,"len":146,"seq":23,"sid":"38a9f260"},{"t":19.299289,"src":"10.0.0.10","dst":"10.0.0.20","qr":"Q","domain":"eaqcaibaeaqcaibaeaqcaizapaqgg3djmvxhiidin5zxi.24.38a9f260.tunnel.local","tunnel":true,"entropy":3.706,"len":130,"seq":24,"sid":"38a9f260"},{"t":19.299473,"src":"10.0.0.20","dst":"10.0.0.10","qr":"R","domain":"eaqcaibaeaqcaibaeaqcaizapaqgg3djmvxhiidin5zxi.24.38a9f260.tunnel.local","tunnel":true,"entropy":3.706,"len":146,"seq":24,"sid":"38a9f260"},{"t":19.405875,"src":"10.0.0.10","dst":"10.0.0.20","qr":"Q","domain":"dikbufcgidmn5rwc3din5zxiidomfwwkidsmvzw63dvor.25.38a9f260.tunnel.local","tunnel":true,"entropy":4.075,"len":130,"seq":25,"sid":"38a9f260"},{"t":19.40603,"src":"10.0.0.20","dst":"10.0.0.10","qr":"R","domain":"dikbufcgidmn5rwc3din5zxiidomfwwkidsmvzw63dvor.25.38a9f260.tunnel.local","tunnel":true,"entropy":4.075,"len":146,"seq":25,"sid":"38a9f260"},{"t":19.515455,"src":"10.0.0.10","dst":"10.0.0.20","qr":"Q","domain":"uw63ranfzsa2dbnzsgyzleeb3ws5dinfxcarcokmqgs5d.26.38a9f260.tunnel.local","tunnel":true,"entropy":4.491,"len":130,"seq":26,"sid":"38a9f260"},{"t":19.515666,"src":"10.0.0.20","dst":"10.0.0.10","qr":"R","domain":"uw63ranfzsa2dbnzsgyzleeb3ws5dinfxcarcokmqgs5d.26.38a9f260.tunnel.local","tunnel":true,"entropy":4.491,"len":146,"seq":26,"sid":"38a9f260"},{"t":19.62463,"src":"10.0.0.10","dst":"10.0.0.20","qr":"Q","domain":"tmvwgmlqnbirqsmjsg4xdalrqfyysaibaeaqcaidmn5rw.27.38a9f260.tunnel.local","tunnel":true,"entropy":4.25,"len":130,"seq":27,"sid":"38a9f260"},{"t":19.624829,"src":"10.0.0.20","dst":"10.0.0.10","qr":"R","domain":"tmvwgmlqnbirqsmjsg4xdalrqfyysaibaeaqcaidmn5rw.27.38a9f260.tunnel.local","tunnel":true,"entropy":4.25,"len":146,"seq":27,"sid":"38a9f260"},{"t":19.738478,"src":"10.0.0.10","dst":"10.0.0.20","qr":"Q","domain":"c3din5zxidikemetuorreaqcaibaeaqcaibaeaqca3dpm.28.38a9f260.tunnel.local","tunnel":true,"entropy":3.876,"len":130,"seq":28,"sid":"38a9f260"},{"t":19.738631,"src":"10.0.0.20","dst":"10.0.0.10","qr":"R","domain":"c3din5zxidikemetuorreaqcaibaeaqcaibaeaqca3dpm.28.38a9f260.tunnel.local","tunnel":true,"entropy":3.876,"len":146,"seq":28,"sid":"38a9f260"},{"t":19.847451,"src":"10.0.0.10","dst":"10.0.0.20","qr":"Q","domain":"nqwy2dpon2a2cq.29.38a9f260.tunnel.local","tunnel":true,"entropy":3.182,"len":99,"seq":29,"sid":"38a9f260"},{"t":19.847598,"src":"10.0.0.20","dst":"10.0.0.10","qr":"R","domain":"nqwy2dpon2a2cq.29.38a9f260.tunnel.local","tunnel":true,"entropy":3.182,"len":115,"seq":29,"sid":"38a9f260"},{"t":19.956789,"src":"10.0.0.10","dst":"10.0.0.20","qr":"Q","domain":"END.30.38a9f260.tunnel.local","tunnel":true,"entropy":1.585,"len":88,"seq":-1,"sid":"38a9f260"},{"t":19.956982,"src":"10.0.0.20","dst":"10.0.0.10","qr":"R","domain":"END.30.38a9f260.tunnel.local","tunnel":true,"entropy":1.585,"len":104,"seq":-1,"sid":"38a9f260"},{"t":20.069432,"src":"10.0.0.10","dst":"10.0.0.20","qr":"Q","domain":"END.30.38a9f260.tunnel.local","tunnel":true,"entropy":1.585,"len":88,"seq":-1,"sid":"38a9f260"},{"t":20.069651,"src":"10.0.0.20","dst":"10.0.0.10","qr":"R","domain":"END.30.38a9f260.tunnel.local","tunnel":true,"entropy":1.585,"len":104,"seq":-1,"sid":"38a9f260"},{"t":20.176737,"src":"10.0.0.10","dst":"10.0.0.20","qr":"Q","domain":"END.30.38a9f260.tunnel.local","tunnel":true,"entropy":1.585,"len":88,"seq":-1,"sid":"38a9f260"},{"t":20.17692,"src":"10.0.0.20","dst":"10.0.0.10","qr":"R","domain":"END.30.38a9f260.tunnel.local","tunnel":true,"entropy":1.585,"len":104,"seq":-1,"sid":"38a9f260"},{"t":66.927652,"src":"192.168.180.156","dst":"192.168.180.2","qr":"Q","domain":"www.bing.com","tunnel":false,"entropy":0,"len":72},{"t":66.927946,"src":"192.168.180.156","dst":"192.168.180.2","qr":"Q","domain":"www.bing.com","tunnel":false,"entropy":0,"len":72},{"t":66.934534,"src":"192.168.180.2","dst":"192.168.180.156","qr":"R","domain":"www.bing.com","tunnel":false,"entropy":0,"len":273},{"t":66.934534,"src":"192.168.180.2","dst":"192.168.180.156","qr":"R","domain":"www.bing.com","tunnel":false,"entropy":0,"len":254},{"t":67.40741,"src":"192.168.180.156","dst":"192.168.180.2","qr":"Q","domain":"assets.msn.com","tunnel":false,"entropy":1.792,"len":74},{"t":67.425566,"src":"192.168.180.2","dst":"192.168.180.156","qr":"R","domain":"assets.msn.com","tunnel":false,"entropy":1.792,"len":342},{"t":74.086686,"src":"192.168.180.156","dst":"192.168.180.2","qr":"Q","domain":"self.events.data.microsoft.com","tunnel":false,"entropy":2,"len":90},{"t":74.095047,"src":"192.168.180.2","dst":"192.168.180.156","qr":"R","domain":"self.events.data.microsoft.com","tunnel":false,"entropy":2,"len":211}];
+
+        var MAX_T = PACKETS[PACKETS.length - 1].t;
+        var queries = PACKETS.filter(function (p) { return p.qr === "Q"; });
+        var normalQ = queries.filter(function (p) { return !p.tunnel; });
+        var tunnelQ = queries.filter(function (p) { return p.tunnel && p.seq !== -1; });
+        var endQ = queries.filter(function (p) { return p.tunnel && p.seq === -1; });
+
+        /* ── Stats ── */
+        var statsEl = document.getElementById("dns-stats");
+        var stats = [
+            { v: PACKETS.length, c: "blue", l: "Total packets" },
+            { v: tunnelQ.length, c: "red", l: "Tunnel chunks" },
+            { v: normalQ.length, c: "green", l: "Normal queries" },
+            { v: (tunnelQ[tunnelQ.length - 1].t - tunnelQ[0].t).toFixed(1) + "s", c: "purple", l: "Exfil duration" }
+        ];
+        stats.forEach(function (s) {
+            var d = document.createElement("div"); d.className = "dns-stat";
+            d.innerHTML = '<div class="dns-stat-value dns-stat-value--' + s.c + '">' + s.v + '</div><div class="dns-stat-label">' + s.l + '</div>';
+            statsEl.appendChild(d);
+        });
+
+        /* ── Entropy bars ── */
+        var entropyGrid = document.getElementById("entropy-grid");
+
+        function buildEntropyCard(title, items, cls) {
+            var avg = items.reduce(function (s, p) { return s + p.entropy; }, 0) / items.length;
+            var card = document.createElement("div");
+            card.className = "entropy-card " + cls;
+            var html = '<div class="entropy-card-head"><span class="entropy-card-title">' + title + '</span><span class="entropy-card-avg">avg ' + avg.toFixed(2) + ' bits/char</span></div>';
+            var seen = {};
+            items.forEach(function (p) {
+                var label = p.domain.split(".")[0];
+                if (seen[label]) return;
+                seen[label] = true;
+                var pct = Math.min((p.entropy / 5) * 100, 100);
+                html += '<div class="entropy-bar-wrap"><div class="entropy-bar-label"><span class="entropy-bar-domain">' + label + '</span><span class="entropy-bar-val">' + p.entropy.toFixed(2) + '</span></div><div class="entropy-bar-track"><div class="entropy-bar-fill" style="width:' + pct + '%"></div></div></div>';
+            });
+            card.innerHTML = html;
+            return card;
+        }
+        entropyGrid.appendChild(buildEntropyCard("Normal DNS (randomness score)", normalQ, "entropy-card--normal"));
+        var tunnelItems = tunnelQ.slice(0, 12);
+        entropyGrid.appendChild(buildEntropyCard("Tunnel DNS (randomness score)", tunnelItems, "entropy-card--tunnel"));
+
+        var normalAvg = normalQ.reduce(function (s, p) { return s + p.entropy; }, 0) / normalQ.length;
+        var tunnelAvg = tunnelQ.reduce(function (s, p) { return s + p.entropy; }, 0) / tunnelQ.length;
+        document.getElementById("normal-avg").textContent = "~" + normalAvg.toFixed(1);
+        document.getElementById("tunnel-avg").textContent = "~" + tunnelAvg.toFixed(1);
+
+        /* ── Packet table ── */
+        var tbody = document.getElementById("pkt-tbody");
+        PACKETS.forEach(function (p, i) {
+            var tr = document.createElement("tr");
+            var isEnd = p.tunnel && p.seq === -1;
+            tr.className = isEnd ? "pkt-row--end" : (p.tunnel ? "pkt-row--tunnel" : "");
+            tr.innerHTML =
+                '<td>' + (i + 1) + '</td>' +
+                '<td>' + p.t.toFixed(3) + 's</td>' +
+                '<td><span class="pkt-badge pkt-badge--' + p.qr.toLowerCase() + '">' + p.qr + '</span></td>' +
+                '<td>' + p.src + '</td>' +
+                '<td>' + p.dst + '</td>' +
+                '<td class="pkt-domain" title="' + p.domain + '">' + p.domain + '</td>' +
+                '<td><span class="pkt-badge ' + (p.tunnel ? "pkt-badge--tunnel" : "pkt-badge--normal") + '">' + (isEnd ? "END" : (p.tunnel ? "tunnel" : "normal")) + '</span></td>' +
+                '<td>' + p.entropy.toFixed(2) + '</td>';
+            tbody.appendChild(tr);
+        });
+
+        /* ── Timeline canvas ── */
+        var canvas = document.getElementById("timeline-canvas");
+        var ctx = canvas.getContext("2d");
+        var dpr = window.devicePixelRatio || 1;
+        var playBtn = document.getElementById("timeline-play");
+        var resetBtn = document.getElementById("timeline-reset");
+        var fillBar = document.getElementById("timeline-fill");
+        var timeLabel = document.getElementById("timeline-time");
+        var playing = false, animId = null, currentT = 0, startReal = 0;
+
+        function resize() {
+            var rect = canvas.parentElement.getBoundingClientRect();
+            canvas.width = rect.width * dpr;
+            canvas.height = rect.height * dpr;
+            canvas.style.width = rect.width + "px";
+            canvas.style.height = rect.height + "px";
+            ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        }
+        resize();
+        window.addEventListener("resize", resize);
+
+        function drawTimeline(t) {
+            var w = canvas.width / dpr, h = canvas.height / dpr;
+            ctx.clearRect(0, 0, w, h);
+
+            var pad = 40, plotW = w - pad * 2, plotH = h - 50;
+
+            ctx.strokeStyle = "rgba(255,255,255,0.04)";
+            ctx.lineWidth = 1;
+            for (var g = 0; g <= 5; g++) {
+                var gy = 20 + (plotH / 5) * g;
+                ctx.beginPath(); ctx.moveTo(pad, gy); ctx.lineTo(pad + plotW, gy); ctx.stroke();
+            }
+
+            ctx.fillStyle = "#3f3f46";
+            ctx.font = "10px 'JetBrains Mono', monospace";
+            ctx.textAlign = "center";
+            for (var ts = 0; ts <= MAX_T; ts += 10) {
+                var tx = pad + (ts / MAX_T) * plotW;
+                ctx.fillText(ts + "s", tx, h - 8);
+            }
+
+            ctx.textAlign = "right";
+            ctx.fillText("5.0", pad - 6, 24);
+            ctx.fillText("0", pad - 6, 20 + plotH + 4);
+
+            queries.forEach(function (p) {
+                if (p.t > t) return;
+                var x = pad + (p.t / MAX_T) * plotW;
+                var y = 20 + plotH - (p.entropy / 5) * plotH;
+                var isEnd = p.tunnel && p.seq === -1;
+                var r = isEnd ? 5 : (p.tunnel ? 4 : 3);
+                var alpha = Math.min(1, 1 - (t - p.t) / 8);
+                if (alpha < 0.25) alpha = 0.25;
+
+                ctx.beginPath();
+                ctx.arc(x, y, r, 0, Math.PI * 2);
+                if (isEnd) {
+                    ctx.fillStyle = "rgba(252,211,77," + alpha + ")";
+                } else if (p.tunnel) {
+                    ctx.fillStyle = "rgba(240,160,160," + alpha + ")";
+                } else {
+                    ctx.fillStyle = "rgba(52,211,153," + alpha + ")";
+                }
+                ctx.fill();
+            });
+
+            if (t > 0 && t <= MAX_T) {
+                var cx = pad + (t / MAX_T) * plotW;
+                ctx.strokeStyle = "rgba(255,255,255,0.15)";
+                ctx.lineWidth = 1;
+                ctx.setLineDash([4, 4]);
+                ctx.beginPath(); ctx.moveTo(cx, 20); ctx.lineTo(cx, 20 + plotH); ctx.stroke();
+                ctx.setLineDash([]);
+            }
+
+            ctx.fillStyle = "#52525b";
+            ctx.textAlign = "left";
+            ctx.fillText("entropy (bits/char)", pad, h - 8);
+        }
+
+        drawTimeline(MAX_T);
+        fillBar.style.width = "100%";
+        timeLabel.textContent = MAX_T.toFixed(1) + "s";
+
+        function animate(now) {
+            if (!startReal) startReal = now;
+            currentT = ((now - startReal) / 1000) * 4;
+            if (currentT >= MAX_T) {
+                currentT = MAX_T; playing = false;
+                playBtn.innerHTML = "&#9654; Play";
+            }
+            drawTimeline(currentT);
+            fillBar.style.width = (currentT / MAX_T * 100) + "%";
+            timeLabel.textContent = currentT.toFixed(1) + "s";
+            if (playing) animId = requestAnimationFrame(animate);
+        }
+
+        playBtn.addEventListener("click", function () {
+            if (playing) {
+                playing = false; cancelAnimationFrame(animId);
+                playBtn.innerHTML = "&#9654; Play";
+            } else {
+                if (currentT >= MAX_T) { currentT = 0; startReal = 0; }
+                playing = true; startReal = 0;
+                playBtn.innerHTML = "&#10074;&#10074; Pause";
+                var savedT = currentT;
+                startReal = performance.now() - (savedT / 4) * 1000;
+                animId = requestAnimationFrame(animate);
+            }
+        });
+
+        resetBtn.addEventListener("click", function () {
+            playing = false; cancelAnimationFrame(animId);
+            currentT = 0; startReal = 0;
+            playBtn.innerHTML = "&#9654; Play";
+            fillBar.style.width = "0%";
+            timeLabel.textContent = "0.0s";
+            drawTimeline(0);
+        });
+
+        /* ── Mobile nav (reuse from main site) ── */
+        var menuBtn = document.querySelector(".mobile-menu-btn");
+        var navLinks = document.getElementById("nav-links-primary");
+        if (menuBtn && navLinks) {
+            menuBtn.addEventListener("click", function () {
+                var open = navLinks.classList.toggle("is-open");
+                menuBtn.setAttribute("aria-expanded", open);
+                menuBtn.classList.toggle("is-open", open);
+            });
+        }
+    })();
+    </script>
+</body>
+</html>
