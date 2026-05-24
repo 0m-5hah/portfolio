@@ -6328,6 +6328,74 @@ details.demo-misconceptions[open] .demo-misconceptions-chevron::after {
     }
 }
 
+/* --- Hero featured project CTA -------------------------------- */
+.hero-featured {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin-top: 0.25rem;
+    padding: 0.45rem 0.9rem;
+    border: 1px solid rgba(0, 255, 136, 0.25);
+    border-radius: 6px;
+    background: rgba(0, 255, 136, 0.04);
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 0.72rem;
+    color: var(--text-secondary);
+    text-decoration: none;
+    letter-spacing: 0.02em;
+    transition: border-color 0.25s, background 0.25s, color 0.25s;
+    animation: fadeInUp 0.8s ease 0.40s forwards;
+    opacity: 0;
+    width: fit-content;
+}
+
+.hero-featured:hover,
+.hero-featured:focus-visible {
+    border-color: var(--accent-primary);
+    background: rgba(0, 255, 136, 0.08);
+    color: var(--text-primary);
+}
+
+.hero-featured-label {
+    padding: 0.15rem 0.4rem;
+    border-radius: 3px;
+    background: var(--accent-primary);
+    color: #0a0a0f;
+    font-size: 0.6rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    line-height: 1;
+}
+
+.hero-featured-arrow {
+    width: 14px;
+    height: 14px;
+    flex-shrink: 0;
+    color: var(--accent-primary);
+    transition: transform 0.25s;
+}
+
+.hero-featured:hover .hero-featured-arrow {
+    transform: translateX(3px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .hero-featured {
+        animation: none !important;
+        opacity: 1 !important;
+    }
+    .hero-featured-arrow {
+        transition: none !important;
+    }
+}
+
+@media (max-width: 768px) {
+    .hero-featured {
+        align-self: center;
+    }
+}
+
 /* =============================================================
    Resume highlights — quick-scan panel above the embedded PDF
    so recruiters on flaky networks can still get the gist.

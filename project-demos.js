@@ -1177,6 +1177,7 @@
                     var rows = [];
                     var i = 0;
 
+                    var BATCH_DELAY_MS = 400;
                     function step() {
                         if (i >= lines.length) {
                             var html =
@@ -1244,7 +1245,7 @@
                                     pct: dp.text
                                 });
                                 i++;
-                                step();
+                                setTimeout(step, BATCH_DELAY_MS);
                             })
                             .catch(function (err) {
                                 rows.push({
@@ -1252,7 +1253,7 @@
                                     error: err.message || String(err)
                                 });
                                 i++;
-                                step();
+                                setTimeout(step, BATCH_DELAY_MS);
                             });
                     }
                     step();

@@ -34,8 +34,7 @@
 
     function hostnameAllowed(hostname) {
         var h = String(hostname).toLowerCase();
-        if (h === '127.0.0.1' || h === 'localhost') return true;
-        return h === 'omsshah-spam-classifier-api.hf.space' || h.endsWith('.hf.space');
+        return h === 'omsshah-spam-classifier-api.hf.space';
     }
 
     function isAllowedBase(raw) {
