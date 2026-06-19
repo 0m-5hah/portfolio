@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Interactive DNS tunnel traffic analysis from a red team engagement: PCAP visualization, Shannon entropy comparison, and packet replay.">
+    <meta name="description" content="Interactive DNS tunneling detection lab: PCAP visualization, Shannon entropy comparison, query pattern analysis, and defensive detection logic.">
     <meta name="theme-color" content="#0a0a0f">
-    <title>security.portfolio/dns_tunnel · Covert Channel | Om Shah</title>
+    <title>security.portfolio/dns_tunnel · Detection Lab | Om Shah</title>
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; script-src 'self' 'sha256-dRZMtUDKVhdjFQPffzbu3eHUKe9nMqscZLDLqS//9VM='; style-src 'self' https://fonts.googleapis.com 'unsafe-inline'; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data:; media-src 'none'; connect-src 'none'">
     <link rel="stylesheet" href="styles.css">
@@ -320,7 +320,7 @@
             <li><a href="index.html#projects">Projects</a></li>
             <li><a href="index.html#papers">Papers</a></li>
             <li><a href="index.html#contact">Contact</a></li>
-            <li><a href="resume.html" class="nav-resume">Resume</a></li>
+            <li><a href="resume.html" class="nav-resume">Download Resume</a></li>
         </ul>
         <button type="button" class="mobile-menu-btn" aria-label="Toggle menu" aria-expanded="false" aria-controls="nav-links-primary">
             <span></span><span></span><span></span>
@@ -332,24 +332,24 @@
 
             <!-- ── Hero ── -->
             <section class="dns-hero">
-                <span class="dns-hero-label">PCAP evidence &middot; Red team</span>
-                <h1 class="dns-hero-title">Covert Channel: DNS Exfiltration via DLL Sideloading</h1>
+                <span class="dns-hero-label">PCAP evidence &middot; Defensive lab</span>
+                <h1 class="dns-hero-title">DNS Tunneling Detection Lab</h1>
                 <div class="dns-hero-sub">
-                    <p><strong>Objective:</strong> extract a file from a fully-protected Windows 11 computer without triggering security alerts. The only warning was a standard "Open File" dialog when mounting the ISO (shown below), not a security detection. No antivirus flags, no firewall blocks. The stolen data was smuggled out by hiding it inside ordinary DNS requests, the same type of traffic your browser sends every time you visit a website. Every packet below is from the actual lab test.</p>
+                    <p><strong>Objective:</strong> understand DNS tunneling behaviour in an isolated VMware lab, capture PCAP evidence with Wireshark, analyse query patterns, and build detection logic using entropy, query length, timing, and repeated domain behaviour. Every packet below is from the controlled lab environment. This project is for defensive learning only.</p>
                 </div>
                 <div style="margin-top:1.2rem;padding:1rem 1.2rem;border-radius:10px;background:rgba(252,211,77,0.06);border:1px solid rgba(252,211,77,0.2);display:flex;align-items:center;gap:1.2rem;flex-wrap:wrap">
-                    <img src="scrollinganimation_cardshots/iso-warning.png" alt="Windows Open File security warning dialog when mounting the ISO" style="width:280px;border-radius:6px;border:1px solid rgba(255,255,255,0.08)" loading="lazy">
+                    <img src="scrollinganimation_cardshots/iso-warning.png" alt="Windows Open File dialog shown during isolated lab exercise" style="width:280px;border-radius:6px;border:1px solid rgba(255,255,255,0.08)" loading="lazy">
                     <div style="flex:1;min-width:200px">
-                        <p style="font-size:0.82rem;color:#fcd34d;font-weight:600;margin:0 0 0.3rem">Only alert triggered</p>
-                        <p style="font-size:0.8rem;color:#a1a1aa;margin:0;line-height:1.6">A standard Windows "Open File" dialog when the user opens the downloaded ISO. This is not a security detection. No SmartScreen warning, no Defender alert, no firewall block.</p>
+                        <p style="font-size:0.82rem;color:#fcd34d;font-weight:600;margin:0 0 0.3rem">Lab context</p>
+                        <p style="font-size:0.8rem;color:#a1a1aa;margin:0;line-height:1.6">A standard Windows "Open File" dialog during the controlled lab setup. This exercise focused on traffic analysis and detection logic, not operational misuse.</p>
                     </div>
                 </div>
                 <div class="mitre-strip">
-                    <span class="mitre-tag" title="Malicious file assembled inside the browser, invisible to network scanners">T1566.002 HTML Smuggling</span>
-                    <span class="mitre-tag" title="Bypassed Windows safety warnings on downloaded files">T1553.005 MOTW Bypass</span>
-                    <span class="mitre-tag" title="Loaded malicious code by piggybacking on a trusted Microsoft program">T1574.002 DLL Sideloading</span>
-                    <span class="mitre-tag" title="Used low-level C code to avoid script-based detection">T1027.009 Native Code</span>
-                    <span class="mitre-tag" title="Smuggled stolen data out disguised as normal DNS traffic">T1048.003 DNS Tunneling</span>
+                    <span class="mitre-tag" title="Studied file delivery patterns in browser-based lab scenarios">T1566.002 HTML Smuggling</span>
+                    <span class="mitre-tag" title="Reviewed MOTW handling in controlled lab conditions">T1553.005 MOTW Bypass</span>
+                    <span class="mitre-tag" title="Analysed DLL loading behaviour for detection context">T1574.002 DLL Sideloading</span>
+                    <span class="mitre-tag" title="Reviewed native code execution patterns">T1027.009 Native Code</span>
+                    <span class="mitre-tag" title="DNS tunneling technique mapped for detection logic">T1048.003 DNS Tunneling</span>
                 </div>
             </section>
 
@@ -359,11 +359,11 @@
                     <span class="dns-section-num">01.</span>
                     <h2 class="dns-section-title">Network topology</h2>
                 </div>
-                <p style="font-size:0.85rem;color:#a1a1aa;margin-bottom:1rem;line-height:1.6">The lab setup: two machines on an isolated network. The victim (left) is a fully-patched Windows 11 PC with all security features enabled. The attacker (right) receives the stolen data by listening for DNS requests on port 53, the same port every computer uses to look up website addresses.</p>
+                <p style="font-size:0.85rem;color:#a1a1aa;margin-bottom:1rem;line-height:1.6">The lab setup: two machines on an isolated network. The client host (left) is a Windows 11 VM used to generate DNS traffic patterns. The analysis host (right) captures DNS requests on port 53 for PCAP review and detection rule development.</p>
                 <div class="topo-wrap">
                     <div class="topo-node topo-node--victim">
                         <svg class="topo-node-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
-                        <div class="topo-node-label">Victim</div>
+                        <div class="topo-node-label">Client host</div>
                         <div class="topo-node-ip">10.0.0.10</div>
                         <div class="topo-node-os">Windows 11 Enterprise</div>
                     </div>
@@ -374,7 +374,7 @@
                     </div>
                     <div class="topo-node topo-node--attacker">
                         <svg class="topo-node-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>
-                        <div class="topo-node-label">Attacker (tunnel server)</div>
+                        <div class="topo-node-label">Analysis host (DNS listener)</div>
                         <div class="topo-node-ip">10.0.0.20</div>
                         <div class="topo-node-os">Kali Linux</div>
                     </div>
@@ -388,7 +388,7 @@
                     <span class="dns-section-num">02.</span>
                     <h2 class="dns-section-title">Packet timeline</h2>
                 </div>
-                <p style="font-size:0.85rem;color:#a1a1aa;margin-bottom:1rem;line-height:1.6">Every dot is a single DNS request captured from the network. <strong style="color:#34d399">Green dots</strong> are normal Windows traffic (Bing, Microsoft updates). <strong style="color:#f0a0a0">Red dots</strong> are the hidden tunnel carrying stolen file data. Notice the tight burst of red dots around the 17 to 20 second mark. That's the entire file being exfiltrated in about 3 seconds. Higher on the chart = more random-looking = more suspicious. Press play to watch it happen in real time.</p>
+                <p style="font-size:0.85rem;color:#a1a1aa;margin-bottom:1rem;line-height:1.6">Every dot is a single DNS request captured from the network. <strong style="color:#34d399">Green dots</strong> are normal Windows traffic (Bing, Microsoft updates). <strong style="color:#f0a0a0">Red dots</strong> are tunnel-pattern DNS queries used for detection analysis. Notice the tight burst of red dots around the 17 to 20 second mark, where encoded data was sent in rapid DNS queries. Higher on the chart = more random-looking = more suspicious. Press play to replay the capture.</p>
                 <div class="timeline-controls">
                     <button class="timeline-btn" id="timeline-play" type="button">&#9654; Play</button>
                     <button class="timeline-btn" id="timeline-reset" type="button">Reset</button>
@@ -424,7 +424,7 @@
                     <span class="dns-section-num">04.</span>
                     <h2 class="dns-section-title">Packet inspector</h2>
                 </div>
-                <p style="font-size:0.85rem;color:#a1a1aa;margin-bottom:1rem;line-height:1.6">Raw log of every DNS packet from the capture. <strong style="color:#f0a0a0">Red rows</strong> are tunnel traffic carrying stolen data. <strong style="color:#fcd34d">Yellow rows</strong> are the END signal sent three times to confirm the transfer completed. The "Entropy" column shows the randomness score for each domain name. Higher values stand out as suspicious.</p>
+                <p style="font-size:0.85rem;color:#a1a1aa;margin-bottom:1rem;line-height:1.6">Raw log of every DNS packet from the capture. <strong style="color:#f0a0a0">Red rows</strong> are tunnel-pattern traffic flagged for analysis. <strong style="color:#fcd34d">Yellow rows</strong> are END signals sent three times to mark transfer completion in the lab. The "Entropy" column shows the randomness score for each domain name. Higher values stand out as suspicious.</p>
                 <div class="pkt-table-wrap">
                     <table class="pkt-table" id="pkt-table">
                         <thead>
