@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Om Shah – Resume</title>
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --text: #1a1a1a;
+            --muted: #4a4a4a;
+            --light: #6b6b6b;
+            --accent: #1a5276;
+            --rule: #d0d0d0;
+            --bg: #ffffff;
+            --page-w: 210mm;
+            --page-h: 297mm;
+            --pad-x: 16mm;
+            --pad-y: 14mm;
+        }
+
+        @page {
+            size: A4;
+            margin: 0;
+        }
+
+        html {
+            font-size: 10.5pt;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+            color: var(--text);
+            background: #e0e0e0;
+            line-height: 1.45;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* ── Page container ── */
+        .page {
+            width: var(--page-w);
+            min-height: var(--page-h);
+            padding: var(--pad-y) var(--pad-x);
+            background: var(--bg);
+            margin: 0 auto;
+            position: relative;
+        }
+
+        @media screen {
+            .page {
+                margin: 20px auto;
+                box-shadow: 0 2px 20px rgba(0,0,0,0.15);
+            }
+        }
+
+        @media print {
+            body { background: white; }
+            .page {
+                margin: 0;
+                box-shadow: none;
+                page-break-after: always;
+            }
+            .page:last-child { page-break-after: auto; }
+        }
+
+        /* ── Header ── */
+        .header { text-align: center; margin-bottom: 12pt; }
+        .header h1 {
+            font-size: 20pt;
+            font-weight: 700;
+            letter-spacing: 0.03em;
+            color: var(--text);
+            margin-bottom: 5pt;
+        }
+        .contact-line {
+            font-size: 9pt;
+            color: var(--muted);
+            line-height: 1.5;
+        }
+        .contact-line a {
+            color: var(--accent);
+            text-decoration: none;
+        }
+        .sep { margin: 0 4pt; color: var(--rule); }
+
+        /* ── Sections ── */
+        .section { margin-bottom: 11pt; }
+        .section:last-child { margin-bottom: 0; }
+        .section-title {
+            font-size: 10pt;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--accent);
+            border-bottom: 1.5pt solid var(--accent);
+            padding-bottom: 2pt;
+            margin-bottom: 6pt;
+        }
+
+        /* ── Summary ── */
+        .summary {
+            font-size: 9.5pt;
+            color: var(--muted);
+            line-height: 1.55;
+        }
+
+        /* ── Skills grid ── */
+        .skills-grid {
+            display: grid;
+            grid-template-columns: 110pt 1fr;
+            gap: 2.5pt 8pt;
+            font-size: 9.5pt;
+        }
+        .skill-cat {
+            font-weight: 600;
+            color: var(--text);
+            white-space: nowrap;
+        }
+        .skill-items { color: var(--muted); }
+
+        /* ── Certification ── */
+        .cert-row {
+            font-size: 9.5pt;
+            color: var(--muted);
+        }
+        .cert-row strong { color: var(--text); font-weight: 600; }
+
+        /* ── Experience / Projects ── */
+        .entry { margin-bottom: 9pt; }
+        .entry:last-child { margin-bottom: 0; }
+        .entry-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            flex-wrap: wrap;
+            gap: 2pt 8pt;
+        }
+        .entry-org {
+            font-size: 10pt;
+            font-weight: 700;
+            color: var(--text);
+        }
+        .entry-date {
+            font-size: 9pt;
+            color: var(--light);
+            white-space: nowrap;
+        }
+        .entry-role {
+            font-size: 9.5pt;
+            font-weight: 600;
+            font-style: italic;
+            color: var(--muted);
+            margin-top: 1pt;
+        }
+
+        ul.bullets {
+            margin: 3pt 0 0 14pt;
+            padding: 0;
+        }
+        ul.bullets li {
+            font-size: 9.5pt;
+            color: var(--muted);
+            margin-bottom: 2pt;
+            line-height: 1.45;
+        }
+        ul.bullets li strong {
+            color: var(--text);
+            font-weight: 600;
+        }
+
+        .tech-line {
+            font-size: 8.5pt;
+            color: var(--light);
+            margin-top: 2pt;
+        }
+
+        /* ── Education ── */
+        .edu-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            flex-wrap: wrap;
+            gap: 2pt 8pt;
+        }
+        .edu-degree {
+            font-size: 10pt;
+            font-weight: 700;
+            color: var(--text);
+        }
+        .edu-school {
+            font-size: 9.5pt;
+            color: var(--muted);
+        }
+        .edu-detail {
+            font-size: 9pt;
+            color: var(--light);
+            margin-top: 2pt;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ════════ PAGE 1 ════════ -->
+    <div class="page">
+
+        <header class="header">
+            <h1>OM SHAH</h1>
+            <div class="contact-line">
+                Sydney, Australia
+                <span class="sep">|</span>
+                <a href="mailto:contact@omshahinfo.com">contact@omshahinfo.com</a>
+                <span class="sep">|</span>
+                <span>+61 401 227 996</span>
+                <span class="sep">|</span>
+                <a href="https://www.linkedin.com/in/omshah">linkedin.com/in/omshah</a>
+                <span class="sep">|</span>
+                <a href="https://omshahinfo.com">omshahinfo.com</a>
+                <span class="sep">|</span>
+                <a href="https://github.com/0m-5hah">github.com/0m-5hah</a>
+            </div>
+        </header>
+
+        <section class="section">
+            <h2 class="section-title">Professional Summary</h2>
+            <p class="summary">
+                Cybersecurity graduate (Bachelor, UTS, June 2026) targeting junior SOC Analyst, Security Analyst, and vulnerability management roles. Delivered Python automation in a production migration environment, reducing case handling time by 35%. Built red-team simulations including DNS exfiltration via DLL sideloading on fully patched Windows 11, then built blue-team detection logic for the same traffic patterns. CompTIA Security+ in progress.
+            </p>
+        </section>
+
+        <section class="section">
+            <h2 class="section-title">Technical Skills</h2>
+            <div class="skills-grid">
+                <span class="skill-cat">Security Testing</span>
+                <span class="skill-items">Nmap / NSE, Metasploit, Wireshark, mitmproxy, Burp Suite, vulnerability assessment, penetration testing, web application testing</span>
+                <span class="skill-cat">Defensive Security</span>
+                <span class="skill-items">Threat modelling (STRIDE), SIEM concepts, incident detection, log and traffic analysis, SOC monitoring fundamentals, risk assessment, information security management</span>
+                <span class="skill-cat">Frameworks</span>
+                <span class="skill-items">MITRE ATT&CK, OWASP Top 10, NIST, CVE / NVD, ISO 27001</span>
+                <span class="skill-cat">Programming</span>
+                <span class="skill-items">Python, C, Selenium, HTML / CSS, JavaScript, Git / GitHub, JSON / CSV, Bash</span>
+                <span class="skill-cat">Platforms</span>
+                <span class="skill-items">Kali Linux, VMware, VirtualBox, AWS (IAM, Security Groups), Cisco Packet Tracer, Jira, Postman</span>
+            </div>
+        </section>
+
+        <section class="section">
+            <h2 class="section-title">Certifications</h2>
+            <p class="cert-row"><strong>CompTIA Security+</strong> – in progress (expected 2026)</p>
+        </section>
+
+        <section class="section">
+            <h2 class="section-title">Professional Experience</h2>
+
+            <div class="entry">
+                <div class="entry-header">
+                    <span class="entry-org">Migrate Zone</span>
+                    <span class="entry-date">Dec 2024 – Present</span>
+                </div>
+                <div class="entry-role">Automation Engineer · Part-time</div>
+                <ul class="bullets">
+                    <li><strong>Reduced average case handling time by 35% (8.0h to 5.3h)</strong> by engineering modular Python automation for document validation, compliance triage, risk flagging, and case routing.</li>
+                    <li>Consolidated financial audit checks into a single workflow, eliminating duplicate processing and manual cross-referencing across immigration case files.</li>
+                    <li>Built an Excel prefill pipeline that mapped validated case data into lodgement templates, eliminating repetitive entry and reducing compliance errors.</li>
+                    <li>Replaced manual policy monitoring with a web scraper that tracked government updates and surfaced regulatory changes in real time.</li>
+                </ul>
+            </div>
+
+            <div class="entry">
+                <div class="entry-header">
+                    <span class="entry-org">Migrate Zone</span>
+                    <span class="entry-date">Jul 2023 – Nov 2024</span>
+                </div>
+                <div class="entry-role">Junior Automation Engineer · Part-time</div>
+                <ul class="bullets">
+                    <li>Co-built a PDF collation and OCR pipeline that caught dozens of missing, expired, or lapsed documents each month before lodgement, reducing compliance risk.</li>
+                    <li>Automated case data entry with Python scripts that pushed validated fields into visa workflow systems, replacing hours of repetitive manual input.</li>
+                    <li>Implemented scan-quality gates using OCR coverage and confidence scoring to flag unreadable pages before reviewer handoff.</li>
+                    <li>Authored internal SOP documentation that enabled non-technical staff to run the automation toolkit without developer support.</li>
+                </ul>
+            </div>
+
+            <div class="entry">
+                <div class="entry-header">
+                    <span class="entry-org">ITonKey</span>
+                    <span class="entry-date">Aug 2024 – Oct 2024</span>
+                </div>
+                <div class="entry-role">Python Backend Developer Intern · Part-time</div>
+                <ul class="bullets">
+                    <li>Shipped a Python invoicing system that generated branded, multi-page PDF invoices from structured business data, replacing a manual client process.</li>
+                    <li>Implemented stock-tracking and loss-reporting features in an inventory platform, improving operational visibility and reducing manual reconciliation.</li>
+                </ul>
+            </div>
+        </section>
+
+    </div>
+
+    <!-- ════════ PAGE 2 ════════ -->
+    <div class="page">
+
+        <section class="section">
+            <h2 class="section-title">Projects</h2>
+
+            <div class="entry">
+                <div class="entry-header">
+                    <span class="entry-org">Sentinel – Automated Network Vulnerability Scanner</span>
+                    <span class="entry-date">UTS Capstone, 2025</span>
+                </div>
+                <ul class="bullets">
+                    <li>Built an automated network scanner that mapped discovered devices and services to known CVEs from the National Vulnerability Database, reducing manual assessment from hours to minutes.</li>
+                    <li>Improved detection accuracy by handling SMB, RDP, and edge-case service fingerprints with CPE-to-CVE matching.</li>
+                    <li>Generated risk-prioritised JSON reports with per-finding verification commands for rapid security-team triage.</li>
+                </ul>
+                <p class="tech-line">Python, Nmap / NSE, NVD CVE API, JSON &nbsp;·&nbsp; Video demo and development journal at omshahinfo.com</p>
+            </div>
+
+            <div class="entry">
+                <div class="entry-header">
+                    <span class="entry-org">Covert Channel – DNS Exfiltration via DLL Sideloading</span>
+                    <span class="entry-date">Independent, 2025</span>
+                </div>
+                <ul class="bullets">
+                    <li>Exfiltrated a file from a fully patched Windows 11 endpoint with zero alerts from Defender, AMSI, SmartScreen, or Windows Firewall using a native C implant sideloaded through a Microsoft-signed binary.</li>
+                    <li>Executed five MITRE ATT&CK techniques end-to-end: HTML smuggling (T1566.002), MOTW bypass (T1553.005), DLL sideloading (T1574.002), native code execution (T1027.009), and DNS tunnelling (T1048.003).</li>
+                    <li>Built a paired blue-team detector that flagged tunnelling via Shannon entropy, burst-frequency analysis, and subdomain-length anomalies in an isolated VMware lab.</li>
+                </ul>
+                <p class="tech-line">C, Python, DNS (RFC 1035), Wireshark, VMware &nbsp;·&nbsp; Interactive PCAP visualisation at omshahinfo.com</p>
+            </div>
+
+            <div class="entry">
+                <div class="entry-header">
+                    <span class="entry-org">SMS Bulk-Style Classifier (Machine Learning)</span>
+                    <span class="entry-date">UTS, 2026</span>
+                </div>
+                <ul class="bullets">
+                    <li>Trained a 1D CNN with GloVe embeddings to score SMS messages for bulk/automated wording, outperforming Naive Bayes and SVM baselines on precision, recall, and F1.</li>
+                    <li>Deployed the model end-to-end via FastAPI on Hugging Face Spaces with an interactive browser demo for live inference.</li>
+                </ul>
+                <p class="tech-line">Python, TensorFlow, GloVe, FastAPI &nbsp;·&nbsp; Live demo and technical report at omshahinfo.com</p>
+            </div>
+
+        </section>
+
+        <section class="section">
+            <h2 class="section-title">Education</h2>
+            <div class="entry">
+                <div class="edu-row">
+                    <span class="edu-degree">Bachelor of Cybersecurity</span>
+                    <span class="entry-date">2023 – 2026</span>
+                </div>
+                <div class="edu-school">University of Technology Sydney</div>
+                <p class="edu-detail">Key subjects: Cybersecurity, System Security, Digital Forensics, Cryptography, Cloud Security (AWS), Information Security Management, Routing and Switching, Data Analytics</p>
+            </div>
+        </section>
+
+    </div>
+
+</body>
+</html>
