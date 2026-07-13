@@ -284,16 +284,25 @@
 }
 
 /* EightScope: prominence through spacing and type, not a coloured card */
-.project-entry--featured {
-  margin-top: 1rem;
-  padding-top: 0.15rem;
+.resume-section--projects {
+  margin-top: 1.35rem;
+  padding-top: 0.85rem;
+  border-top: 1px solid var(--resume-rule);
+}
+
+.project-role {
+  margin: 0.18rem 0 0;
+  font-size: 10.25px;
+  font-weight: 600;
+  font-style: normal;
+  color: var(--resume-text);
 }
 
 .project-entry--featured .project-name {
   font-size: 11.5px;
 }
 
-.project-entry--featured .resume-role {
+.project-entry--featured .project-role {
   font-size: 10.5px;
 }
 
