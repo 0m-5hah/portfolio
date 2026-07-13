@@ -19,13 +19,11 @@ async function main() {
   }
 
   const fileUrl = pathToFileURL(htmlPath).href;
-
   const browser = await chromium.launch({ headless: true });
+
   try {
     const page = await browser.newPage();
     await page.goto(fileUrl, { waitUntil: 'networkidle' });
-
-    // Ensure education config has applied and webfonts (if any) are ready
     await page.waitForFunction(() => document.fonts && document.fonts.status === 'loaded');
     await new Promise((resolve) => setTimeout(resolve, 300));
 
@@ -39,26 +37,24 @@ async function main() {
       tagged: true
     });
 
-    // PDF metadata via pdf-lib if available; otherwise Chromium sets title from <title>
     try {
       const { PDFDocument } = require('pdf-lib');
       const bytes = fs.readFileSync(outPath);
       const pdfDoc = await PDFDocument.load(bytes);
       pdfDoc.setTitle('Om Shah Resume');
       pdfDoc.setAuthor('Om Shah');
-      pdfDoc.setSubject('Cybersecurity, Security Automation and Vulnerability Management');
+      pdfDoc.setSubject('Cybersecurity and Python Automation');
       pdfDoc.setKeywords([
         'cybersecurity',
         'Python',
-        'security automation',
-        'vulnerability management',
-        'Nmap',
-        'attack surface management'
+        'automation',
+        'vulnerability assessment',
+        'attack surface monitoring',
+        'Nmap'
       ]);
       pdfDoc.setCreator('omshahinfo.com resume generator');
       pdfDoc.setProducer('Playwright + pdf-lib');
-      const out = await pdfDoc.save();
-      fs.writeFileSync(outPath, out);
+      fs.writeFileSync(outPath, await pdfDoc.save());
     } catch (metaErr) {
       console.warn('PDF generated without extended metadata:', metaErr.message);
     }
