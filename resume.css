@@ -368,7 +368,7 @@
 
 @page {
   size: A4;
-  margin: 10mm 11mm;
+  margin: 11mm 12mm;
 }
 
 @media print {
@@ -411,32 +411,32 @@
     border: none;
     border-radius: 0;
     padding: 0;
-    font-size: 9.5px;
-    line-height: 1.38;
+    font-size: 10.35px;
+    line-height: 1.44;
     overflow-wrap: normal;
     word-break: normal;
     color: #1a1a1a;
   }
 
   .resume-header {
-    margin-bottom: 0.45rem;
-    padding-bottom: 0.4rem;
+    margin-bottom: 0.65rem;
+    padding-bottom: 0.55rem;
   }
 
   .resume-header h1 {
-    font-size: 20px;
+    font-size: 24px;
     letter-spacing: 0.03em;
   }
 
   .resume-headline {
-    margin: 0.15rem 0 0.25rem;
-    font-size: 10.5px;
+    margin: 0.22rem 0 0.35rem;
+    font-size: 11.5px;
     color: #3d3d3d;
   }
 
   .resume-contact {
-    font-size: 9px;
-    line-height: 1.4;
+    font-size: 9.75px;
+    line-height: 1.45;
     color: #5c5c5c;
   }
 
@@ -448,21 +448,21 @@
   }
 
   .resume-section {
-    margin-top: 0.42rem;
+    margin-top: 0.62rem;
     break-inside: auto;
     page-break-inside: auto;
   }
 
   .resume-section--projects {
-    margin-top: 0.48rem;
+    margin-top: 0.68rem;
     padding-top: 0;
     border-top: none;
   }
 
   .resume-section > h2 {
-    margin-bottom: 0.22rem;
-    padding-bottom: 0.12rem;
-    font-size: 9.75px;
+    margin-bottom: 0.32rem;
+    padding-bottom: 0.16rem;
+    font-size: 10.35px;
     color: #176b52;
     border-bottom-color: #d8d8d8;
     break-after: avoid;
@@ -478,56 +478,56 @@
   .resume-promotion,
   .project-meta,
   .project-role {
-    font-size: 9.5px;
-    line-height: 1.36;
+    font-size: 10.35px;
+    line-height: 1.44;
   }
 
   .resume-skills {
-    gap: 0.12rem;
+    gap: 0.22rem;
   }
 
   .resume-skills li {
-    grid-template-columns: 4.85rem 1fr;
-    gap: 0.45rem;
+    grid-template-columns: 5rem 1fr;
+    gap: 0.55rem;
   }
 
   .resume-entry,
   .project-entry {
-    margin-top: 0.38rem;
+    margin-top: 0.52rem;
     break-inside: auto;
     page-break-inside: auto;
   }
 
   .resume-entry:first-of-type,
   .project-entry:first-of-type {
-    margin-top: 0.12rem;
+    margin-top: 0.18rem;
   }
 
   .resume-org,
   .project-name {
-    font-size: 10px;
+    font-size: 10.75px;
   }
 
   .project-entry--featured .project-name {
-    font-size: 10.25px;
+    font-size: 11px;
   }
 
   .resume-dates {
-    font-size: 9px;
+    font-size: 9.75px;
   }
 
   .resume-promotion {
-    margin-top: 0.06rem;
+    margin-top: 0.1rem;
   }
 
   .resume-bullets {
-    margin-top: 2px;
-    padding-left: 14px;
+    margin-top: 4px;
+    padding-left: 16px;
     list-style-type: disc;
   }
 
   .resume-bullets li {
-    margin-bottom: 1px;
+    margin-bottom: 3px;
     padding-left: 0;
     break-inside: avoid;
     page-break-inside: avoid;
@@ -539,16 +539,16 @@
   }
 
   .resume-link-line {
-    margin-top: 0.06rem;
-    font-size: 9px;
+    margin-top: 0.1rem;
+    font-size: 9.75px;
   }
 
   .resume-study {
-    margin-top: 0.12rem;
+    margin-top: 0.2rem;
   }
 
   .project-entry--featured .resume-bullets {
-    margin-top: 2px;
+    margin-top: 4px;
   }
 
   h2,
@@ -557,7 +557,6 @@
     page-break-after: avoid;
   }
 
-  /* Single-page flow: no forced page break before projects */
   .resume-section[aria-labelledby="projects-heading"] {
     break-before: auto;
     page-break-before: auto;
