@@ -24,7 +24,7 @@
     <link rel="canonical" href="https://omshahinfo.com/">
     <title>Om Shah | Cybersecurity Graduate Portfolio</title>
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
-    <link rel="stylesheet" href="styles.css?v=20260620b">
+    <link rel="stylesheet" href="styles.css?v=20260713">
     <noscript><link rel="stylesheet" href="nojs.css" /></noscript>
     <script src="nojs-mode.js"></script>
     <!-- Import map: Three.js addons import bare "three"; hash must match script-src above (edit both if this JSON changes). -->
@@ -46,6 +46,7 @@
             <li><a href="#home">Home</a></li>
             <li><a href="#about">About</a></li>
             <li><a href="#experience">Experience</a></li>
+            <li><a href="#venture">EightScope</a></li>
             <li><a href="#projects">Projects</a></li>
             <li><a href="#papers">Papers</a></li>
             <li><a href="#education">Education</a></li>
@@ -86,11 +87,12 @@
                     </ul>
                     <div class="hero-cta-group">
                         <a href="resume.html" class="btn btn-primary btn-large">Download Resume</a>
+                        <a href="#venture" class="btn btn-secondary btn-large">EightScope</a>
                         <a href="#projects" class="btn btn-secondary btn-large">View Projects</a>
                     </div>
-                    <a href="#projects" class="hero-featured">
-                        <span class="hero-featured-label">Featured</span>
-                        <span class="hero-featured-title">Sentinel: Vulnerability Scanner</span>
+                    <a href="#venture" class="hero-featured">
+                        <span class="hero-featured-label">Building</span>
+                        <span class="hero-featured-title">EightScope: Attack Surface Monitoring</span>
                         <svg class="hero-featured-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg>
                     </a>
                 </div>
@@ -324,10 +326,70 @@
             </div>
         </section>
 
+        <section id="venture" class="venture">
+            <div class="container">
+                <p class="venture-kicker">Independent product · Not employment</p>
+                <h2 class="section-title">
+                    <span class="section-number">03.</span>
+                    EightScope
+                </h2>
+                <p class="section-intro venture-intro">A live external attack-surface monitoring platform I am building independently. Currently in MVP and early investor stage.</p>
+
+                <article class="venture-spotlight" aria-labelledby="venture-title">
+                    <div class="venture-spotlight__content">
+                        <div class="venture-spotlight__badges">
+                            <span class="venture-badge venture-badge--stage">MVP · Early investor stage</span>
+                            <span class="venture-badge venture-badge--live">Live product</span>
+                        </div>
+                        <h3 class="venture-spotlight__title" id="venture-title">External attack surface monitoring</h3>
+                        <p class="venture-spotlight__role">Creator &amp; Lead Developer</p>
+                        <p class="venture-spotlight__summary">
+                            EightScope maps a domain's publicly visible attack surface, surfaces externally observable security risks, and tracks changes between completed scans. Built for Australian small and medium businesses and managed service providers.
+                        </p>
+                        <ul class="venture-spotlight__points">
+                            <li>Domain ownership verification, subdomain discovery, hostname-level asset inventories, and safeguards against private or reserved scan targets.</li>
+                            <li>Repeatable scan workflows covering DNS, email authentication, TLS, HTTP security headers, exposed services, public files, technologies, and possible CVE signals.</li>
+                            <li>Structured findings with severity, confidence, technical evidence, remediation guidance, and PostgreSQL-backed scan history.</li>
+                        </ul>
+                        <ul class="venture-spotlight__tech" aria-label="EightScope stack">
+                            <li>Python</li>
+                            <li>PostgreSQL</li>
+                            <li>REST APIs</li>
+                            <li>DNS &amp; TLS assessment</li>
+                            <li>Attack surface monitoring</li>
+                        </ul>
+                        <div class="venture-spotlight__actions">
+                            <a href="https://eightscope.au" class="btn btn-primary" target="_blank" rel="noopener noreferrer">Visit eightscope.au</a>
+                            <a href="resume.html" class="btn btn-secondary">View on resume</a>
+                        </div>
+                    </div>
+                    <div class="venture-spotlight__visual" aria-hidden="true">
+                        <div class="venture-console">
+                            <div class="venture-console__bar">
+                                <span class="venture-console__dot venture-console__dot--red"></span>
+                                <span class="venture-console__dot venture-console__dot--yellow"></span>
+                                <span class="venture-console__dot venture-console__dot--green"></span>
+                                <span class="venture-console__title">eightscope · external scan</span>
+                            </div>
+                            <div class="venture-console__body">
+                                <p><span class="venture-console__prompt">$</span> target <span class="venture-console__value">example.com.au</span></p>
+                                <p><span class="venture-console__prompt">$</span> verify ownership <span class="venture-console__ok">dns txt confirmed</span></p>
+                                <p><span class="venture-console__prompt">$</span> discover assets <span class="venture-console__muted">subdomains · hostnames · services</span></p>
+                                <p><span class="venture-console__prompt">$</span> run scan <span class="venture-console__muted">dns · tls · headers · exposure</span></p>
+                                <p><span class="venture-console__prompt">$</span> compare history <span class="venture-console__ok">change tracking enabled</span></p>
+                                <p class="venture-console__finding"><span class="venture-console__severity venture-console__severity--medium">medium</span> exposed service fingerprint</p>
+                                <p class="venture-console__finding"><span class="venture-console__severity venture-console__severity--low">low</span> tls configuration note</p>
+                            </div>
+                        </div>
+                    </div>
+                </article>
+            </div>
+        </section>
+
         <section id="projects" class="projects">
             <div class="container">
                 <h2 class="section-title">
-                    <span class="section-number">03.</span>
+                    <span class="section-number">04.</span>
                     Featured Projects
                 </h2>
                 <div id="projects-stack-root" class="projects-stack-root" aria-label="Project highlights" role="region" hidden>
@@ -742,7 +804,7 @@
         <section id="papers" class="papers">
             <div class="container">
                 <h2 class="section-title">
-                    <span class="section-number">04.</span>
+                    <span class="section-number">05.</span>
                     Papers &amp; reports
                 </h2>
                 <p class="section-intro">Technical writing: assessments, lab reports, and research-style submissions from my degree.</p>
@@ -840,7 +902,7 @@
         <section id="education" class="certifications">
             <div class="container">
                 <h2 class="section-title">
-                    <span class="section-number">05.</span>
+                    <span class="section-number">06.</span>
                     Education &amp; technical foundations
                 </h2>
                 <p class="section-intro">Formal study and subject depth from my UTS degree: these are coursework topics, not separate industry certifications.</p>
@@ -927,7 +989,7 @@
         <section id="skills" class="skills">
             <div class="container">
                 <h2 class="section-title">
-                    <span class="section-number">06.</span>
+                    <span class="section-number">07.</span>
                     Skills &amp; Tools
                 </h2>
                 <div class="skills-matrix">
@@ -1014,7 +1076,7 @@
         <section id="contact" class="contact">
             <div class="container">
                 <h2 class="section-title">
-                    <span class="section-number">07.</span>
+                    <span class="section-number">08.</span>
                     Get In Touch
                 </h2>
                 <div class="contact-content">
