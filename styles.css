@@ -1274,10 +1274,6 @@ body.nav-past-hero .mobile-menu-btn {
 }
 
 .venture-spotlight {
-    display: grid;
-    grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
-    gap: 2rem 2.25rem;
-    align-items: center;
     margin-top: 1.75rem;
     padding: 1.65rem 1.75rem 1.75rem;
     border: 1px solid rgba(23, 107, 82, 0.28);
@@ -1342,7 +1338,7 @@ body.nav-past-hero .mobile-menu-btn {
     font-size: 0.92rem;
     line-height: 1.58;
     color: var(--text-secondary);
-    max-width: 38rem;
+    max-width: 52rem;
 }
 
 .venture-spotlight__points {
@@ -1399,110 +1395,6 @@ body.nav-past-hero .mobile-menu-btn {
     flex-wrap: wrap;
     gap: 0.65rem;
     align-items: center;
-}
-
-.venture-console {
-    border-radius: 10px;
-    overflow: hidden;
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    background: rgba(8, 10, 14, 0.92);
-    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35);
-}
-
-.venture-console__bar {
-    display: flex;
-    align-items: center;
-    gap: 0.4rem;
-    padding: 0.55rem 0.75rem;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-    background: rgba(255, 255, 255, 0.02);
-}
-
-.venture-console__dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-}
-
-.venture-console__dot--red { background: #ff5f57; }
-.venture-console__dot--yellow { background: #febc2e; }
-.venture-console__dot--green { background: #28c840; }
-
-.venture-console__title {
-    margin-left: 0.35rem;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.68rem;
-    letter-spacing: 0.04em;
-    color: var(--text-muted);
-}
-
-.venture-console__body {
-    padding: 0.85rem 0.95rem 1rem;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.68rem;
-    line-height: 1.55;
-}
-
-.venture-console__body p {
-    margin: 0 0 0.35rem;
-    color: var(--text-secondary);
-}
-
-.venture-console__prompt {
-    color: #6fd4b0;
-    margin-right: 0.35rem;
-}
-
-.venture-console__value {
-    color: var(--text-primary);
-}
-
-.venture-console__ok {
-    color: #6fd4b0;
-}
-
-.venture-console__muted {
-    color: var(--text-muted);
-}
-
-.venture-console__finding {
-    margin-top: 0.55rem !important;
-    padding-left: 0.15rem;
-}
-
-.venture-console__severity {
-    display: inline-block;
-    min-width: 3.4rem;
-    margin-right: 0.45rem;
-    font-size: 0.62rem;
-    font-weight: 700;
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
-    text-align: center;
-    padding: 0.12rem 0.35rem;
-    border-radius: 4px;
-}
-
-.venture-console__severity--medium {
-    color: #ffd89a;
-    background: rgba(251, 191, 36, 0.12);
-    border: 1px solid rgba(251, 191, 36, 0.28);
-}
-
-.venture-console__severity--low {
-    color: #b8d4ff;
-    background: rgba(56, 189, 248, 0.1);
-    border: 1px solid rgba(56, 189, 248, 0.24);
-}
-
-@media (max-width: 960px) {
-    .venture-spotlight {
-        grid-template-columns: 1fr;
-    }
-
-    .venture-spotlight__visual {
-        order: -1;
-    }
 }
 
 @media (max-width: 768px) {
