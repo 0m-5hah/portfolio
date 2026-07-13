@@ -14,4 +14,4 @@ When editing the inline `<script>` in **`dns-tunnel-demo.html`**, recompute its 
 
 ## Reporting a vulnerability
 
-If you believe you have found a security vulnerability in this project, please contact me through a **private** channel (for example a GitHub [Security Advisory](https://docs.github.com/en/code-security/security-advisories/guidance-on-reporting-and-writing-information-about-vulnerabilities/privately-reporting-a-security-vulnerability) on the repository, or email if I list one on the site). Please avoid public issues that include exploit details.
+If you believe you have found a security vulnerability in this project, please contact me through a **private** channel (for example a GitHub [Security Advisory](https://docs.github.com/en/code-security/security-advisories/guidance-on-reporting-and-writing-information-about-vulnerabilities/privately-reporting-a-security-vulnerability) on the repository, or the address in [`.well-known/security.txt`](.well-known/security.txt)). Please avoid public issues that include exploit details.

@@ -1,0 +1,13 @@
+{
+  "name": "omshahinfo-portfolio",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Static portfolio for omshahinfo.com",
+  "scripts": {
+    "generate:resume": "node scripts/generate-resume.js"
+  },
+  "devDependencies": {
+    "pdf-lib": "^1.17.1",
+    "playwright": "^1.49.0"
+  }
+}

@@ -1,0 +1,5 @@
+Contact: mailto:omsshah2005@gmail.com
+Expires: 2027-06-10T00:00:00.000Z
+Preferred-Languages: en
+Canonical: https://omshahinfo.com/.well-known/security.txt
+Policy: https://omshahinfo.com/SECURITY.md

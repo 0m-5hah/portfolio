@@ -4,6 +4,7 @@ __pycache__/
 .DS_Store
 Thumbs.db
 *.log
+node_modules/
 
 # Internal dev / AI handoff notes - not for recruiters
 SPAM-CLASSIFIER-PORTFOLIO-NOTES.md

@@ -1,0 +1,360 @@
+/* Resume page — white paper card on dark portfolio chrome + A4 print/PDF */
+
+:root {
+  --resume-text: #1a1a1a;
+  --resume-muted: #333333;
+  --resume-soft: #555555;
+  --resume-rule: #c8c8c8;
+  --resume-accent: #0a7a4a;
+  --resume-link: #0a7a4a;
+  --resume-sheet-bg: #ffffff;
+  --resume-page-bg: #0a0a0f;
+}
+
+.resume-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--resume-page-bg);
+}
+
+.resume-main {
+  flex: 1;
+  padding: 6rem 1.25rem 2.5rem;
+}
+
+.resume-page-inner {
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+/* Toolbar above the paper card — hidden when printing */
+.resume-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: center;
+  margin-bottom: 1.25rem;
+}
+
+.resume-toolbar .btn {
+  text-decoration: none;
+  cursor: pointer;
+  border: none;
+  font: inherit;
+}
+
+.resume-toolbar button.btn {
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+/* White paper card */
+.resume-sheet {
+  max-width: 900px;
+  margin: 0 auto;
+  background: var(--resume-sheet-bg);
+  color: var(--resume-text);
+  border-radius: 2px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
+  padding: 2rem 2.35rem 2.25rem;
+  font-family: Arial, Inter, Helvetica, sans-serif;
+  font-size: 11.5px;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.resume-sheet a {
+  color: var(--resume-link);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.resume-sheet a:hover {
+  color: #086038;
+}
+
+/* Header */
+.resume-identity {
+  text-align: center;
+  margin-bottom: 0.9rem;
+}
+
+.resume-identity h1 {
+  margin: 0 0 0.28rem;
+  font-size: 1.7rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--resume-text);
+  text-transform: uppercase;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.resume-tagline {
+  margin: 0 0 0.55rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--resume-muted);
+}
+
+.resume-contact {
+  margin: 0;
+  font-size: 0.82rem;
+  color: var(--resume-soft);
+  line-height: 1.55;
+}
+
+.resume-contact .sep {
+  margin: 0 0.35rem;
+  color: var(--resume-rule);
+}
+
+/* Sections — do not avoid breaks on whole sections (that forces 3 pages) */
+.resume-section {
+  margin-top: 0.85rem;
+}
+
+.resume-section > h2 {
+  margin: 0 0 0.4rem;
+  padding-bottom: 0.18rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--resume-accent);
+  border-bottom: 1px solid var(--resume-rule);
+  font-family: Arial, Helvetica, sans-serif;
+  break-after: avoid;
+  page-break-after: avoid;
+}
+
+.resume-summary {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--resume-muted);
+  line-height: 1.5;
+}
+
+/* Skills — single column labels, not a sidebar */
+.resume-skills {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.resume-skills li {
+  margin: 0 0 0.28rem;
+  font-size: 0.88rem;
+  color: var(--resume-muted);
+  line-height: 1.4;
+}
+
+.resume-skills li:last-child {
+  margin-bottom: 0;
+}
+
+.resume-skills .skill-label {
+  font-weight: 700;
+  color: var(--resume-text);
+}
+
+/* Entries */
+.resume-entry,
+.project-entry {
+  margin-top: 0.55rem;
+  break-inside: avoid;
+  page-break-inside: avoid;
+}
+
+.resume-entry:first-of-type,
+.project-entry:first-of-type {
+  margin-top: 0.1rem;
+}
+
+.resume-entry-header {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 0.15rem 0.75rem;
+}
+
+.resume-org,
+.project-name {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--resume-text);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.resume-dates {
+  margin: 0;
+  font-size: 0.82rem;
+  color: var(--resume-soft);
+  white-space: nowrap;
+}
+
+.resume-role {
+  margin: 0.1rem 0 0;
+  font-size: 0.88rem;
+  font-weight: 600;
+  font-style: italic;
+  color: var(--resume-muted);
+}
+
+.project-meta {
+  margin: 0.1rem 0 0;
+  font-size: 0.88rem;
+  color: var(--resume-muted);
+}
+
+.project-link {
+  font-style: normal;
+  font-weight: 500;
+}
+
+.resume-bullets {
+  margin: 0.28rem 0 0;
+  padding: 0 0 0 1.1rem;
+}
+
+.resume-bullets li {
+  margin: 0 0 0.16rem;
+  font-size: 0.86rem;
+  color: var(--resume-muted);
+  line-height: 1.38;
+}
+
+.resume-bullets li:last-child {
+  margin-bottom: 0;
+}
+
+.resume-edu-school {
+  margin: 0.1rem 0 0;
+  font-size: 0.88rem;
+  color: var(--resume-muted);
+}
+
+.resume-edu-detail {
+  margin: 0.3rem 0 0;
+  font-size: 0.85rem;
+  color: var(--resume-soft);
+  line-height: 1.4;
+}
+
+.footer--resume {
+  margin-top: auto;
+  padding-top: 2.5rem;
+}
+
+.footer--resume .footer-tagline {
+  margin-bottom: 0.35rem;
+}
+
+/* Screen: keep sheet readable on small phones without horizontal scroll */
+@media (max-width: 640px) {
+  .resume-main {
+    padding: 5.5rem 0.85rem 2rem;
+  }
+
+  .resume-sheet {
+    padding: 1.35rem 1.1rem 1.5rem;
+    font-size: 11.5px;
+    border-radius: 0;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  }
+
+  .resume-identity h1 {
+    font-size: 1.45rem;
+  }
+
+  .resume-tagline {
+    font-size: 0.85rem;
+  }
+
+  .resume-contact {
+    font-size: 0.78rem;
+  }
+
+  .resume-dates {
+    white-space: normal;
+  }
+
+  .resume-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .resume-toolbar .btn {
+    text-align: center;
+    width: 100%;
+  }
+}
+
+/* Print / PDF */
+@page {
+  size: A4;
+  margin: 11mm 13mm;
+}
+
+@media print {
+  html,
+  body {
+    background: white !important;
+    color: #1a1a1a;
+  }
+
+  .cursor-glow,
+  .resume-toolbar,
+  .site-header,
+  .site-footer,
+  .navbar,
+  .footer,
+  .mobile-menu-btn {
+    display: none !important;
+  }
+
+  .resume-main {
+    padding: 0 !important;
+  }
+
+  .resume-page-inner {
+    max-width: none;
+  }
+
+  .resume-sheet {
+    box-shadow: none !important;
+    margin: 0 !important;
+    max-width: none !important;
+    width: 100% !important;
+    padding: 0 !important;
+    border-radius: 0 !important;
+    font-size: 11.5px;
+    overflow-wrap: normal;
+    word-break: normal;
+  }
+
+  .resume-sheet a {
+    color: #1a1a1a !important;
+    text-decoration: underline;
+  }
+
+  .resume-section > h2 {
+    color: #222222 !important;
+    border-bottom-color: #999999;
+  }
+
+  .resume-entry,
+  .project-entry {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  .resume-section > h2 {
+    break-after: avoid;
+    page-break-after: avoid;
+  }
+}

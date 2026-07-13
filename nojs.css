@@ -1,6 +1,6 @@
 /*
  * Loaded when JavaScript is disabled (<noscript>) or when ?nojs=1 is used (see nojs-mode.js).
- * Simplified layout: static hero scroll SVG, no phone glow, no terminal typing line.
+ * Simplified layout: static hero scroll SVG, no terminal typing line.
  */
 
 /* Entire 3D phone slot (canvas + video) — simplified / no-JS layout */
@@ -10,12 +10,6 @@
 #phone-showcase-canvas,
 #phone-screen-video {
     display: none !important;
-}
-
-/* Ground glow under 3D phone — redundant if slot is hidden; keep for partial CSS loads */
-.phone-showcase-standalone::after {
-    display: none !important;
-    content: none !important;
 }
 
 /* Hero scroll indicator: show full stroke (final frame) without JS-driven dash animation */
