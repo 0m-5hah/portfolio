@@ -7472,3 +7472,59 @@ body.posts-page {
         display: none;
     }
 }
+
+/*
+ * TEMPORARY — hide project card screenshots. Delete this entire block to restore images.
+ */
+.project-card .project-image {
+    display: none !important;
+}
+
+.project-card.featured {
+    grid-template-columns: minmax(0, 1fr);
+}
+
+.projects-grid--compact-featured > .project-card.featured {
+    min-height: 0;
+}
+
+.project-card--compact-grid-hover:not(.project-card--stack-clone) .project-card--compact-grid-hover__stage {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    overflow: visible;
+}
+
+.project-card--compact-grid-hover:not(.project-card--stack-clone) .project-content {
+    position: relative;
+    inset: auto;
+    padding: 1.25rem 1.5rem 1.5rem;
+    overflow: visible;
+    justify-content: flex-start;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+}
+
+.project-card--compact-grid-hover:not(.project-card--stack-clone) .project-content-detail {
+    display: flex !important;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+}
+
+.project-card--compact-grid-hover:not(.project-card--stack-clone) .project-header {
+    margin-bottom: 0.65rem;
+}
+
+.project-card--compact-grid-hover:not(.project-card--stack-clone) .project-title {
+    margin-bottom: 0.75rem;
+}
+
+.projects-stack-deck .project-card--stack-clone {
+    grid-template-columns: minmax(0, 1fr);
+}
+
+.projects-stack-deck .project-card--stack-clone .project-content {
+    grid-column: 1;
+}
