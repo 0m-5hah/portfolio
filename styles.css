@@ -1259,16 +1259,6 @@ body.nav-past-hero .mobile-menu-btn {
     border-bottom: 1px solid var(--border-color);
 }
 
-.venture-kicker {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.72rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.16em;
-    color: var(--text-muted);
-    margin: 0 0 0.35rem;
-}
-
 .venture-intro {
     max-width: 42rem;
 }
